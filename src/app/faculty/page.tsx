@@ -111,65 +111,56 @@ export default async function FacultyDashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Welcome & Quick Action Banner with Real-Time Lecture Hall Visual & Palette Styling */}
-      <div className="relative overflow-hidden rounded-3xl border border-[#383C3F] p-6 sm:p-8 text-[#FCFBF7] shadow-2xl bg-[#222527]">
-        {/* Real-time ambient lecture image */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/ai_lecture_tech.jpg"
-          alt="AI Interactive University Lecture Hall"
-          className="absolute inset-0 w-full h-full object-cover opacity-20 filter saturate-125 pointer-events-none"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#151718] via-[#222527]/90 to-[#151718]/80 pointer-events-none" />
-
+      {/* Welcome & Quick Action Banner with Lavender/Purple Theme */}
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] p-6 sm:p-8 text-white shadow-xl shadow-[#8B6DE9]/15">
         <div className="relative z-10 max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-3 border border-[#E5CB90]/30 backdrop-blur-md">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3 border border-white/30 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-[#D9D1F5]" />
             <span>Academic Operations & AI Terminal</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-[#FCFBF7]">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
             Welcome back, {user.name}
           </h1>
-          <p className="mt-2 text-xs sm:text-sm text-[#D8D4CA] leading-relaxed">
+          <p className="mt-2 text-xs sm:text-sm text-indigo-100 leading-relaxed">
             Department of {user.departmentCode || 'Computer Science'}. You have{' '}
-            <strong className="text-[#FCFBF7] font-semibold">{pendingEvaluations} subjective tests</strong> awaiting grading and{' '}
-            <strong className="text-[#E5CB90] font-semibold">{atRiskStudents.length} students</strong> flagged for critical academic risk.
+            <strong className="text-white font-semibold">{pendingEvaluations} subjective tests</strong> awaiting grading and{' '}
+            <strong className="text-[#D9D1F5] font-bold">{atRiskStudents.length} students</strong> flagged for critical academic risk.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
               href="/faculty/attendance"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-xs font-black text-[#151718] shadow-md shadow-[#E5CB90]/20 transition-all hover:scale-105"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-xs font-bold text-white shadow-md transition-all hover:scale-105 cursor-pointer"
             >
-              <CalendarCheck className="w-4 h-4 text-[#151718]" />
+              <CalendarCheck className="w-4 h-4 text-[#A99AE8]" />
               <span>{activeSession ? 'Manage Live Attendance' : 'Start Attendance Session'}</span>
             </Link>
             <Link
               href="/faculty/resources"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718]/90 hover:bg-[#383C3F] text-xs font-bold text-[#FCFBF7] border border-[#383C3F] transition-all hover:scale-105 backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold text-white border border-white/30 transition-all hover:scale-105 backdrop-blur-md cursor-pointer"
             >
-              <Video className="w-4 h-4 text-[#E5CB90]" />
+              <Video className="w-4 h-4 text-[#D9D1F5]" />
               <span>Learning Courses</span>
             </Link>
             <Link
               href="/faculty/quiz-generator"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718]/90 hover:bg-[#383C3F] text-xs font-bold text-[#FCFBF7] border border-[#383C3F] transition-all hover:scale-105 backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold text-white border border-white/30 transition-all hover:scale-105 backdrop-blur-md cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-[#E5CB90]" />
+              <Sparkles className="w-4 h-4 text-[#D9D1F5]" />
               <span>Generate AI Quiz</span>
             </Link>
             <Link
               href="/faculty/face-id"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718]/90 hover:bg-[#383C3F] text-xs font-bold text-[#FCFBF7] border border-[#383C3F] transition-all hover:scale-105 backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold text-white border border-white/30 transition-all hover:scale-105 backdrop-blur-md cursor-pointer"
             >
-              <KeyRound className="w-4 h-4 text-[#E5CB90]" />
+              <KeyRound className="w-4 h-4 text-[#D9D1F5]" />
               <span>Face ID Generator</span>
             </Link>
             <Link
               href="/faculty/evaluation"
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718]/90 hover:bg-[#383C3F] text-xs font-bold text-[#FCFBF7] border border-[#383C3F] transition-all hover:scale-105 backdrop-blur-md"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-xs font-bold text-white border border-white/30 transition-all hover:scale-105 backdrop-blur-md cursor-pointer"
             >
-              <CheckCircle2 className="w-4 h-4 text-[#FFF3C8]" />
+              <CheckCircle2 className="w-4 h-4 text-[#35C979]" />
               <span>Grade Submissions ({pendingEvaluations})</span>
             </Link>
           </div>
@@ -221,31 +212,31 @@ export default async function FacultyDashboardPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Active Session Alert Banner (if active) */}
           {activeSession && (
-            <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-start gap-3.5">
-                <div className="p-2.5 rounded-xl bg-emerald-500 text-white shadow-md animate-pulse">
+                <div className="p-2.5 rounded-xl bg-[#35C979] text-white shadow-md animate-pulse">
                   <CalendarCheck className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400">
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#35C979]">
                       Live Attendance Session Active
                     </span>
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-200 dark:bg-emerald-800 text-[10px] font-bold text-emerald-800 dark:text-emerald-200">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-[10px] font-bold text-emerald-800">
                       {activeSession.records.length} Checked-In
                     </span>
                   </div>
-                  <p className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-0.5">
+                  <p className="text-sm font-bold text-[#292C32] mt-0.5">
                     {activeSession.courseOffering.subject.name} ({activeSession.courseOffering.subject.code})
                   </p>
-                  <p className="text-xs text-slate-600 dark:text-slate-300">
+                  <p className="text-xs text-[#85878F]">
                     Topic: {activeSession.topicCovered || 'Regular Lecture'} • Geofence Radius: {activeSession.geofenceRadiusMeters}m
                   </p>
                 </div>
               </div>
               <Link
                 href="/faculty/attendance"
-                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs whitespace-nowrap"
+                className="px-4 py-2 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-xs whitespace-nowrap cursor-pointer"
               >
                 View Live Attendee Feed
               </Link>
@@ -253,52 +244,52 @@ export default async function FacultyDashboardPage() {
           )}
 
           {/* Attendance Trend Chart Card */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+          <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="text-sm font-bold text-[#292C32]">
                   Lecture Attendance Trajectory
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-[#85878F]">
                   Historical attendance percentage across recent lecture sessions with 75% threshold
                 </p>
               </div>
-              <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 px-2.5 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-950/60">
+              <span className="text-xs font-bold text-[#625BEB] px-2.5 py-1 rounded-lg bg-[#D9D1F5]/40 border border-[#D9D1F5]">
                 Avg: {avgAttendance}%
               </span>
             </div>
 
-            <SimpleLineChart data={attendanceTrend} height={190} accentColor="#4f46e5" />
+            <SimpleLineChart data={attendanceTrend} height={190} accentColor="#8B6DE9" />
           </div>
 
           {/* Critical Risk Watchlist Card */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+          <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+                <h3 className="text-sm font-bold text-[#292C32] flex items-center gap-2">
                   <span>Critical Risk Watchlist</span>
-                  <span className="px-2 py-0.5 rounded-full bg-rose-100 dark:bg-rose-950/60 text-rose-600 dark:text-rose-400 text-[10px] font-bold">
+                  <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-600 text-[10px] font-bold">
                     {atRiskStudents.length} Students Flagged
                   </span>
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-slate-400">
+                <p className="text-xs text-[#85878F]">
                   AI diagnostic engine detected attendance deficiency or failing assessment trajectories
                 </p>
               </div>
               <Link
                 href="/faculty/academic-risk"
-                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1"
+                className="text-xs font-bold text-[#8B6DE9] hover:underline flex items-center gap-1"
               >
                 <span>Risk Diagnostics</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
 
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="divide-y divide-[#E9EAF0]">
               {atRiskStudents.map((stu) => (
                 <div key={stu.id} className="py-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-800 overflow-hidden font-bold flex items-center justify-center text-xs">
+                    <div className="w-9 h-9 rounded-xl bg-[#F2F3F5] overflow-hidden font-bold flex items-center justify-center text-xs text-[#292C32]">
                       {stu.user.avatar ? (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={stu.user.avatar} alt={stu.user.name} className="w-full h-full object-cover" />
@@ -310,13 +301,13 @@ export default async function FacultyDashboardPage() {
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/faculty/students/${stu.id}`}
-                          className="text-xs font-bold text-slate-900 dark:text-slate-100 hover:text-indigo-600 dark:hover:text-indigo-400"
+                          className="text-xs font-bold text-[#292C32] hover:text-[#8B6DE9]"
                         >
                           {stu.user.name}
                         </Link>
-                        <span className="text-[10px] text-slate-400">({stu.rollNo})</span>
+                        <span className="text-[10px] text-[#85878F]">({stu.rollNo})</span>
                       </div>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 line-clamp-1">
+                      <p className="text-[11px] text-[#85878F] line-clamp-1">
                         {stu.riskProfiles[0]?.primaryReason || 'Attendance below 75% threshold'}
                       </p>
                     </div>
@@ -324,15 +315,15 @@ export default async function FacultyDashboardPage() {
 
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <p className="text-xs font-bold text-rose-600 dark:text-rose-400">
+                      <p className="text-xs font-bold text-rose-600">
                         {stu.attendancePercentage}% Att.
                       </p>
-                      <p className="text-[10px] text-slate-400">CGPA: {stu.currentCgpa}</p>
+                      <p className="text-[10px] text-[#85878F]">CGPA: {stu.currentCgpa}</p>
                     </div>
                     <StatusBadge status={stu.riskLevel} />
                     <Link
                       href={`/faculty/students/${stu.id}?tab=risk`}
-                      className="p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500"
+                      className="p-1.5 rounded-lg border border-[#E9EAF0] hover:bg-[#F2F3F5] text-[#85878F]"
                     >
                       <ArrowRight className="w-4 h-4" />
                     </Link>
@@ -346,13 +337,13 @@ export default async function FacultyDashboardPage() {
         {/* Right Col: Today's Schedule & Quick Links */}
         <div className="space-y-6">
           {/* Today's Schedule */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+          <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-indigo-500" />
+              <h3 className="text-sm font-bold text-[#292C32] flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-[#8B6DE9]" />
                 <span>Today’s Classes (Monday)</span>
               </h3>
-              <Link href="/faculty/timetable" className="text-xs font-bold text-indigo-600 hover:underline">
+              <Link href="/faculty/timetable" className="text-xs font-bold text-[#8B6DE9] hover:underline">
                 Full Grid
               </Link>
             </div>
@@ -361,20 +352,20 @@ export default async function FacultyDashboardPage() {
               {todayTimetable.map((slot) => (
                 <div
                   key={slot.id}
-                  className="p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 hover:border-indigo-200 transition-colors"
+                  className="p-3 rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] hover:border-[#A99AE8] transition-colors"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">
+                    <span className="text-xs font-bold text-[#8B6DE9]">
                       {slot.startTime} - {slot.endTime}
                     </span>
-                    <span className="px-2 py-0.5 rounded-md bg-slate-200 dark:bg-slate-700 text-[10px] font-bold text-slate-700 dark:text-slate-300">
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-[#E9EAF0] text-[10px] font-bold text-[#292C32]">
                       {slot.roomNumber}
                     </span>
                   </div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-1">
+                  <p className="text-xs font-bold text-[#292C32] mt-1">
                     {slot.courseOffering.subject.name}
                   </p>
-                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                  <p className="text-[11px] text-[#85878F]">
                     {slot.courseOffering.subject.code} • Section {slot.courseOffering.section}
                   </p>
                 </div>
@@ -383,57 +374,57 @@ export default async function FacultyDashboardPage() {
           </div>
 
           {/* Quick Academic Hub Links */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-3">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+          <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs space-y-3">
+            <h3 className="text-sm font-bold text-[#292C32]">
               Faculty Quick Portals
             </h3>
 
             <Link
               href="/faculty/quiz-generator"
-              className="flex items-center justify-between p-3 rounded-xl bg-gradient-to-r from-indigo-50 to-sky-50 dark:from-indigo-950/40 dark:to-sky-950/40 border border-indigo-100 dark:border-indigo-900/60 group"
+              className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E9EAF0] hover:border-[#A99AE8] group transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-indigo-600 text-white">
+                <div className="p-2 rounded-lg bg-[#D9D1F5]/50 text-[#625BEB]">
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100">AI Quiz Generator</p>
-                  <p className="text-[10px] text-slate-500">Gemini synthesis with Blooms matrix</p>
+                  <p className="text-xs font-bold text-[#292C32]">AI Quiz Generator</p>
+                  <p className="text-[10px] text-[#85878F]">Gemini synthesis with Blooms matrix</p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-[#85878F] group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <Link
               href="/faculty/evaluation"
-              className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 group"
+              className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E9EAF0] hover:border-[#A99AE8] group transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-sky-600 text-white">
+                <div className="p-2 rounded-lg bg-[#D9D1F5]/50 text-[#8B6DE9]">
                   <Award className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100">Subjective Evaluation</p>
-                  <p className="text-[10px] text-slate-500">{pendingEvaluations} pending grading</p>
+                  <p className="text-xs font-bold text-[#292C32]">Subjective Evaluation</p>
+                  <p className="text-[10px] text-[#85878F]">{pendingEvaluations} pending grading</p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-[#85878F] group-hover:translate-x-1 transition-transform" />
             </Link>
 
             <Link
               href="/faculty/reports"
-              className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800 group"
+              className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#E9EAF0] hover:border-[#A99AE8] group transition-all"
             >
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-emerald-600 text-white">
+                <div className="p-2 rounded-lg bg-emerald-50 text-[#35C979]">
                   <TrendingUp className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="text-xs font-bold text-slate-900 dark:text-slate-100">Analytics & CSV Reports</p>
-                  <p className="text-[10px] text-slate-500">Export compliance & grade sheets</p>
+                  <p className="text-xs font-bold text-[#292C32]">Analytics & CSV Reports</p>
+                  <p className="text-[10px] text-[#85878F]">Export compliance & grade sheets</p>
                 </div>
               </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-4 h-4 text-[#85878F] group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
         </div>

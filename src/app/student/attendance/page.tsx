@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { requireStudentUser } from '@/lib/auth'
 import { StudentAttendanceClient } from './StudentAttendanceClient'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata = {
   title: 'Student Biometric & GPS Check-In | EduSync AI',
   description: 'Mark attendance using face verification and GPS classroom geofencing.',

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">EduSync AI</string>
+    <string name="title_activity_main">EduSync AI</string>
+    <string name="package_name">com.edusync.ai</string>
+    <string name="custom_url_scheme">com.edusync.ai</string>
+</resources>

@@ -1,61 +1,69 @@
 @import "tailwindcss";
 
 @theme {
-  --color-palette-gold: #E5CB90;
-  --color-palette-gold-hover: #D8BD7E;
-  --color-palette-gold-dark: #C4A764;
-  --color-palette-vanilla: #FFF3C8;
-  --color-palette-vanilla-light: #FFF9E6;
-  --color-palette-cream: #FCF6F5;
-  --color-palette-blush: #F8D8D3;
-  --color-palette-rose: #DE9EAE;
-  --color-palette-charcoal: #3D4042;
-  --color-palette-charcoal-light: #4D5154;
-  --color-palette-charcoal-card: #272A2C;
-  --color-palette-charcoal-deep: #1B1D1F;
+  --color-palette-bg: #F2F3F5;
+  --color-palette-card: #FFFFFF;
+  --color-palette-lavender: #A99AE8;
+  --color-palette-purple: #8B6DE9;
+  --color-palette-indigo: #625BEB;
+  --color-palette-soft-purple: #D9D1F5;
+  --color-palette-text-primary: #292C32;
+  --color-palette-text-secondary: #85878F;
+  --color-palette-border: #E9EAF0;
+  --color-palette-success: #35C979;
+  --color-palette-btn-primary: #292C32;
+  --color-palette-btn-text: #FFFFFF;
+
+  --color-primary: #8B6DE9;
+  --color-primary-hover: #7952E6;
+  --color-primary-light: #D9D1F5;
+  --color-accent: #625BEB;
+  --color-lavender: #A99AE8;
 }
 
 :root {
-  --background: #FCFBF7;
-  --foreground: #2A2D2F;
+  --background: #F2F3F5;
+  --foreground: #292C32;
   --card: #FFFFFF;
-  --card-foreground: #2A2D2F;
-  --primary: #E5CB90;
-  --primary-hover: #D8BD7E;
-  --primary-foreground: #1B1D1F;
-  --secondary: #FFF3C8;
-  --accent: #E5CB90;
-  --muted: #FFF3C8;
-  --muted-foreground: #6A6E72;
-  --border: #E8DECE;
-  --sidebar-bg: #1B1D1F;
-  --sidebar-hover: #272A2C;
-  --sidebar-text: #EBE5D8;
-  --sidebar-active: #E5CB90;
+  --card-foreground: #292C32;
+  --primary: #8B6DE9;
+  --primary-hover: #7952E6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #D9D1F5;
+  --accent: #625BEB;
+  --lavender: #A99AE8;
+  --muted: #F2F3F5;
+  --muted-foreground: #85878F;
+  --border: #E9EAF0;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-hover: #F2F3F5;
+  --sidebar-text: #292C32;
+  --sidebar-active: #8B6DE9;
 }
 
 .dark {
-  --background: #151718;
-  --foreground: #FCFBF7;
-  --card: #222527;
-  --card-foreground: #FCFBF7;
-  --primary: #E5CB90;
-  --primary-hover: #D8BD7E;
-  --primary-foreground: #151718;
-  --secondary: #FFF3C8;
-  --accent: #E5CB90;
-  --muted: #2E3235;
-  --muted-foreground: #A8ACAF;
-  --border: #383C3F;
-  --sidebar-bg: #151718;
-  --sidebar-hover: #222527;
-  --sidebar-text: #D8D4CA;
-  --sidebar-active: #E5CB90;
+  --background: #F2F3F5;
+  --foreground: #292C32;
+  --card: #FFFFFF;
+  --card-foreground: #292C32;
+  --primary: #8B6DE9;
+  --primary-hover: #7952E6;
+  --primary-foreground: #FFFFFF;
+  --secondary: #D9D1F5;
+  --accent: #625BEB;
+  --lavender: #A99AE8;
+  --muted: #F2F3F5;
+  --muted-foreground: #85878F;
+  --border: #E9EAF0;
+  --sidebar-bg: #FFFFFF;
+  --sidebar-hover: #F2F3F5;
+  --sidebar-text: #292C32;
+  --sidebar-active: #8B6DE9;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
+  background-color: #F2F3F5;
+  color: #292C32;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -72,29 +80,20 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #D9D1F5;
   border-radius: 9999px;
 }
 
-.dark ::-webkit-scrollbar-thumb {
-  background: #334155;
-}
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #A99AE8;
 }
 
-/* Glassmorphism helpers */
+/* Glassmorphism and panel helpers */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.85);
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.dark .glass-panel {
-  background: rgba(17, 24, 39, 0.85);
-  border: 1px solid rgba(31, 41, 55, 0.8);
+  border: 1px solid #E9EAF0;
 }
 
 .badge-pulse {
@@ -126,3 +125,14 @@ body {
     opacity: 0;
   }
 }
+
+/* Hide Next.js development badges and overlays */
+nextjs-portal,
+[data-nextjs-toast],
+[data-nextjs-dialog-overlay],
+div[data-nextjs-toast-wrapper] {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+

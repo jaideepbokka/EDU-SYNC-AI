@@ -24,28 +24,28 @@ export function StatCard({
 }: StatCardProps) {
   const colorMap = {
     indigo: {
-      iconBg: 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400',
-      border: 'hover:border-indigo-300 dark:hover:border-indigo-800',
+      iconBg: 'bg-[#D9D1F5]/40 text-[#625BEB]',
+      border: 'hover:border-[#A99AE8]',
     },
     emerald: {
-      iconBg: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400',
-      border: 'hover:border-emerald-300 dark:hover:border-emerald-800',
+      iconBg: 'bg-emerald-50 text-[#35C979]',
+      border: 'hover:border-emerald-300',
     },
     amber: {
-      iconBg: 'bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400',
-      border: 'hover:border-amber-300 dark:hover:border-amber-800',
+      iconBg: 'bg-amber-50 text-amber-600',
+      border: 'hover:border-amber-300',
     },
     rose: {
-      iconBg: 'bg-rose-50 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400',
-      border: 'hover:border-rose-300 dark:hover:border-rose-800',
+      iconBg: 'bg-rose-50 text-rose-600',
+      border: 'hover:border-rose-300',
     },
     sky: {
-      iconBg: 'bg-sky-50 text-sky-600 dark:bg-sky-950/60 dark:text-sky-400',
-      border: 'hover:border-sky-300 dark:hover:border-sky-800',
+      iconBg: 'bg-[#D9D1F5]/40 text-[#8B6DE9]',
+      border: 'hover:border-[#8B6DE9]',
     },
     purple: {
-      iconBg: 'bg-purple-50 text-purple-600 dark:bg-purple-950/60 dark:text-purple-400',
-      border: 'hover:border-purple-300 dark:hover:border-purple-800',
+      iconBg: 'bg-[#D9D1F5]/40 text-[#8B6DE9]',
+      border: 'hover:border-[#8B6DE9]',
     },
   }
 
@@ -53,25 +53,25 @@ export function StatCard({
 
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xs transition-all duration-200 hover:shadow-md ${selected.border}`}
+      className={`relative overflow-hidden rounded-2xl bg-white border border-[#E9EAF0] p-5 shadow-xs transition-all duration-200 hover:shadow-md ${selected.border}`}
     >
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#85878F]">
             {title}
           </p>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
+            <span className="text-2xl sm:text-3xl font-bold tracking-tight text-[#292C32]">
               {value}
             </span>
             {trend && (
               <span
                 className={`inline-flex items-center text-xs font-semibold ${
                   trend.neutral
-                    ? 'text-slate-500'
+                    ? 'text-[#85878F]'
                     : trend.isPositive
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-rose-600 dark:text-rose-400'
+                    ? 'text-[#35C979]'
+                    : 'text-rose-600'
                 }`}
               >
                 {trend.value}
@@ -79,7 +79,7 @@ export function StatCard({
             )}
           </div>
           {subtitle && (
-            <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            <p className="mt-1 text-xs text-[#85878F]">
               {subtitle}
             </p>
           )}

@@ -64,23 +64,23 @@ export function FacultyHeader({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-[#FCFBF7]/90 dark:bg-[#151718]/90 backdrop-blur-md border-b border-[#E8DECE] dark:border-[#383C3F]">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 sm:px-6 bg-white/95 backdrop-blur-md border-b border-[#E9EAF0]">
       {/* Left items: Mobile toggle & Academic Session Selector */}
       <div className="flex items-center gap-3 lg:gap-4 flex-1">
         <button
           onClick={onToggleSidebar}
-          className="p-2 -ml-2 rounded-xl text-[#6A6E72] hover:text-[#2A2D2F] dark:hover:text-[#FCFBF7] hover:bg-[#FFF3C8]/40 dark:hover:bg-[#222527] lg:hidden cursor-pointer"
+          className="p-2 -ml-2 rounded-xl text-[#85878F] hover:text-[#292C32] hover:bg-[#F2F3F5] lg:hidden cursor-pointer"
         >
           <Menu className="w-5 h-5" />
         </button>
 
         {/* Academic Session Selector Pill */}
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#FFF3C8]/40 dark:bg-[#222527] border border-[#E8DECE] dark:border-[#383C3F] text-xs font-semibold text-[#2A2D2F] dark:text-[#FCFBF7]">
-          <span className="w-2 h-2 rounded-full bg-[#E5CB90] animate-pulse" />
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0] text-xs font-semibold text-[#292C32]">
+          <span className="w-2 h-2 rounded-full bg-[#35C979] animate-pulse" />
           <span>AY 2025-26</span>
-          <span className="text-[#E5CB90]">•</span>
-          <span className="text-[#E5CB90] font-bold">Odd Sem (V)</span>
-          <span className="text-[#E5CB90]">•</span>
+          <span className="text-[#85878F]">•</span>
+          <span className="text-[#8B6DE9] font-bold">Odd Sem (V)</span>
+          <span className="text-[#85878F]">•</span>
           <span>Dept. CSE</span>
         </div>
       </div>
@@ -92,7 +92,7 @@ export function FacultyHeader({
           onClick={handleLogout}
           disabled={loggingOut}
           title="Sign out of Faculty Portal"
-          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black text-[#E5CB90] hover:bg-[#E5CB90]/10 border border-[#E5CB90]/40 transition-colors cursor-pointer"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-[#85878F] hover:text-rose-600 hover:bg-rose-50 border border-[#E9EAF0] transition-colors cursor-pointer"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>{loggingOut ? 'Signing out...' : 'Sign Out'}</span>
@@ -105,61 +105,61 @@ export function FacultyHeader({
               setShowNotifications(!showNotifications)
               setShowUserMenu(false)
             }}
-            className="relative p-2 rounded-xl text-[#6A6E72] hover:text-[#2A2D2F] dark:hover:text-[#FCFBF7] hover:bg-[#FFF3C8]/40 dark:hover:bg-[#222527] transition-colors cursor-pointer"
+            className="relative p-2 rounded-xl text-[#85878F] hover:text-[#292C32] hover:bg-[#F2F3F5] transition-colors cursor-pointer"
           >
             <Bell className="w-5 h-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#E5CB90] text-[#151718] text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
+              <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-[#8B6DE9] text-white text-[10px] font-black rounded-full flex items-center justify-center shadow-xs">
                 {unreadCount}
               </span>
             )}
           </button>
 
           {showNotifications && (
-            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-[#FCFBF7] dark:bg-[#222527] border border-[#E8DECE] dark:border-[#383C3F] shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center justify-between px-4 py-3 border-b border-[#E8DECE] dark:border-[#383C3F] bg-[#FFF3C8]/30 dark:bg-[#151718]/60">
-                <span className="text-xs font-bold text-[#2A2D2F] dark:text-[#FCFBF7]">
+            <div className="absolute right-0 mt-2 w-80 sm:w-96 rounded-2xl bg-white border border-[#E9EAF0] shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-[#E9EAF0] bg-[#F2F3F5]">
+                <span className="text-xs font-bold text-[#292C32]">
                   Notifications ({unreadCount} new)
                 </span>
                 <Link
                   href="/faculty/notifications"
                   onClick={() => setShowNotifications(false)}
-                  className="text-[11px] font-bold text-[#E5CB90] hover:underline"
+                  className="text-[11px] font-bold text-[#8B6DE9] hover:underline"
                 >
                   View all
                 </Link>
               </div>
 
-              <div className="max-h-80 overflow-y-auto divide-y divide-[#E8DECE] dark:divide-[#383C3F]">
+              <div className="max-h-80 overflow-y-auto divide-y divide-[#E9EAF0]">
                 {notifications.length > 0 ? (
                   notifications.map((notif) => (
                     <Link
                       key={notif.id}
                       href={notif.linkUrl || '/faculty/notifications'}
                       onClick={() => setShowNotifications(false)}
-                      className="flex items-start gap-3 p-3.5 hover:bg-[#FFF3C8]/20 dark:hover:bg-[#151718]/60 transition-colors"
+                      className="flex items-start gap-3 p-3.5 hover:bg-[#F2F3F5] transition-colors"
                     >
-                      <div className="p-2 rounded-xl bg-[#E5CB90]/20 text-[#E5CB90] shrink-0 mt-0.5">
+                      <div className="p-2 rounded-xl bg-[#D9D1F5]/40 text-[#625BEB] shrink-0 mt-0.5">
                         {notif.type === 'RISK' ? (
-                          <AlertTriangle className="w-4 h-4 text-[#E5CB90]" />
+                          <AlertTriangle className="w-4 h-4 text-rose-500" />
                         ) : notif.type === 'ATTENDANCE' ? (
-                          <CalendarCheck className="w-4 h-4 text-[#FFF3C8]" />
+                          <CalendarCheck className="w-4 h-4 text-[#35C979]" />
                         ) : (
-                          <Award className="w-4 h-4 text-[#E5CB90]" />
+                          <Award className="w-4 h-4 text-[#8B6DE9]" />
                         )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-[#2A2D2F] dark:text-[#FCFBF7] truncate">
+                        <p className="text-xs font-semibold text-[#292C32] truncate">
                           {notif.title}
                         </p>
-                        <p className="text-[11px] text-[#6A6E72] dark:text-[#A8ACAF] line-clamp-2 mt-0.5">
+                        <p className="text-[11px] text-[#85878F] line-clamp-2 mt-0.5">
                           {notif.message}
                         </p>
                       </div>
                     </Link>
                   ))
                 ) : (
-                  <div className="p-6 text-center text-xs text-[#A8ACAF]">
+                  <div className="p-6 text-center text-xs text-[#85878F]">
                     No new notifications
                   </div>
                 )}
@@ -175,9 +175,9 @@ export function FacultyHeader({
               setShowUserMenu(!showUserMenu)
               setShowNotifications(false)
             }}
-            className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-[#FFF3C8]/30 dark:hover:bg-[#222527] transition-colors cursor-pointer"
+            className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-[#F2F3F5] transition-colors cursor-pointer"
           >
-            <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-[#E5CB90] to-[#FFF3C8] border border-[#E5CB90]/40 flex items-center justify-center font-black text-[#151718] text-xs shrink-0 shadow-xs">
+            <div className="w-8 h-8 rounded-xl overflow-hidden bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] border border-[#D9D1F5] flex items-center justify-center font-black text-white text-xs shrink-0 shadow-xs">
               {userAvatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={userAvatar} alt={userName} className="w-full h-full object-cover" />
@@ -186,46 +186,46 @@ export function FacultyHeader({
               )}
             </div>
             <div className="hidden md:block text-left">
-              <p className="text-xs font-bold text-[#2A2D2F] dark:text-[#FCFBF7] leading-tight">
+              <p className="text-xs font-bold text-[#292C32] leading-tight">
                 {userName}
               </p>
-              <p className="text-[10px] text-[#6A6E72] dark:text-[#A8ACAF] leading-tight">
+              <p className="text-[10px] text-[#85878F] leading-tight">
                 {userDesignation}
               </p>
             </div>
-            <ChevronDown className="w-3.5 h-3.5 text-[#A8ACAF] hidden sm:block" />
+            <ChevronDown className="w-3.5 h-3.5 text-[#85878F] hidden sm:block" />
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-[#FCFBF7] dark:bg-[#222527] border border-[#E8DECE] dark:border-[#383C3F] shadow-2xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div className="px-3 py-2 border-b border-[#E8DECE] dark:border-[#383C3F]">
-                <p className="text-xs font-bold text-[#2A2D2F] dark:text-[#FCFBF7]">{userName}</p>
-                <p className="text-[11px] text-[#6A6E72] dark:text-[#A8ACAF] truncate">{userDesignation}</p>
+            <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-[#E9EAF0] shadow-2xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="px-3 py-2 border-b border-[#E9EAF0]">
+                <p className="text-xs font-bold text-[#292C32]">{userName}</p>
+                <p className="text-[11px] text-[#85878F] truncate">{userDesignation}</p>
               </div>
               <Link
                 href="/faculty/profile"
                 onClick={() => setShowUserMenu(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-xs text-[#2A2D2F] dark:text-[#FCFBF7] hover:bg-[#FFF3C8]/30 dark:hover:bg-[#151718]"
+                className="flex items-center gap-2.5 px-3 py-2 text-xs text-[#292C32] hover:bg-[#F2F3F5]"
               >
-                <User className="w-4 h-4 text-[#E5CB90]" />
+                <User className="w-4 h-4 text-[#8B6DE9]" />
                 Faculty Profile & Dossier
               </Link>
               <Link
                 href="/faculty/profile?edit=true"
                 onClick={() => setShowUserMenu(false)}
-                className="flex items-center gap-2.5 px-3 py-2 text-xs text-[#2A2D2F] dark:text-[#FCFBF7] hover:bg-[#FFF3C8]/30 dark:hover:bg-[#151718]"
+                className="flex items-center gap-2.5 px-3 py-2 text-xs text-[#292C32] hover:bg-[#F2F3F5]"
               >
-                <Edit3 className="w-4 h-4 text-[#E5CB90]" />
+                <Edit3 className="w-4 h-4 text-[#8B6DE9]" />
                 Edit Personal Details
               </Link>
-              <div className="border-t border-[#E8DECE] dark:border-[#383C3F] my-1" />
+              <div className="border-t border-[#E9EAF0] my-1" />
               <button
                 onClick={() => {
                   setShowUserMenu(false)
                   handleLogout()
                 }}
                 disabled={loggingOut}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs text-[#E5CB90] hover:bg-[#E5CB90]/10 transition-colors cursor-pointer"
+                className="w-full flex items-center justify-between px-3 py-2 text-xs text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-2">
                   <LogOut className="w-4 h-4" />

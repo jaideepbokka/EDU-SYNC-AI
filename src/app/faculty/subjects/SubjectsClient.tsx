@@ -77,7 +77,6 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to delete course')
 
-      // Optimistically remove from state
       setSubjects((prev) => prev.filter((s) => s.id !== id))
       router.refresh()
     } catch (err: any) {
@@ -88,26 +87,26 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Top Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#383C3F]">
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-2 border border-[#E5CB90]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3 border border-white/30 backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Academic Curriculum & Course Hierarchy</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#FCFBF7] flex items-center gap-2.5">
-            <BookOpen className="w-6 h-6 text-[#E5CB90]" />
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
+            <BookOpen className="w-7 h-7 text-white" />
             <span>Academic Subjects & Curriculum</span>
           </h1>
-          <p className="text-xs text-[#A8ACAF] mt-1">
+          <p className="mt-2 text-xs sm:text-sm text-white/90 max-w-xl leading-relaxed">
             Configure core curriculum courses, credits allocation, and syllabus hierarchical units.
           </p>
         </div>
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-[#151718] text-xs font-black shadow-lg shadow-[#E5CB90]/20 transition-all hover:scale-105 cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
         >
           <Plus className="w-4 h-4" />
           <span>+ Add New Subject</span>
@@ -126,26 +125,26 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
             return (
               <div
                 key={sub.id}
-                className="rounded-3xl bg-[#222527] border border-[#383C3F] p-6 shadow-xl flex flex-col justify-between hover:border-[#E5CB90]/60 transition-colors group"
+                className="rounded-3xl bg-white border border-[#E9EAF0] p-6 shadow-xs flex flex-col justify-between hover:border-[#A99AE8] transition-colors group"
               >
                 <div>
-                  {/* Top Bar: Subject Code, Credits Pill & Delete Option */}
+                  {/* Top Bar */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-2.5 py-1 rounded-xl bg-[#E5CB90]/20 text-[#FFF3C8] font-mono font-bold text-xs border border-[#E5CB90]/30">
+                    <span className="px-3 py-1 rounded-full bg-[#D9D1F5]/50 text-[#625BEB] font-mono font-bold text-xs border border-[#D9D1F5]">
                       {sub.code}
                     </span>
 
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-[#151718] text-[#A8ACAF] border border-[#383C3F]">
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-xl bg-[#F2F3F5] text-[#292C32] border border-[#E9EAF0]">
                         {sub.credits} Credits • Sem {sub.semester}
                       </span>
 
-                      {/* Delete Option for Course/Subject */}
+                      {/* Delete Option */}
                       <button
                         onClick={() => handleDeleteSubject(sub.id, sub.code, sub.name)}
                         disabled={deletingId === sub.id}
                         title={`Delete course ${sub.code}`}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>{deletingId === sub.id ? 'Deleting...' : 'Delete'}</span>
@@ -153,80 +152,53 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
                     </div>
                   </div>
 
-                  <h3 className="text-base font-bold text-[#FCFBF7] mt-3 group-hover:text-[#FFF3C8] transition-colors">
+                  {/* Title & Description */}
+                  <h3 className="text-base font-bold text-[#292C32] mt-3 group-hover:text-[#8B6DE9] transition-colors">
                     {sub.name}
                   </h3>
-                  <p className="text-xs text-[#A8ACAF] mt-1 line-clamp-2 leading-relaxed">
-                    {sub.description || 'No description provided.'}
+                  <p className="text-xs text-[#85878F] mt-1 line-clamp-2">
+                    {sub.description || 'Core departmental curriculum.'}
                   </p>
 
-                  {/* Assigned Faculty Badge */}
-                  {sub.offerings?.[0]?.faculty?.user?.name && (
-                    <div className="mt-3 flex items-center gap-2.5 p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]/80">
-                      <div className="w-7 h-7 rounded-xl bg-[#E5CB90]/20 flex items-center justify-center text-[#E5CB90] shrink-0 border border-[#E5CB90]/30">
-                        <GraduationCap className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[10px] text-[#A8ACAF] uppercase font-bold tracking-wide">
-                          Assigned Faculty
-                        </p>
-                        <p className="text-xs font-bold text-[#FFF3C8] truncate">
-                          {sub.offerings[0].faculty.user.name}{' '}
-                          <span className="text-[10px] text-[#A8ACAF] font-normal">
-                            ({sub.offerings[0].faculty.designation})
-                          </span>
-                        </p>
-                      </div>
+                  {/* Units Count & Enrollments */}
+                  <div className="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-[#E9EAF0] text-xs">
+                    <div className="flex items-center gap-2 text-[#85878F]">
+                      <Layers className="w-4 h-4 text-[#8B6DE9]" />
+                      <span>{sub.units?.length || 0} Syllabus Units</span>
                     </div>
-                  )}
-
-                  <div className="grid grid-cols-3 gap-2 mt-5 pt-4 border-t border-[#383C3F] text-center">
-                    <div className="p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]">
-                      <p className="text-[10px] text-[#A8ACAF] font-bold uppercase">Units</p>
-                      <p className="text-sm font-bold text-[#FCFBF7] mt-0.5">
-                        {sub.units?.length || 0} Units
-                      </p>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]">
-                      <p className="text-[10px] text-[#A8ACAF] font-bold uppercase">Enrolled</p>
-                      <p className="text-sm font-bold text-[#FCFBF7] mt-0.5">
-                        {totalEnrollments} Students
-                      </p>
-                    </div>
-                    <div className="p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]">
-                      <p className="text-[10px] text-[#A8ACAF] font-bold uppercase">Tests</p>
-                      <p className="text-sm font-bold text-[#FCFBF7] mt-0.5">
-                        {sub.assessments?.length || 0} Quizzes
-                      </p>
+                    <div className="flex items-center gap-2 text-[#85878F]">
+                      <Users className="w-4 h-4 text-[#8B6DE9]" />
+                      <span>{totalEnrollments} Students Enrolled</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-[#383C3F] flex items-center justify-between">
+                {/* Bottom Action Links */}
+                <div className="mt-5 pt-4 border-t border-[#E9EAF0] flex items-center justify-between text-xs font-semibold">
                   <Link
-                    href="/faculty/syllabus"
-                    className="text-xs font-bold text-[#E5CB90] hover:text-[#FFF3C8] hover:underline flex items-center gap-1.5"
+                    href={`/faculty/syllabus?subjectId=${sub.id}`}
+                    className="text-[#8B6DE9] hover:underline flex items-center gap-1 font-bold"
                   >
-                    <GitFork className="w-3.5 h-3.5" />
-                    <span>Manage Syllabus Units</span>
+                    <span>View Syllabus</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
 
                   <Link
                     href="/faculty/quiz-generator"
-                    className="px-3 py-1.5 rounded-xl bg-[#151718] hover:bg-[#2E3235] border border-[#383C3F] text-xs font-semibold text-[#D8D4CA] hover:text-[#FCFBF7] transition-colors"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#F2F3F5] hover:bg-[#E9EAF0] text-[#292C32] border border-[#E9EAF0] font-bold transition-colors"
                   >
-                    Create Assessment
+                    Generate AI Quiz
                   </Link>
                 </div>
               </div>
             )
           })
         ) : (
-          <div className="col-span-2 p-12 text-center rounded-3xl bg-[#222527] border border-[#383C3F] space-y-3">
-            <BookOpen className="w-10 h-10 text-[#A8ACAF] mx-auto opacity-40" />
-            <p className="text-sm font-bold text-[#FCFBF7]">No academic courses found.</p>
-            <p className="text-xs text-[#A8ACAF]">
-              Click &quot;+ Add New Subject&quot; above to create a curriculum course.
+          <div className="col-span-2 p-12 text-center rounded-3xl bg-white border border-[#E9EAF0] space-y-3">
+            <BookOpen className="w-10 h-10 text-[#85878F] mx-auto opacity-50" />
+            <p className="text-sm font-bold text-[#292C32]">No curriculum subjects registered yet.</p>
+            <p className="text-xs text-[#85878F]">
+              Click &quot;+ Add New Subject&quot; above to add your first course offering.
             </p>
           </div>
         )}
@@ -237,44 +209,41 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         title="Add Academic Subject / Course"
-        description="Define a new curriculum course for the department."
+        description="Register a new curriculum subject for syllabus mapping and examinations."
         maxWidth="md"
       >
         <form onSubmit={handleCreateSubject} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
-                Subject Code *
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
+                Course Code *
               </label>
               <input
                 type="text"
                 required
                 value={formData.code}
-                onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                placeholder="e.g. CS505"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
+                placeholder="e.g. CS504"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 uppercase font-mono focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Credits
               </label>
-              <select
+              <input
+                type="number"
+                min={1}
+                max={6}
                 value={formData.credits}
                 onChange={(e) => setFormData({ ...formData, credits: Number(e.target.value) })}
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
-              >
-                {[1, 2, 3, 4, 5].map((c) => (
-                  <option key={c} value={c} className="bg-[#151718]">
-                    {c} Credits
-                  </option>
-                ))}
-              </select>
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
+              />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Subject Name *
             </label>
             <input
@@ -282,38 +251,55 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
               required
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="e.g. Distributed Cloud Computing"
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+              placeholder="e.g. Database Management Systems"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
-              Description
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
+              Semester
+            </label>
+            <select
+              value={formData.semester}
+              onChange={(e) => setFormData({ ...formData, semester: Number(e.target.value) })}
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden cursor-pointer"
+            >
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                <option key={s} value={s} className="bg-white text-[#292C32]">
+                  Semester {s}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
+              Course Description
             </label>
             <textarea
               rows={3}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              placeholder="Syllabus scope and prerequisites..."
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+              placeholder="Brief course objectives and prerequisite notes..."
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#E9EAF0]">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-xs font-medium text-[#A8ACAF] hover:bg-[#151718] rounded-xl cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 text-xs font-black text-[#151718] bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 rounded-xl shadow-md cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition-all hover:scale-105"
             >
-              {loading ? 'Creating...' : 'Create Subject'}
+              {loading ? 'Creating...' : 'Create Course'}
             </button>
           </div>
         </form>

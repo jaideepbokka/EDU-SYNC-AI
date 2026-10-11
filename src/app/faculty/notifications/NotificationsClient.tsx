@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   Award,
   ArrowRight,
+  Sparkles,
 } from 'lucide-react'
 
 interface NotificationsClientProps {
@@ -40,36 +41,41 @@ export function NotificationsClient({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Top Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-            <Bell className="w-6 h-6 text-indigo-600" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-2 border border-white/20 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+            <span>Real-Time Alert Feed • Action Ledger</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
+            <Bell className="w-6 h-6 text-white" />
             <span>Academic Notifications & System Alerts</span>
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-white/90 mt-1 max-w-2xl">
             Real-time triggers for attendance anomalies, assessment submissions, and critical student risks.
           </p>
         </div>
 
         <button
           onClick={markAllRead}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
         >
-          <CheckCircle2 className="w-4 h-4" />
+          <CheckCircle2 className="w-4 h-4 text-white" />
           <span>Mark All as Read</span>
         </button>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-1.5 p-1 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs w-fit">
+      <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-white border border-[#E9EAF0] shadow-xs w-fit">
         {['ALL', 'RISK', 'ATTENDANCE', 'ASSESSMENT'].map((t) => (
           <button
             key={t}
             onClick={() => setFilter(t)}
-            className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
+            className={`px-3 py-1.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
               filter === t
-                ? 'bg-indigo-600 text-white shadow-xs'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
+                ? 'bg-[#292C32] text-white shadow-xs'
+                : 'text-[#85878F] hover:bg-[#F2F3F5]'
             }`}
           >
             {t}
@@ -84,33 +90,33 @@ export function NotificationsClient({
             key={notif.id}
             className={`p-5 rounded-3xl border flex items-start justify-between gap-4 transition-all ${
               notif.isRead
-                ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 opacity-80'
-                : 'bg-indigo-50/50 dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-900/60 shadow-xs'
+                ? 'bg-white border-[#E9EAF0] opacity-80'
+                : 'bg-[#D9D1F5]/25 border-[#A99AE8]/40 shadow-xs'
             }`}
           >
             <div className="flex items-start gap-4">
-              <div className="p-2.5 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5">
+              <div className="p-2.5 rounded-2xl bg-[#D9D1F5]/60 text-[#625BEB] border border-[#A99AE8]/40 shrink-0 mt-0.5">
                 {notif.type === 'RISK' ? (
                   <AlertTriangle className="w-5 h-5 text-rose-500" />
                 ) : notif.type === 'ATTENDANCE' ? (
-                  <CalendarCheck className="w-5 h-5 text-emerald-500" />
+                  <CalendarCheck className="w-5 h-5 text-[#35C979]" />
                 ) : (
-                  <Award className="w-5 h-5 text-indigo-500" />
+                  <Award className="w-5 h-5 text-[#625BEB]" />
                 )}
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                  <h3 className="text-sm font-bold text-[#292C32]">
                     {notif.title}
                   </h3>
                   {!notif.isRead && (
-                    <span className="w-2 h-2 rounded-full bg-indigo-600" />
+                    <span className="w-2 h-2 rounded-full bg-[#8B6DE9]" />
                   )}
                 </div>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">
+                <p className="text-xs text-[#85878F] mt-1 leading-relaxed">
                   {notif.message}
                 </p>
-                <span className="text-[10px] text-slate-400 block mt-2">
+                <span className="text-[10px] text-[#85878F] block mt-2">
                   {new Date(notif.createdAt).toLocaleString()}
                 </span>
               </div>
@@ -119,7 +125,7 @@ export function NotificationsClient({
             {notif.linkUrl && (
               <Link
                 href={notif.linkUrl}
-                className="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-600 hover:text-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all shrink-0 flex items-center gap-1"
+                className="px-3.5 py-1.5 rounded-xl bg-[#F2F3F5] hover:bg-[#292C32] hover:text-white text-[#292C32] border border-[#E9EAF0] text-xs font-bold transition-all shrink-0 flex items-center gap-1 cursor-pointer"
               >
                 <span>View Details</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -131,3 +137,4 @@ export function NotificationsClient({
     </div>
   )
 }
+

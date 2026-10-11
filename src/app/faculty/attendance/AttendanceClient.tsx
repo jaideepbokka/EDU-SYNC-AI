@@ -41,10 +41,28 @@ export function AttendanceClient({
   const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [facultyCoords, setFacultyCoords] = useState<{ lat: number; lng: number } | null>(null)
+  const [isCalibrating, setIsCalibrating] = useState(false)
 
   useEffect(() => {
     setPastSessions(initialPastSessions)
   }, [initialPastSessions])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setFacultyCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        },
+        () => {
+          setFacultyCoords({ lat: 16.603849, lng: 82.082664 })
+        },
+        { enableHighAccuracy: true, timeout: 5000 }
+      )
+    } else {
+      setFacultyCoords({ lat: 16.603849, lng: 82.082664 })
+    }
+  }, [])
 
   // New Session Form State
   const [newSessionData, setNewSessionData] = useState({
@@ -60,7 +78,11 @@ export function AttendanceClient({
       const res = await fetch('/api/attendance/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSessionData),
+        body: JSON.stringify({
+          ...newSessionData,
+          roomLatitude: facultyCoords?.lat || 16.603849,
+          roomLongitude: facultyCoords?.lng || 82.082664,
+        }),
       })
       if (!res.ok) {
         const data = await res.json()
@@ -72,6 +94,49 @@ export function AttendanceClient({
       alert(err.message)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleRecalibrateGeofence = async () => {
+    if (!activeSession) return
+    setIsCalibrating(true)
+    try {
+      const getPosition = (): Promise<{ lat: number; lng: number }> => {
+        return new Promise((resolve) => {
+          if (typeof window !== 'undefined' && navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+              () => resolve({ lat: 16.603849, lng: 82.082664 }),
+              { enableHighAccuracy: true, timeout: 5000 }
+            )
+          } else {
+            resolve({ lat: 16.603849, lng: 82.082664 })
+          }
+        })
+      }
+
+      const coords = await getPosition()
+      const res = await fetch('/api/attendance/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'CALIBRATE_GEOFENCE',
+          sessionId: activeSession.id,
+          roomLatitude: coords.lat,
+          roomLongitude: coords.lng,
+          geofenceRadiusMeters: activeSession.geofenceRadiusMeters,
+        }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error || 'Failed to calibrate geofence')
+      }
+      alert(`Classroom geofence successfully calibrated to your current location (${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)})!`)
+      router.refresh()
+    } catch (err: any) {
+      alert(err.message || 'Error calibrating geofence')
+    } finally {
+      setIsCalibrating(false)
     }
   }
 
@@ -112,7 +177,6 @@ export function AttendanceClient({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to delete attendance session')
 
-      // Optimistically remove from state
       setPastSessions((prev) => prev.filter((s) => s.id !== sessionId))
       router.refresh()
     } catch (err: any) {
@@ -123,19 +187,19 @@ export function AttendanceClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#383C3F]">
+    <div className="space-y-8">
+      {/* Top Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-2 border border-[#E5CB90]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3 border border-white/30 backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Biometric Liveness & Geofencing Perimeter Engine</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#FCFBF7] flex items-center gap-2.5">
-            <CalendarCheck className="w-6 h-6 text-[#E5CB90]" />
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
+            <CalendarCheck className="w-7 h-7 text-white" />
             <span>Attendance Verification Engine</span>
           </h1>
-          <p className="text-xs text-[#A8ACAF] mt-1">
+          <p className="mt-2 text-xs sm:text-sm text-white/90 max-w-xl leading-relaxed">
             Biometric face verification with liveness checks, GPS geofencing perimeter controls, and immutable audit logs.
           </p>
         </div>
@@ -144,16 +208,16 @@ export function AttendanceClient({
           <Link
             href="/student/attendance"
             target="_blank"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718] hover:bg-[#2E3235] text-[#D8D4CA] hover:text-[#FCFBF7] text-xs font-bold border border-[#383C3F] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition-all hover:scale-105 shadow-sm whitespace-nowrap"
           >
-            <Camera className="w-4 h-4 text-emerald-400" />
+            <Camera className="w-4 h-4 text-white" />
             <span>Student Face Check-In Sim ↗</span>
           </Link>
 
           {!activeSession && (
             <button
               onClick={() => setIsNewSessionModalOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-[#151718] text-xs font-black shadow-lg shadow-[#E5CB90]/20 transition-all hover:scale-105 cursor-pointer"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
               <span>+ Start New Session</span>
@@ -164,42 +228,50 @@ export function AttendanceClient({
 
       {/* Active Session Live View */}
       {activeSession ? (
-        <div className="rounded-3xl bg-[#222527] border-2 border-emerald-500/40 p-6 shadow-xl space-y-6 animate-in fade-in duration-300">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#383C3F] pb-5">
+        <div className="rounded-3xl bg-white border-2 border-[#35C979]/50 p-6 sm:p-8 shadow-md space-y-6 animate-in fade-in duration-300">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#E9EAF0] pb-5">
             <div className="flex items-start gap-3.5">
-              <div className="p-3 rounded-2xl bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 animate-pulse">
+              <div className="p-3 rounded-2xl bg-[#35C979] text-white shadow-lg shadow-[#35C979]/30 animate-pulse">
                 <Radio className="w-6 h-6" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/30 text-[10px] font-black uppercase tracking-wider">
+                  <span className="px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-black uppercase tracking-wider">
                     Live Session Active
                   </span>
-                  <span className="text-xs text-[#A8ACAF]">
+                  <span className="text-xs text-[#85878F]">
                     Started at {new Date(activeSession.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
-                <h2 className="text-lg font-bold text-[#FCFBF7] mt-1">
+                <h2 className="text-lg font-bold text-[#292C32] mt-1">
                   {activeSession.courseOffering.subject.name} ({activeSession.courseOffering.subject.code})
                 </h2>
-                <p className="text-xs text-[#A8ACAF] mt-0.5">
-                  Topic: <strong className="text-[#FFF3C8]">{activeSession.topicCovered || 'Regular Class'}</strong> • Section: <strong className="text-[#FFF3C8]">{activeSession.courseOffering.section}</strong>
+                <p className="text-xs text-[#85878F] mt-0.5">
+                  Topic: <strong className="text-[#292C32]">{activeSession.topicCovered || 'Regular Class'}</strong> • Section: <strong className="text-[#292C32]">{activeSession.courseOffering.section}</strong>
                 </p>
               </div>
             </div>
 
             {/* Geofence Parameters & Close Button */}
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#151718] border border-[#383C3F] text-xs">
-                <MapPin className="w-4 h-4 text-[#E5CB90]" />
-                <span className="font-semibold text-[#D8D4CA]">
-                  Geofence: {activeSession.geofenceRadiusMeters}m Radius
-                </span>
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0] text-xs font-semibold text-[#292C32]">
+                <MapPin className="w-4 h-4 text-[#8B6DE9]" />
+                <span>Geofence: {activeSession.geofenceRadiusMeters}m Radius</span>
               </div>
 
               <button
+                onClick={handleRecalibrateGeofence}
+                disabled={isCalibrating}
+                title="Calibrate classroom geofence center to your current device location"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#8B6DE9]/15 hover:bg-[#8B6DE9]/25 text-[#625BEB] text-xs font-bold border border-[#8B6DE9]/30 transition-all hover:scale-105 cursor-pointer disabled:opacity-50"
+              >
+                <MapPin className="w-3.5 h-3.5 text-[#625BEB]" />
+                <span>{isCalibrating ? 'Calibrating...' : 'Sync Geofence to My Location'}</span>
+              </button>
+
+              <button
                 onClick={() => setIsCloseConfirmOpen(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md shadow-rose-600/20 transition-all hover:scale-105 cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold shadow-md shadow-rose-600/20 transition-all hover:scale-105 cursor-pointer"
               >
                 <PowerOff className="w-4 h-4" />
                 <span>Close Session</span>
@@ -210,12 +282,12 @@ export function AttendanceClient({
           {/* Attendee Live Feed */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-bold text-[#FCFBF7] flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#E5CB90]" />
+              <h3 className="text-sm font-bold text-[#292C32] flex items-center gap-2">
+                <Users className="w-4 h-4 text-[#8B6DE9]" />
                 <span>Verified Attendees In This Session ({activeSession.records.length})</span>
               </h3>
-              <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-xs text-[#35C979] font-bold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#35C979] animate-ping" />
                 Listening for student check-ins...
               </span>
             </div>
@@ -225,10 +297,10 @@ export function AttendanceClient({
                 {activeSession.records.map((rec: any) => (
                   <div
                     key={rec.id}
-                    className="p-3.5 rounded-2xl border border-[#383C3F] bg-[#151718] flex items-center justify-between gap-3 hover:border-emerald-500/60 transition-colors"
+                    className="p-3.5 rounded-2xl border border-[#E9EAF0] bg-[#F2F3F5] flex items-center justify-between gap-3 hover:border-[#35C979]/60 transition-colors shadow-xs"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#222527] font-bold flex items-center justify-center text-xs shrink-0 text-[#E5CB90]">
+                      <div className="w-10 h-10 rounded-xl overflow-hidden bg-[#D9D1F5]/60 font-bold flex items-center justify-center text-xs shrink-0 text-[#625BEB]">
                         {rec.student.user.avatar ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
@@ -241,34 +313,36 @@ export function AttendanceClient({
                         )}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-xs font-bold text-[#FCFBF7] truncate">
+                        <p className="text-xs font-bold text-[#292C32] truncate">
                           {rec.student.user.name}
                         </p>
-                        <p className="text-[10px] text-[#A8ACAF] font-mono">
+                        <p className="text-[10px] text-[#85878F] font-mono">
                           {rec.student.rollNo} • {new Date(rec.markedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
                     </div>
 
                     <div className="text-right shrink-0">
-                      <div className="flex items-center gap-1 text-[10px] font-bold text-emerald-400">
+                      <div className="flex items-center gap-1 text-[10px] font-bold text-[#35C979]">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         <span>Face {rec.faceConfidence ? `${Math.round(rec.faceConfidence * 100)}%` : 'OK'}</span>
                       </div>
-                      <span className="text-[9px] text-[#A8ACAF] block mt-0.5">
-                        {rec.withinGeofence ? '✓ GPS Verified' : 'Outside GPS'}
+                      <span className={`text-[9px] font-semibold block mt-0.5 ${
+                        rec.withinGeofence ? 'text-[#35C979]' : 'text-amber-600'
+                      }`}>
+                        {rec.withinGeofence ? '✓ GPS Verified' : '⚠ Outside Geofence'}
                       </span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center rounded-2xl bg-[#151718] border border-[#383C3F]">
-                <Camera className="w-8 h-8 text-[#A8ACAF] mx-auto mb-2 opacity-50" />
-                <p className="text-xs font-semibold text-[#FCFBF7]">
+              <div className="p-8 text-center rounded-2xl bg-[#F2F3F5] border border-[#E9EAF0]">
+                <Camera className="w-8 h-8 text-[#85878F] mx-auto mb-2 opacity-50" />
+                <p className="text-xs font-semibold text-[#292C32]">
                   No students have checked in yet.
                 </p>
-                <p className="text-[11px] text-[#A8ACAF] mt-1">
+                <p className="text-[11px] text-[#85878F] mt-1">
                   Students can open the Student Check-In link to complete face capture and GPS check.
                 </p>
               </div>
@@ -276,17 +350,17 @@ export function AttendanceClient({
           </div>
         </div>
       ) : (
-        <div className="rounded-3xl bg-[#222527] border border-[#383C3F] p-8 text-center shadow-xl">
-          <CalendarCheck className="w-12 h-12 text-[#E5CB90] mx-auto mb-3 opacity-80" />
-          <h2 className="text-base font-bold text-[#FCFBF7]">
+        <div className="rounded-3xl bg-white border border-[#E9EAF0] p-8 text-center shadow-xs">
+          <CalendarCheck className="w-12 h-12 text-[#8B6DE9] mx-auto mb-3" />
+          <h2 className="text-base font-bold text-[#292C32]">
             No Active Attendance Session Right Now
           </h2>
-          <p className="text-xs text-[#A8ACAF] mt-1 max-w-md mx-auto">
+          <p className="text-xs text-[#85878F] mt-1 max-w-md mx-auto">
             Initiate a live classroom session with geofencing to allow students to mark presence via facial recognition.
           </p>
           <button
             onClick={() => setIsNewSessionModalOpen(true)}
-            className="mt-5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-[#151718] text-xs font-black shadow-lg shadow-[#E5CB90]/20 transition-all hover:scale-105 cursor-pointer"
+            className="mt-5 px-6 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer"
           >
             Start Classroom Session Now
           </button>
@@ -296,28 +370,28 @@ export function AttendanceClient({
       {/* Historical Sessions Archive */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-[#FCFBF7]">
+          <h3 className="text-sm font-bold text-[#292C32]">
             Previous Lecture Attendance Logs ({pastSessions.length})
           </h3>
-          <span className="text-xs text-[#A8ACAF]">
+          <span className="text-xs text-[#85878F]">
             Records include GPS audit & facial verification confidence
           </span>
         </div>
 
-        <div className="rounded-2xl bg-[#222527] border border-[#383C3F] overflow-hidden shadow-xl">
+        <div className="rounded-3xl bg-white border border-[#E9EAF0] overflow-hidden shadow-xs">
           <table className="w-full text-left text-xs">
-            <thead className="bg-[#151718] uppercase font-semibold text-[#A8ACAF] text-[10px] border-b border-[#383C3F]">
+            <thead className="bg-[#F2F3F5] uppercase font-bold text-[#85878F] text-[10px] border-b border-[#E9EAF0]">
               <tr>
-                <th className="px-4 py-3">Date & Time</th>
-                <th className="px-4 py-3">Subject & Section</th>
-                <th className="px-4 py-3">Topic Covered</th>
-                <th className="px-4 py-3">Attendance Ratio</th>
-                <th className="px-4 py-3">Percentage</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3 text-right">Actions</th>
+                <th className="px-5 py-3.5">Date & Time</th>
+                <th className="px-5 py-3.5">Subject & Section</th>
+                <th className="px-5 py-3.5">Topic Covered</th>
+                <th className="px-5 py-3.5">Attendance Ratio</th>
+                <th className="px-5 py-3.5">Percentage</th>
+                <th className="px-5 py-3.5">Status</th>
+                <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#383C3F]">
+            <tbody className="divide-y divide-[#E9EAF0]">
               {pastSessions.length > 0 ? (
                 pastSessions.map((s) => {
                   const presentCount = s.records?.filter(
@@ -327,39 +401,39 @@ export function AttendanceClient({
                   const pct = Math.round((presentCount / total) * 100)
 
                   return (
-                    <tr key={s.id} className="hover:bg-[#151718]/60 transition-colors">
-                      <td className="px-4 py-3 font-semibold text-[#FCFBF7]">
+                    <tr key={s.id} className="hover:bg-[#F2F3F5] transition-colors">
+                      <td className="px-5 py-3.5 font-semibold text-[#292C32]">
                         {new Date(s.sessionDate).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric',
                         })}
                       </td>
-                      <td className="px-4 py-3">
-                        <span className="px-2 py-0.5 rounded-md bg-[#E5CB90]/20 text-[#FFF3C8] font-mono font-bold text-xs border border-[#E5CB90]/30">
+                      <td className="px-5 py-3.5">
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#D9D1F5]/50 text-[#625BEB] font-mono font-bold text-xs border border-[#D9D1F5]">
                           {s.courseOffering?.subject?.code || 'CS501'}
                         </span>
-                        <span className="text-[#A8ACAF] ml-1.5 font-semibold">({s.courseOffering?.section || 'A'})</span>
+                        <span className="text-[#85878F] ml-1.5 font-semibold">({s.courseOffering?.section || 'A'})</span>
                       </td>
-                      <td className="px-4 py-3 font-medium text-[#D8D4CA]">
+                      <td className="px-5 py-3.5 font-medium text-[#292C32]">
                         {s.topicCovered || 'Regular Class'}
                       </td>
-                      <td className="px-4 py-3 font-mono text-[#FCFBF7]">
+                      <td className="px-5 py-3.5 font-mono font-semibold text-[#292C32]">
                         {presentCount} / {total} Present
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-3.5">
                         <span
                           className={`font-bold ${
-                            pct >= 75 ? 'text-emerald-400' : 'text-rose-400'
+                            pct >= 75 ? 'text-[#35C979]' : 'text-rose-600'
                           }`}
                         >
                           {pct}%
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-5 py-3.5">
                         <StatusBadge status={s.status} />
                       </td>
-                      <td className="px-4 py-3 text-right">
+                      <td className="px-5 py-3.5 text-right">
                         <button
                           onClick={() =>
                             handleDeleteSession(
@@ -370,7 +444,7 @@ export function AttendanceClient({
                           }
                           disabled={deletingId === s.id}
                           title={`Delete attendance log for ${s.courseOffering?.subject?.code || 'session'}`}
-                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                           <span>{deletingId === s.id ? 'Deleting...' : 'Delete'}</span>
@@ -381,7 +455,7 @@ export function AttendanceClient({
                 })
               ) : (
                 <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-[#A8ACAF]">
+                  <td colSpan={7} className="px-5 py-8 text-center text-[#85878F]">
                     No past lecture attendance logs found.
                   </td>
                 </tr>
@@ -401,7 +475,7 @@ export function AttendanceClient({
       >
         <form onSubmit={handleStartSession} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Select Course Offering *
             </label>
             <select
@@ -409,10 +483,10 @@ export function AttendanceClient({
               onChange={(e) =>
                 setNewSessionData({ ...newSessionData, courseOfferingId: e.target.value })
               }
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden cursor-pointer"
             >
               {courseOfferings.map((co) => (
-                <option key={co.id} value={co.id} className="bg-[#151718]">
+                <option key={co.id} value={co.id} className="bg-white text-[#292C32]">
                   {co.subject.code} - {co.subject.name} (Sec {co.section})
                 </option>
               ))}
@@ -420,7 +494,7 @@ export function AttendanceClient({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Topic / Lecture Title *
             </label>
             <input
@@ -431,12 +505,12 @@ export function AttendanceClient({
                 setNewSessionData({ ...newSessionData, topicCovered: e.target.value })
               }
               placeholder="e.g. Dijkstra Shortest Paths & Priority Queue Analysis"
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] placeholder:text-[#6A6E72] focus:border-[#E5CB90]"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Geofence Radius (Meters)
             </label>
             <input
@@ -450,25 +524,25 @@ export function AttendanceClient({
                   geofenceRadiusMeters: Number(e.target.value),
                 })
               }
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
             />
-            <p className="text-[10px] text-[#A8ACAF] mt-1">
+            <p className="text-[10px] text-[#85878F] mt-1">
               Only students whose GPS fix is within this distance from classroom LH-101 will be verified.
             </p>
           </div>
 
-          <div className="flex justify-end gap-2 pt-3 border-t border-[#383C3F]">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#E9EAF0]">
             <button
               type="button"
               onClick={() => setIsNewSessionModalOpen(false)}
-              className="px-4 py-2 text-xs font-medium text-[#A8ACAF] hover:bg-[#151718] rounded-xl cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 text-xs font-black text-[#151718] bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 rounded-xl shadow-md cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition-all hover:scale-105"
             >
               {loading ? 'Starting...' : 'Open Session'}
             </button>

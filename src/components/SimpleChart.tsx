@@ -17,7 +17,7 @@ interface SimpleLineChartProps {
 export function SimpleLineChart({
   data,
   height = 180,
-  accentColor = '#4f46e5',
+  accentColor = '#8B6DE9',
 }: SimpleLineChartProps) {
   if (!data || data.length === 0) return null
 
@@ -48,7 +48,7 @@ export function SimpleLineChart({
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full overflow-visible">
         <defs>
           <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={accentColor} stopOpacity="0.25" />
+            <stop offset="0%" stopColor={accentColor} stopOpacity="0.3" />
             <stop offset="100%" stopColor={accentColor} stopOpacity="0.0" />
           </linearGradient>
         </defs>
@@ -63,15 +63,14 @@ export function SimpleLineChart({
                 y1={y}
                 x2={width - paddingX}
                 y2={y}
-                stroke="#e2e8f0"
+                stroke="#E9EAF0"
                 strokeDasharray="4 4"
-                className="dark:stroke-slate-800"
               />
               <text
                 x={paddingX - 10}
                 y={y + 4}
                 textAnchor="end"
-                className="text-[10px] fill-slate-400 dark:fill-slate-500 font-mono"
+                className="text-[10px] fill-[#85878F] font-mono"
               >
                 {v}%
               </text>
@@ -116,7 +115,7 @@ export function SimpleLineChart({
               x={p.x}
               y={height - 5}
               textAnchor="middle"
-              className="text-[10px] fill-slate-500 dark:fill-slate-400 font-medium"
+              className="text-[10px] fill-[#85878F] font-medium"
             >
               {p.label}
             </text>
@@ -144,18 +143,18 @@ export function SimpleBarChart({ data, height = 180 }: SimpleBarChartProps) {
         const heightPct = Math.round((item.value / maxValue) * 100)
         return (
           <div key={idx} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end group">
-            <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 transition-opacity">
+            <span className="text-[11px] font-bold text-[#292C32] transition-opacity">
               {item.value}
             </span>
-            <div className="w-full max-w-[42px] bg-slate-100 dark:bg-slate-800 rounded-t-lg overflow-hidden flex items-end h-full">
+            <div className="w-full max-w-[42px] bg-[#F2F3F5] rounded-t-lg overflow-hidden flex items-end h-full">
               <div
                 className={`w-full rounded-t-lg transition-all duration-500 ease-out group-hover:opacity-85 ${
-                  item.color || 'bg-indigo-600 dark:bg-indigo-500'
+                  item.color || 'bg-[#8B6DE9]'
                 }`}
                 style={{ height: `${heightPct}%` }}
               />
             </div>
-            <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 truncate max-w-full text-center">
+            <span className="text-[10px] font-medium text-[#85878F] truncate max-w-full text-center">
               {item.label}
             </span>
           </div>

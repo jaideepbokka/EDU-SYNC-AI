@@ -16,6 +16,7 @@ import {
   Award,
   BookOpen,
   Trash2,
+  Check,
 } from 'lucide-react'
 
 interface QuestionsClientProps {
@@ -116,7 +117,6 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to delete question')
 
-      // Optimistically remove from state
       setQuestionList((prev) => prev.filter((q) => q.id !== id))
       router.refresh()
     } catch (err: any) {
@@ -127,19 +127,19 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#383C3F]">
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-2 border border-[#E5CB90]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3 border border-white/30 backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Curated Bloom’s Taxonomies & Evaluation Bank</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#FCFBF7] flex items-center gap-2.5">
-            <FileQuestion className="w-6 h-6 text-[#E5CB90]" />
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
+            <FileQuestion className="w-7 h-7 text-white" />
             <span>Question Bank Repository</span>
           </h1>
-          <p className="text-xs text-[#A8ACAF] mt-1">
+          <p className="mt-2 text-xs sm:text-sm text-white/90 max-w-xl leading-relaxed">
             Curated Bloom’s-aligned question items across MCQs, True/False, Short Answer rubrics, and Coding problems. Delete or manage items.
           </p>
         </div>
@@ -147,14 +147,14 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
         <div className="flex items-center gap-3">
           <Link
             href="/faculty/quiz-generator"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718] hover:bg-[#2E3235] text-[#D8D4CA] hover:text-[#FCFBF7] text-xs font-bold border border-[#383C3F] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition-all hover:scale-105 shadow-sm whitespace-nowrap"
           >
-            <Sparkles className="w-4 h-4 text-[#E5CB90]" />
+            <Sparkles className="w-4 h-4 text-white" />
             <span>AI Quiz Generator</span>
           </Link>
           <button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-[#151718] text-xs font-black shadow-lg shadow-[#E5CB90]/20 transition-all hover:scale-105 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             <span>+ Add Question</span>
@@ -163,9 +163,9 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
       </div>
 
       {/* Filter Toolbar */}
-      <div className="flex flex-wrap items-center gap-3 p-3.5 rounded-2xl bg-[#222527] border border-[#383C3F] shadow-xl">
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#A8ACAF] pl-2">
-          <Filter className="w-4 h-4 text-[#E5CB90]" />
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-3xl bg-white border border-[#E9EAF0] shadow-xs">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#292C32] pl-2">
+          <Filter className="w-4 h-4 text-[#8B6DE9]" />
           <span>Filters:</span>
         </div>
 
@@ -173,26 +173,26 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
         <select
           value={selectedTopic}
           onChange={(e) => setSelectedTopic(e.target.value)}
-          className="text-xs font-semibold rounded-xl border border-[#383C3F] bg-[#151718] p-2 text-[#FCFBF7] focus:outline-hidden focus:border-[#E5CB90]"
+          className="text-xs font-medium rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] focus:outline-hidden focus:ring-2 focus:ring-[#8B6DE9] cursor-pointer"
         >
-          <option value="ALL">All Topics</option>
+          <option value="ALL">All Topics ({questionList.length})</option>
           {topics.map((t) => (
-            <option key={t.id} value={t.id} className="bg-[#151718]">
+            <option key={t.id} value={t.id} className="bg-white text-[#292C32]">
               {t.title}
             </option>
           ))}
         </select>
 
         {/* Difficulty Filter */}
-        <div className="flex items-center gap-1 bg-[#151718] border border-[#383C3F] p-1 rounded-xl">
+        <div className="flex items-center gap-1 bg-[#F2F3F5] border border-[#E9EAF0] p-1 rounded-xl">
           {['ALL', 'EASY', 'MEDIUM', 'HARD'].map((diff) => (
             <button
               key={diff}
               onClick={() => setSelectedDifficulty(diff)}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 selectedDifficulty === diff
-                  ? 'bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] text-[#151718] font-bold shadow-xs'
-                  : 'text-[#A8ACAF] hover:text-[#FCFBF7]'
+                  ? 'bg-[#292C32] text-white font-bold shadow-xs'
+                  : 'text-[#85878F] hover:text-[#292C32]'
               }`}
             >
               {diff}
@@ -201,59 +201,63 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
         </div>
 
         {/* Type Filter */}
-        <div className="flex items-center gap-1 bg-[#151718] border border-[#383C3F] p-1 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1 bg-[#F2F3F5] border border-[#E9EAF0] p-1 rounded-xl overflow-x-auto">
           {['ALL', 'MCQ', 'TRUE_FALSE', 'SHORT_ANSWER', 'CODING'].map((type) => (
             <button
               key={type}
               onClick={() => setSelectedType(type)}
-              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all whitespace-nowrap cursor-pointer ${
                 selectedType === type
-                  ? 'bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] text-[#151718] font-bold shadow-xs'
-                  : 'text-[#A8ACAF] hover:text-[#FCFBF7]'
+                  ? 'bg-[#292C32] text-white font-bold shadow-xs'
+                  : 'text-[#85878F] hover:text-[#292C32]'
               }`}
             >
               {type.replace(/_/g, ' ')}
             </button>
           ))}
         </div>
+
+        <div className="ml-auto text-xs font-semibold text-[#85878F] pr-2">
+          Showing <strong>{filteredQuestions.length}</strong> questions
+        </div>
       </div>
 
       {/* Questions List */}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {filteredQuestions.length > 0 ? (
           filteredQuestions.map((q, idx) => (
             <div
               key={q.id}
-              className="rounded-3xl bg-[#222527] border border-[#383C3F] p-6 shadow-xl space-y-4 hover:border-[#E5CB90]/60 transition-colors"
+              className="rounded-3xl bg-white border border-[#E9EAF0] p-6 shadow-xs space-y-4 hover:border-[#A99AE8] transition-colors"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9EAF0] pb-3">
                 <div className="flex items-center gap-2">
-                  <span className="w-6 h-6 rounded-lg bg-[#E5CB90]/20 text-[#FFF3C8] font-black text-xs flex items-center justify-center border border-[#E5CB90]/30">
-                    Q{idx + 1}
+                  <span className="w-7 h-7 rounded-xl bg-[#8B6DE9] text-white font-black text-xs flex items-center justify-center shadow-xs">
+                    {idx + 1}
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-[#151718] border border-[#383C3F] text-[10px] font-bold uppercase text-[#FCFBF7]">
+                  <span className="px-2.5 py-0.5 rounded-md bg-[#F2F3F5] text-[10px] font-bold uppercase text-[#292C32]">
                     {q.type.replace(/_/g, ' ')}
                   </span>
-                  <span className="px-2 py-0.5 rounded-md bg-[#E5CB90]/15 text-[#FFF3C8] border border-[#E5CB90]/30 text-[10px] font-bold uppercase">
+                  <span className="px-2.5 py-0.5 rounded-md bg-[#D9D1F5]/50 text-[#625BEB] border border-[#D9D1F5] text-[10px] font-bold uppercase">
                     Bloom: {q.bloomLevel}
                   </span>
                   <StatusBadge status={q.difficulty} />
                 </div>
 
                 <div className="flex items-center gap-3 text-xs">
-                  <span className="font-bold text-[#FCFBF7]">
+                  <span className="font-bold text-[#292C32] px-2.5 py-1 rounded-full bg-[#F2F3F5]">
                     {q.marks} Marks
                   </span>
-                  <span className="text-[#A8ACAF] font-mono text-[10px] hidden sm:inline">
+                  <span className="text-[#8B6DE9] font-medium text-xs hidden sm:inline">
                     {q.topic?.title}
                   </span>
 
-                  {/* Delete Option for Question */}
+                  {/* Delete Option */}
                   <button
                     onClick={() => handleDeleteQuestion(q.id, q.questionText)}
                     disabled={deletingId === q.id}
                     title="Delete question from repository"
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                     <span>{deletingId === q.id ? 'Deleting...' : 'Delete'}</span>
@@ -262,27 +266,38 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
               </div>
 
               {/* Question Text */}
-              <p className="text-sm font-semibold text-[#FCFBF7] leading-relaxed">
+              <p className="text-sm font-semibold text-[#292C32] leading-relaxed">
                 {q.questionText}
               </p>
 
+              {/* Code snippet if present */}
+              {q.codeSnippet && (
+                <div className="p-3.5 rounded-xl bg-[#292C32] text-white font-mono text-xs overflow-x-auto border border-[#E9EAF0]">
+                  <pre>{q.codeSnippet}</pre>
+                </div>
+              )}
+
               {/* Options Preview for MCQs */}
               {q.options && q.options.length > 0 && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
                   {q.options.map((opt: any) => (
                     <div
                       key={opt.id}
-                      className={`p-2.5 rounded-xl border text-xs flex items-center gap-2 ${
+                      className={`p-3 rounded-xl border text-xs flex items-center gap-2.5 ${
                         opt.isCorrect
-                          ? 'bg-emerald-950/40 border-emerald-800/80 text-emerald-300 font-semibold'
-                          : 'bg-[#151718] border-[#383C3F] text-[#A8ACAF]'
+                          ? 'bg-emerald-50 border-emerald-300 text-emerald-900 font-semibold shadow-xs'
+                          : 'bg-[#F2F3F5] border-[#E9EAF0] text-[#292C32]'
                       }`}
                     >
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] bg-[#222527] text-[#FCFBF7] shadow-xs shrink-0">
+                      <span className={`w-5 h-5 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0 ${
+                        opt.isCorrect
+                          ? 'bg-[#35C979] text-white'
+                          : 'bg-white text-[#292C32] border border-[#E9EAF0] shadow-xs'
+                      }`}>
                         {opt.optionKey}
                       </span>
                       <span className="truncate">{opt.optionText}</span>
-                      {opt.isCorrect && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 ml-auto shrink-0" />}
+                      {opt.isCorrect && <CheckCircle2 className="w-4 h-4 text-[#35C979] ml-auto shrink-0" />}
                     </div>
                   ))}
                 </div>
@@ -290,18 +305,18 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
 
               {/* Sample Answer / Explanation */}
               {q.explanation && (
-                <div className="p-3 rounded-xl bg-[#151718] border border-[#383C3F] text-xs text-[#A8ACAF]">
-                  <strong className="text-[#FFF3C8]">Explanation: </strong>
+                <div className="p-3.5 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0] text-xs text-[#85878F]">
+                  <strong className="text-[#292C32] font-bold">Explanation & Proof: </strong>
                   <span>{q.explanation}</span>
                 </div>
               )}
             </div>
           ))
         ) : (
-          <div className="p-12 text-center rounded-3xl bg-[#222527] border border-[#383C3F] space-y-3">
-            <FileQuestion className="w-10 h-10 text-[#A8ACAF] mx-auto opacity-40" />
-            <p className="text-sm font-bold text-[#FCFBF7]">No questions match current filter criteria.</p>
-            <p className="text-xs text-[#A8ACAF]">
+          <div className="p-12 text-center rounded-3xl bg-white border border-[#E9EAF0] space-y-3">
+            <FileQuestion className="w-10 h-10 text-[#85878F] mx-auto opacity-50" />
+            <p className="text-sm font-bold text-[#292C32]">No questions match current filter criteria.</p>
+            <p className="text-xs text-[#85878F]">
               Try selecting &quot;All Topics&quot; or click &quot;+ Add Question&quot; to expand the question bank.
             </p>
           </div>
@@ -318,54 +333,54 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
         <form onSubmit={handleCreateQuestion} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Topic *
               </label>
               <select
                 value={formData.topicId}
                 onChange={(e) => setFormData({ ...formData, topicId: e.target.value })}
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               >
                 {topics.map((t) => (
-                  <option key={t.id} value={t.id} className="bg-[#151718]">
+                  <option key={t.id} value={t.id} className="bg-white text-[#292C32]">
                     {t.title}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Type
               </label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               >
-                <option value="MCQ" className="bg-[#151718]">Multiple Choice (MCQ)</option>
-                <option value="TRUE_FALSE" className="bg-[#151718]">True / False</option>
-                <option value="SHORT_ANSWER" className="bg-[#151718]">Short Answer / Subjective</option>
-                <option value="CODING" className="bg-[#151718]">Coding Implementation</option>
+                <option value="MCQ" className="bg-white text-[#292C32]">Multiple Choice (MCQ)</option>
+                <option value="TRUE_FALSE" className="bg-white text-[#292C32]">True / False</option>
+                <option value="SHORT_ANSWER" className="bg-white text-[#292C32]">Short Answer / Subjective</option>
+                <option value="CODING" className="bg-white text-[#292C32]">Coding Implementation</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Difficulty
               </label>
               <select
                 value={formData.difficulty}
                 onChange={(e) => setFormData({ ...formData, difficulty: e.target.value })}
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               >
-                <option value="EASY" className="bg-[#151718]">EASY</option>
-                <option value="MEDIUM" className="bg-[#151718]">MEDIUM</option>
-                <option value="HARD" className="bg-[#151718]">HARD</option>
+                <option value="EASY" className="bg-white text-[#292C32]">EASY</option>
+                <option value="MEDIUM" className="bg-white text-[#292C32]">MEDIUM</option>
+                <option value="HARD" className="bg-white text-[#292C32]">HARD</option>
               </select>
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Question Prompt *
             </label>
             <textarea
@@ -374,14 +389,14 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
               value={formData.questionText}
               onChange={(e) => setFormData({ ...formData, questionText: e.target.value })}
               placeholder="State the academic question clearly..."
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 placeholder:text-[#6A6E72] focus:border-[#E5CB90]"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
             />
           </div>
 
           {/* MCQ Options Builder */}
           {formData.type === 'MCQ' && (
             <div className="space-y-2">
-              <label className="block text-xs font-semibold text-[#D8D4CA]">
+              <label className="block text-xs font-semibold text-[#292C32]">
                 Options (Mark the correct answer)
               </label>
               {formData.options.map((opt, idx) => (
@@ -397,9 +412,9 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
                       }))
                       setFormData({ ...formData, options: updated })
                     }}
-                    className="accent-[#E5CB90] w-4 h-4 cursor-pointer"
+                    className="accent-[#8B6DE9] w-4 h-4 cursor-pointer"
                   />
-                  <span className="w-6 text-xs font-bold text-[#A8ACAF]">{opt.optionKey}:</span>
+                  <span className="w-6 text-xs font-bold text-[#85878F]">{opt.optionKey}:</span>
                   <input
                     type="text"
                     required
@@ -410,7 +425,7 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
                       setFormData({ ...formData, options: updated })
                     }}
                     placeholder={`Option ${opt.optionKey} text...`}
-                    className="flex-1 text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2 placeholder:text-[#6A6E72] focus:border-[#E5CB90]"
+                    className="flex-1 text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                   />
                 </div>
               ))}
@@ -418,7 +433,7 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Explanation / Evaluation Rubric
             </label>
             <textarea
@@ -426,22 +441,22 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
               value={formData.explanation}
               onChange={(e) => setFormData({ ...formData, explanation: e.target.value })}
               placeholder="Rationale for the correct answer..."
-              className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 placeholder:text-[#6A6E72] focus:border-[#E5CB90]"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
             />
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end gap-2 pt-3 border-t border-[#E9EAF0]">
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2 text-xs font-medium text-[#A8ACAF] hover:bg-[#151718] rounded-xl cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2 text-xs font-black text-[#151718] bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 rounded-xl shadow-md cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition-all hover:scale-105"
             >
               {loading ? 'Saving...' : 'Save Question'}
             </button>

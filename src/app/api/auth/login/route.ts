@@ -71,10 +71,19 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         {
-          error:
-            'Access denied. Your email or ID does not match the registered academic dataset. Please verify your credentials (e.g. FAC101EDUSYNC@gmail.com, FAC101, 26CSE101@edusync.edu, or Roll 101).',
+          error: 'Access denied',
         },
         { status: 401 }
+      )
+    }
+
+    // Strict Role Enforcement: Selected tab MUST match user's registered role!
+    if (role && user.role !== role) {
+      return NextResponse.json(
+        {
+          error: 'Access denied',
+        },
+        { status: 403 }
       )
     }
 

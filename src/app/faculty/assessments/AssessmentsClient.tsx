@@ -112,7 +112,6 @@ export function AssessmentsClient({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to delete assessment')
 
-      // Optimistically remove from state
       setAssessments((prev) => prev.filter((a) => a.id !== id))
       router.refresh()
     } catch (err: any) {
@@ -123,19 +122,19 @@ export function AssessmentsClient({
   }
 
   return (
-    <div className="space-y-6">
-      {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#383C3F]">
+    <div className="space-y-8">
+      {/* Top Hero Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-2 border border-[#E5CB90]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3 border border-white/30 backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Curriculum Evaluator • Multi-Question Bank</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#FCFBF7] flex items-center gap-2.5">
-            <Award className="w-6 h-6 text-[#E5CB90]" />
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
+            <Award className="w-7 h-7 text-white" />
             <span>Assessments & Examination Manager</span>
           </h1>
-          <p className="text-xs text-[#A8ACAF] mt-1">
+          <p className="mt-2 text-xs sm:text-sm text-white/90 max-w-xl leading-relaxed">
             Build evaluative quizzes, mid-term examinations, and assignments with question bank mappings. Delete or manage previous tests.
           </p>
         </div>
@@ -144,7 +143,7 @@ export function AssessmentsClient({
           <Link
             href="/student/assessments"
             target="_blank"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#151718] hover:bg-[#2E3235] text-[#D8D4CA] hover:text-[#FCFBF7] text-xs font-bold border border-[#383C3F] transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 transition-all hover:scale-105 shadow-sm whitespace-nowrap"
           >
             <span>Student Quiz Portal ↗</span>
           </Link>
@@ -153,7 +152,7 @@ export function AssessmentsClient({
               setIsBuilderOpen(true)
               setStep(1)
             }}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-[#151718] text-xs font-black shadow-lg shadow-[#E5CB90]/20 transition-all hover:scale-105 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             <span>+ Create Assessment</span>
@@ -170,24 +169,24 @@ export function AssessmentsClient({
             return (
               <div
                 key={ass.id}
-                className="rounded-3xl bg-[#222527] border border-[#383C3F] p-6 shadow-xl flex flex-col justify-between hover:border-[#E5CB90]/60 transition-colors relative"
+                className="rounded-3xl bg-white border border-[#E9EAF0] p-6 shadow-xs flex flex-col justify-between hover:border-[#A99AE8] transition-colors relative"
               >
                 <div>
-                  {/* Top Bar with Subject, Status, and Delete Action */}
+                  {/* Top Bar */}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="px-2.5 py-1 rounded-xl bg-[#E5CB90]/20 text-[#FFF3C8] font-mono font-bold text-xs border border-[#E5CB90]/30">
+                    <span className="px-3 py-1 rounded-full bg-[#D9D1F5]/50 text-[#625BEB] font-mono font-bold text-xs border border-[#D9D1F5]">
                       {ass.subject?.code || 'CS501'}
                     </span>
                     
                     <div className="flex items-center gap-2">
                       <StatusBadge status={ass.status} />
 
-                      {/* Delete Option for Previous Tests */}
+                      {/* Delete Button */}
                       <button
                         onClick={() => handleDeleteAssessment(ass.id, ass.title)}
                         disabled={deletingId === ass.id}
                         title={`Delete test "${ass.title}"`}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                        className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                         <span>{deletingId === ass.id ? 'Deleting...' : 'Delete'}</span>
@@ -196,43 +195,43 @@ export function AssessmentsClient({
                   </div>
 
                   {/* Title & Description */}
-                  <h3 className="text-base font-bold text-[#FCFBF7] mt-3">
+                  <h3 className="text-base font-bold text-[#292C32] mt-3">
                     {ass.title}
                   </h3>
-                  <p className="text-xs text-[#A8ACAF] mt-1 line-clamp-2">
+                  <p className="text-xs text-[#85878F] mt-1 line-clamp-2">
                     {ass.description || 'Academic benchmark evaluation.'}
                   </p>
 
                   {/* Metric Pills */}
-                  <div className="grid grid-cols-3 gap-2 mt-4 pt-4 border-t border-[#383C3F] text-center">
-                    <div className="p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]">
-                      <p className="text-[10px] text-[#A8ACAF] font-bold uppercase">Duration</p>
-                      <p className="text-xs font-bold text-[#FCFBF7] mt-0.5">
+                  <div className="grid grid-cols-3 gap-2.5 mt-4 pt-4 border-t border-[#E9EAF0] text-center">
+                    <div className="p-3 rounded-2xl bg-[#F2F3F5] border border-[#E9EAF0]">
+                      <p className="text-[10px] text-[#85878F] font-bold uppercase">Duration</p>
+                      <p className="text-xs font-bold text-[#292C32] mt-0.5">
                         {ass.durationMinutes} Mins
                       </p>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]">
-                      <p className="text-[10px] text-[#A8ACAF] font-bold uppercase">Marks</p>
-                      <p className="text-xs font-bold text-[#FCFBF7] mt-0.5">
+                    <div className="p-3 rounded-2xl bg-[#F2F3F5] border border-[#E9EAF0]">
+                      <p className="text-[10px] text-[#85878F] font-bold uppercase">Marks</p>
+                      <p className="text-xs font-bold text-[#292C32] mt-0.5">
                         {ass.totalMarks} (Pass {ass.passMarks})
                       </p>
                     </div>
-                    <div className="p-2.5 rounded-xl bg-[#151718] border border-[#383C3F]">
-                      <p className="text-[10px] text-[#A8ACAF] font-bold uppercase">Questions</p>
-                      <p className="text-xs font-bold text-[#FCFBF7] mt-0.5">
+                    <div className="p-3 rounded-2xl bg-[#F2F3F5] border border-[#E9EAF0]">
+                      <p className="text-[10px] text-[#85878F] font-bold uppercase">Questions</p>
+                      <p className="text-xs font-bold text-[#292C32] mt-0.5">
                         {ass.assessmentQuestions?.length || 0} Items
                       </p>
                     </div>
                   </div>
 
                   {/* Attempts Count */}
-                  <div className="mt-4 flex items-center justify-between text-xs text-[#A8ACAF]">
-                    <span className="flex items-center gap-1.5">
-                      <Users className="w-4 h-4 text-[#E5CB90]" />
+                  <div className="mt-4 flex items-center justify-between text-xs text-[#85878F]">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <Users className="w-4 h-4 text-[#8B6DE9]" />
                       <span>{ass.attempts?.length || 0} Student Attempts</span>
                     </span>
                     {pendingAttempts.length > 0 && (
-                      <span className="text-[#FFF3C8] font-bold px-2 py-0.5 rounded-md bg-[#E5CB90]/20 border border-[#E5CB90]/30">
+                      <span className="text-[#625BEB] font-bold px-2.5 py-0.5 rounded-full bg-[#D9D1F5]/60 border border-[#D9D1F5] text-[11px]">
                         {pendingAttempts.length} Pending Grading
                       </span>
                     )}
@@ -240,10 +239,10 @@ export function AssessmentsClient({
                 </div>
 
                 {/* Bottom Actions */}
-                <div className="mt-5 pt-4 border-t border-[#383C3F] flex items-center justify-between">
+                <div className="mt-5 pt-4 border-t border-[#E9EAF0] flex items-center justify-between">
                   <Link
                     href="/faculty/evaluation"
-                    className="text-xs font-bold text-[#E5CB90] hover:text-[#FFF3C8] hover:underline flex items-center gap-1"
+                    className="text-xs font-bold text-[#8B6DE9] hover:underline flex items-center gap-1"
                   >
                     <span>Evaluation Suite</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -251,7 +250,7 @@ export function AssessmentsClient({
 
                   <Link
                     href="/faculty/quiz-analysis"
-                    className="px-3 py-1.5 rounded-xl bg-[#151718] hover:bg-[#2E3235] text-[#D8D4CA] hover:text-[#FCFBF7] border border-[#383C3F] text-xs font-semibold transition-colors"
+                    className="px-3.5 py-1.5 rounded-xl bg-[#F2F3F5] hover:bg-[#E9EAF0] text-[#292C32] border border-[#E9EAF0] text-xs font-bold transition-colors"
                   >
                     View Topic Analysis
                   </Link>
@@ -260,10 +259,10 @@ export function AssessmentsClient({
             )
           })
         ) : (
-          <div className="col-span-2 p-12 text-center rounded-3xl bg-[#222527] border border-[#383C3F] space-y-3">
-            <Award className="w-10 h-10 text-[#A8ACAF] mx-auto opacity-40" />
-            <p className="text-sm font-bold text-[#FCFBF7]">No assessments created yet.</p>
-            <p className="text-xs text-[#A8ACAF]">
+          <div className="col-span-2 p-12 text-center rounded-3xl bg-white border border-[#E9EAF0] space-y-3">
+            <Award className="w-10 h-10 text-[#85878F] mx-auto opacity-50" />
+            <p className="text-sm font-bold text-[#292C32]">No assessments created yet.</p>
+            <p className="text-xs text-[#85878F]">
               Click &quot;+ Create Assessment&quot; above to build your first examination or quiz.
             </p>
           </div>
@@ -282,16 +281,16 @@ export function AssessmentsClient({
           {step === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+                <label className="block text-xs font-semibold text-[#292C32] mb-1">
                   Subject *
                 </label>
                 <select
                   value={formData.subjectId}
                   onChange={(e) => setFormData({ ...formData, subjectId: e.target.value })}
-                  className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                  className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                 >
                   {subjects.map((s) => (
-                    <option key={s.id} value={s.id} className="bg-[#151718]">
+                    <option key={s.id} value={s.id} className="bg-white text-[#292C32]">
                       {s.code} - {s.name}
                     </option>
                   ))}
@@ -299,7 +298,7 @@ export function AssessmentsClient({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+                <label className="block text-xs font-semibold text-[#292C32] mb-1">
                   Assessment Title *
                 </label>
                 <input
@@ -308,12 +307,12 @@ export function AssessmentsClient({
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                   placeholder="e.g. Unit 2: Dynamic Programming & Matrix Chain Multiplication"
-                  className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 placeholder:text-[#6A6E72] focus:border-[#E5CB90]"
+                  className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+                <label className="block text-xs font-semibold text-[#292C32] mb-1">
                   Description / Instructions
                 </label>
                 <textarea
@@ -321,13 +320,13 @@ export function AssessmentsClient({
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Assessment scope, allowable tools, and grading criteria..."
-                  className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 placeholder:text-[#6A6E72] focus:border-[#E5CB90]"
+                  className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                 />
               </div>
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+                  <label className="block text-xs font-semibold text-[#292C32] mb-1">
                     Duration (Mins)
                   </label>
                   <input
@@ -336,11 +335,11 @@ export function AssessmentsClient({
                     onChange={(e) =>
                       setFormData({ ...formData, durationMinutes: Number(e.target.value) })
                     }
-                    className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                    className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+                  <label className="block text-xs font-semibold text-[#292C32] mb-1">
                     Total Marks
                   </label>
                   <input
@@ -349,11 +348,11 @@ export function AssessmentsClient({
                     onChange={(e) =>
                       setFormData({ ...formData, totalMarks: Number(e.target.value) })
                     }
-                    className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                    className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+                  <label className="block text-xs font-semibold text-[#292C32] mb-1">
                     Pass Marks
                   </label>
                   <input
@@ -362,16 +361,16 @@ export function AssessmentsClient({
                     onChange={(e) =>
                       setFormData({ ...formData, passMarks: Number(e.target.value) })
                     }
-                    className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] text-[#FCFBF7] p-2.5 focus:border-[#E5CB90]"
+                    className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
+              <div className="flex justify-end gap-2 pt-3 border-t border-[#E9EAF0]">
                 <button
                   type="button"
                   onClick={() => setIsBuilderOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-[#A8ACAF] hover:bg-[#151718] rounded-xl"
+                  className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -381,7 +380,7 @@ export function AssessmentsClient({
                     if (!formData.title) return alert('Title is required')
                     setStep(2)
                   }}
-                  className="px-4 py-2 text-xs font-bold text-[#151718] bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 rounded-xl shadow-md cursor-pointer"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-md cursor-pointer transition-all hover:scale-105"
                 >
                   Next: Select Questions →
                 </button>
@@ -392,20 +391,20 @@ export function AssessmentsClient({
           {step === 2 && (
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-semibold text-[#D8D4CA]">
+                <p className="text-xs font-semibold text-[#292C32]">
                   Select questions from the Question Bank ({formData.selectedQuestionIds.length} selected):
                 </p>
                 <Link
                   href="/faculty/quiz-generator"
                   target="_blank"
-                  className="text-xs font-semibold text-[#E5CB90] hover:underline flex items-center gap-1"
+                  className="text-xs font-bold text-[#8B6DE9] hover:underline flex items-center gap-1"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>Generate More with AI</span>
                 </Link>
               </div>
 
-              <div className="max-h-72 overflow-y-auto divide-y divide-[#383C3F] border border-[#383C3F] rounded-2xl p-2 bg-[#151718]">
+              <div className="max-h-72 overflow-y-auto divide-y divide-[#E9EAF0] border border-[#E9EAF0] rounded-2xl p-2 bg-[#F2F3F5]">
                 {questions.map((q) => {
                   const isSelected = formData.selectedQuestionIds.includes(q.id)
                   return (
@@ -413,25 +412,25 @@ export function AssessmentsClient({
                       key={q.id}
                       onClick={() => toggleQuestionSelection(q.id)}
                       className={`p-3 rounded-xl cursor-pointer flex items-start gap-3 transition-colors ${
-                        isSelected ? 'bg-[#E5CB90]/20 text-[#FCFBF7]' : 'hover:bg-[#222527]'
+                        isSelected ? 'bg-[#D9D1F5]/40 border border-[#D9D1F5]' : 'hover:bg-white'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => {}}
-                        className="w-4 h-4 accent-[#E5CB90] mt-0.5 shrink-0"
+                        className="w-4 h-4 accent-[#8B6DE9] mt-0.5 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <span className="px-1.5 py-0.5 rounded-md bg-[#222527] text-[10px] font-bold text-[#FFF3C8]">
+                          <span className="px-2 py-0.5 rounded-md bg-white border border-[#E9EAF0] text-[10px] font-bold text-[#292C32]">
                             {q.type}
                           </span>
-                          <span className="text-[10px] text-[#A8ACAF] font-mono">
+                          <span className="text-[10px] text-[#85878F] font-mono">
                             {q.marks} Marks • Bloom: {q.bloomLevel}
                           </span>
                         </div>
-                        <p className="text-xs font-semibold text-[#FCFBF7] mt-1 line-clamp-2">
+                        <p className="text-xs font-semibold text-[#292C32] mt-1 line-clamp-2">
                           {q.questionText}
                         </p>
                       </div>
@@ -440,11 +439,11 @@ export function AssessmentsClient({
                 })}
               </div>
 
-              <div className="flex justify-between gap-2 pt-2">
+              <div className="flex justify-between gap-2 pt-3 border-t border-[#E9EAF0]">
                 <button
                   type="button"
                   onClick={() => setStep(1)}
-                  className="px-4 py-2 text-xs font-medium text-[#A8ACAF] hover:bg-[#151718] rounded-xl"
+                  className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer"
                 >
                   ← Back to Info
                 </button>
@@ -452,7 +451,7 @@ export function AssessmentsClient({
                   type="button"
                   onClick={handleCreateAssessment}
                   disabled={loading}
-                  className="px-5 py-2 text-xs font-black text-[#151718] bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 rounded-xl shadow-md cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition-all hover:scale-105"
                 >
                   {loading ? 'Publishing...' : 'Publish Assessment'}
                 </button>

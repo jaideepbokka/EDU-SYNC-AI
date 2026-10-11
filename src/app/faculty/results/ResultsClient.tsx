@@ -53,10 +53,10 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
       accessorKey: 'student',
       cell: (row) => (
         <div>
-          <p className="font-bold text-[#FCFBF7] text-xs">
+          <p className="font-bold text-[#292C32] text-xs">
             {row.student?.user?.name || 'Student'}
           </p>
-          <p className="text-[10px] text-[#A8ACAF] font-mono">{row.student?.rollNo || 'N/A'}</p>
+          <p className="text-[10px] text-[#85878F] font-mono">{row.student?.rollNo || 'N/A'}</p>
         </div>
       ),
     },
@@ -65,7 +65,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
       accessorKey: 'semester',
       sortable: true,
       cell: (row) => (
-        <span className="px-2.5 py-1 rounded-lg bg-[#151718] border border-[#383C3F] text-xs font-semibold text-[#D8D4CA]">
+        <span className="px-2.5 py-1 rounded-lg bg-[#F2F3F5] border border-[#E9EAF0] text-xs font-semibold text-[#292C32]">
           Sem {row.semester}
         </span>
       ),
@@ -75,7 +75,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
       accessorKey: 'sgpa',
       sortable: true,
       cell: (row) => (
-        <span className="font-mono font-black text-[#E5CB90] text-sm">
+        <span className="font-mono font-black text-[#625BEB] text-sm">
           {Number(row.sgpa).toFixed(2)}
         </span>
       ),
@@ -85,7 +85,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
       accessorKey: 'cgpa',
       sortable: true,
       cell: (row) => (
-        <span className="font-mono font-bold text-[#FCFBF7]">
+        <span className="font-mono font-bold text-[#292C32]">
           {Number(row.cgpa).toFixed(2)}
         </span>
       ),
@@ -93,7 +93,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
     {
       header: 'Credits Earned',
       cell: (row) => (
-        <span className="font-medium text-[#A8ACAF] text-xs">
+        <span className="font-medium text-[#85878F] text-xs">
           {row.earnedCredits} / {row.totalCredits}
         </span>
       ),
@@ -109,9 +109,9 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSelectedResult(row)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-[#383C3F] bg-[#151718] hover:bg-[#2E3235] text-xs font-semibold text-[#D8D4CA] hover:text-[#FCFBF7] transition-colors cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#A99AE8]/40 bg-[#D9D1F5]/40 hover:bg-[#D9D1F5]/70 text-xs font-bold text-[#625BEB] transition-colors cursor-pointer"
           >
-            <Eye className="w-3.5 h-3.5 text-[#E5CB90]" />
+            <Eye className="w-3.5 h-3.5 text-[#625BEB]" />
             <span>Subject Marks</span>
           </button>
 
@@ -127,7 +127,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
             }
             disabled={deletingId === row.id}
             title="Delete semester result"
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>{deletingId === row.id ? 'Deleting...' : 'Delete'}</span>
@@ -140,56 +140,58 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#383C3F]">
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-2 border border-[#E5CB90]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-2 border border-white/20 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Academic Performance Registry</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#FCFBF7] flex items-center gap-2.5">
-            <GraduationCap className="w-6 h-6 text-[#E5CB90]" />
+          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
+            <GraduationCap className="w-6 h-6 text-white" />
             <span>Official Semester Results & Marks Registry</span>
           </h1>
-          <p className="text-xs text-[#A8ACAF] mt-1">
-            Official university grade sheets, SGPA/CGPA computing, and internal/external mark distributions.
+          <p className="text-xs text-white/90 mt-1 max-w-2xl">
+            Official university grade sheets, SGPA/CGPA computing, and internal/external mark distributions across enrolled student cohorts.
           </p>
         </div>
       </div>
 
-      <DataTable
-        data={results}
-        columns={columns}
-        searchKey="student"
-        searchPlaceholder="Search student name..."
-      />
+      <div className="rounded-3xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
+        <DataTable
+          data={results}
+          columns={columns}
+          searchKey="student"
+          searchPlaceholder="Search student name or roll number..."
+        />
+      </div>
 
       {/* Subject Breakdown Drawer / Modal */}
       {selectedResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#151718]/80 backdrop-blur-xs">
-          <div className="bg-[#222527] rounded-3xl border border-[#383C3F] p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-5">
-            <div className="flex items-center justify-between border-b border-[#383C3F] pb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#292C32]/60 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl border border-[#E9EAF0] p-6 sm:p-8 max-w-2xl w-full shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-[#E9EAF0] pb-4">
               <div>
-                <h3 className="text-base font-bold text-[#FCFBF7]">
+                <h3 className="text-base font-bold text-[#292C32]">
                   {selectedResult.student?.user?.name || 'Student'} - Semester {selectedResult.semester}
                 </h3>
-                <p className="text-xs text-[#A8ACAF] mt-0.5">
-                  Roll No: {selectedResult.student?.rollNo || 'N/A'} • SGPA:{' '}
-                  <span className="text-[#E5CB90] font-mono font-bold">
+                <p className="text-xs text-[#85878F] mt-0.5">
+                  Roll No: <span className="font-mono font-semibold text-[#292C32]">{selectedResult.student?.rollNo || 'N/A'}</span> • SGPA:{' '}
+                  <span className="text-[#625BEB] font-mono font-bold">
                     {Number(selectedResult.sgpa).toFixed(2)}
                   </span>
                 </p>
               </div>
               <button
                 onClick={() => setSelectedResult(null)}
-                className="px-3 py-1.5 rounded-xl bg-[#151718] border border-[#383C3F] hover:bg-[#2E3235] text-xs font-semibold text-[#D8D4CA] hover:text-[#FCFBF7] transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-xl bg-[#F2F3F5] hover:bg-[#E9EAF0] border border-[#E9EAF0] text-xs font-semibold text-[#292C32] transition-colors cursor-pointer"
               >
                 Close
               </button>
             </div>
 
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto rounded-2xl border border-[#E9EAF0]">
               <table className="w-full text-left text-xs">
-                <thead className="bg-[#151718] uppercase font-semibold text-[#A8ACAF] text-[10px] border-b border-[#383C3F]">
+                <thead className="bg-[#F2F3F5] uppercase font-semibold text-[#85878F] text-[10px] border-b border-[#E9EAF0]">
                   <tr>
                     <th className="px-3 py-2.5">Subject</th>
                     <th className="px-3 py-2.5">Credits</th>
@@ -199,19 +201,19 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
                     <th className="px-3 py-2.5">Grade</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#383C3F]">
+                <tbody className="divide-y divide-[#E9EAF0] bg-white">
                   {selectedResult.subjectResults && selectedResult.subjectResults.length > 0 ? (
                     selectedResult.subjectResults.map((sub: any) => (
-                      <tr key={sub.id} className="hover:bg-[#151718]/40 transition-colors">
-                        <td className="px-3 py-2.5 font-semibold text-[#FCFBF7]">
+                      <tr key={sub.id} className="hover:bg-[#F2F3F5] transition-colors">
+                        <td className="px-3 py-2.5 font-semibold text-[#292C32]">
                           {sub.subjectCode} - {sub.subjectName}
                         </td>
-                        <td className="px-3 py-2.5 text-[#D8D4CA]">{sub.credits}</td>
-                        <td className="px-3 py-2.5 text-[#D8D4CA]">{sub.internalMarks}</td>
-                        <td className="px-3 py-2.5 text-[#D8D4CA]">{sub.externalMarks}</td>
-                        <td className="px-3 py-2.5 font-bold text-[#FCFBF7]">{sub.totalMarks}</td>
+                        <td className="px-3 py-2.5 text-[#85878F]">{sub.credits}</td>
+                        <td className="px-3 py-2.5 text-[#85878F]">{sub.internalMarks}</td>
+                        <td className="px-3 py-2.5 text-[#85878F]">{sub.externalMarks}</td>
+                        <td className="px-3 py-2.5 font-bold text-[#292C32]">{sub.totalMarks}</td>
                         <td className="px-3 py-2.5">
-                          <span className="px-2 py-0.5 rounded-md bg-[#E5CB90]/20 text-[#FFF3C8] border border-[#E5CB90]/30 font-bold">
+                          <span className="px-2 py-0.5 rounded-md bg-[#D9D1F5]/60 text-[#625BEB] border border-[#A99AE8]/40 font-bold font-mono">
                             {sub.grade}
                           </span>
                         </td>
@@ -219,7 +221,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={6} className="px-3 py-4 text-center text-[#A8ACAF]">
+                      <td colSpan={6} className="px-3 py-6 text-center text-[#85878F]">
                         No individual subject marks logged for this result sheet.
                       </td>
                     </tr>
@@ -228,7 +230,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
               </table>
             </div>
 
-            <div className="flex justify-end pt-2 border-t border-[#383C3F]">
+            <div className="flex justify-end pt-2 border-t border-[#E9EAF0]">
               <button
                 type="button"
                 onClick={() =>
@@ -239,7 +241,7 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
                     selectedResult.student?.rollNo || 'N/A'
                   )
                 }
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-bold transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete Result Sheet</span>
@@ -251,3 +253,4 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
     </div>
   )
 }
+

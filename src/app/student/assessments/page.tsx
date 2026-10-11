@@ -1,17 +1,35 @@
 import React from 'react'
 import { prisma } from '@/lib/prisma'
+import { requireStudentUser } from '@/lib/auth'
 import { StudentAssessmentsClient } from './StudentAssessmentsClient'
+
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
 export const metadata = {
   title: 'Student Assessment Room | EduSync AI',
-  description: 'Attempt scheduled quizzes and university examinations.',
+  description: 'Attempt scheduled quizzes and university examinations with live proctoring.',
 }
 
 export default async function StudentAssessmentsPage() {
-  const [students, assessments] = await Promise.all([
-    prisma.student.findMany({
-      include: { user: true },
-      orderBy: { rollNo: 'asc' },
+  const user = await requireStudentUser()
+
+  const [student, assessments] = await Promise.all([
+    prisma.student.findUnique({
+      where: { id: user.studentId },
+      include: {
+        user: true,
+        attempts: {
+          include: {
+            answers: {
+              include: {
+                question: { include: { options: true } },
+              },
+            },
+            assessment: true,
+          },
+        },
+      },
     }),
     prisma.assessment.findMany({
       where: { status: 'PUBLISHED' },
@@ -23,6 +41,16 @@ export default async function StudentAssessmentsPage() {
           },
           orderBy: { orderIndex: 'asc' },
         },
+        attempts: {
+          where: { studentId: user.studentId },
+          include: {
+            answers: {
+              include: {
+                question: { include: { options: true } },
+              },
+            },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
     }),
@@ -30,7 +58,7 @@ export default async function StudentAssessmentsPage() {
 
   return (
     <StudentAssessmentsClient
-      students={students as any}
+      student={student as any}
       assessments={assessments as any}
     />
   )

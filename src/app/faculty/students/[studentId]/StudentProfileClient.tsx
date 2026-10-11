@@ -101,16 +101,16 @@ export function StudentProfileClient({
       <div>
         <Link
           href="/faculty/students"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 mb-3"
+          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#85878F] hover:text-[#292C32] mb-3"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Student Directory</span>
         </Link>
 
         {/* Student Profile Header Card */}
-        <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="rounded-3xl bg-white border border-[#E9EAF0] p-6 shadow-xs flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-indigo-50 dark:bg-indigo-950/60 border-2 border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-xl font-bold text-indigo-600 shrink-0 shadow-md">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-[#D9D1F5]/60 border-2 border-[#D9D1F5] flex items-center justify-center text-xl font-bold text-[#625BEB] shrink-0 shadow-xs">
               {student.user.avatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -125,18 +125,18 @@ export function StudentProfileClient({
 
             <div>
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100">
+                <h1 className="text-xl sm:text-2xl font-black text-[#292C32]">
                   {student.user.name}
                 </h1>
                 <StatusBadge status={student.riskLevel} />
               </div>
 
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                Roll No: <strong className="font-mono text-slate-800 dark:text-slate-200">{student.rollNo}</strong> • Reg No: <strong className="font-mono text-slate-800 dark:text-slate-200">{student.registerNo}</strong>
+              <p className="text-xs text-[#85878F] mt-1">
+                Roll No: <strong className="font-mono text-[#292C32]">{student.rollNo}</strong> • Reg No: <strong className="font-mono text-[#292C32]">{student.registerNo}</strong>
               </p>
 
-              <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-slate-500">
-                <span className="px-2 py-0.5 rounded-md bg-slate-100 dark:bg-slate-800 font-semibold text-slate-700 dark:text-slate-300">
+              <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-[#85878F]">
+                <span className="px-2 py-0.5 rounded-md bg-[#F2F3F5] font-semibold text-[#292C32]">
                   {student.department.name} (Sem {student.currentSemester} - Sec {student.section})
                 </span>
                 <span>Batch: {student.batch}</span>
@@ -145,34 +145,34 @@ export function StudentProfileClient({
           </div>
 
           {/* Quick Metrics */}
-          <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-4 md:pt-0 border-slate-100 dark:border-slate-800">
-            <div className="text-center px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <p className="text-[10px] uppercase font-bold text-slate-400">Attendance</p>
+          <div className="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end border-t md:border-t-0 pt-4 md:pt-0 border-[#E9EAF0]">
+            <div className="text-center px-4 py-2 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0]">
+              <p className="text-[10px] uppercase font-bold text-[#85878F]">Attendance</p>
               <p
                 className={`text-xl font-black ${
                   student.attendancePercentage >= 75
-                    ? 'text-emerald-600 dark:text-emerald-400'
-                    : 'text-rose-600 dark:text-rose-400'
+                    ? 'text-[#35C979]'
+                    : 'text-rose-600'
                 }`}
               >
                 {student.attendancePercentage}%
               </p>
             </div>
-            <div className="text-center px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <p className="text-[10px] uppercase font-bold text-slate-400">CGPA</p>
-              <p className="text-xl font-black text-indigo-600 dark:text-indigo-400">
+            <div className="text-center px-4 py-2 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0]">
+              <p className="text-[10px] uppercase font-bold text-[#85878F]">CGPA</p>
+              <p className="text-xl font-black text-[#625BEB]">
                 {student.currentCgpa.toFixed(2)}
               </p>
             </div>
-            <div className="text-center px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-              <p className="text-[10px] uppercase font-bold text-slate-400">Risk Score</p>
+            <div className="text-center px-4 py-2 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0]">
+              <p className="text-[10px] uppercase font-bold text-[#85878F]">Risk Score</p>
               <p
                 className={`text-xl font-black ${
                   student.riskScore >= 70
                     ? 'text-rose-600'
                     : student.riskScore >= 40
                     ? 'text-amber-600'
-                    : 'text-emerald-600'
+                    : 'text-[#35C979]'
                 }`}
               >
                 {student.riskScore}/100
@@ -183,7 +183,7 @@ export function StudentProfileClient({
       </div>
 
       {/* Tabs Navigation Bar */}
-      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-slate-200 dark:border-slate-800 pb-1">
+      <div className="flex items-center gap-1.5 overflow-x-auto border-b border-[#E9EAF0] pb-1">
         {tabs.map((tab) => {
           const Icon = tab.icon
           const isActive = activeTab === tab.id
@@ -191,10 +191,10 @@ export function StudentProfileClient({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                 isActive
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'text-slate-500 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  ? 'bg-[#292C32] text-white shadow-xs'
+                  : 'text-[#85878F] hover:text-[#292C32] hover:bg-[#F2F3F5]'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -209,40 +209,40 @@ export function StudentProfileClient({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             {/* Academic Status Card */}
-            <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4">
+            <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
+              <h3 className="text-sm font-bold text-[#292C32] mb-4">
                 Academic Standing & Mentor Notes
               </h3>
-              <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-100 dark:border-slate-800">
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <div className="p-4 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0]">
+                <p className="text-xs font-semibold text-[#292C32]">
                   Advisor / Mentor Note:
                 </p>
-                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 italic leading-relaxed">
+                <p className="text-xs text-[#85878F] mt-1 italic leading-relaxed">
                   &ldquo;{student.advisorNotes || 'No notes added yet for this student.'}&rdquo;
                 </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                <div className="p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Enrolled Credits</span>
-                  <p className="text-base font-bold text-slate-800 dark:text-slate-200 mt-0.5">22 Credits</p>
+                <div className="p-3 rounded-xl border border-[#E9EAF0] bg-[#F2F3F5]">
+                  <span className="text-[10px] text-[#85878F] font-bold uppercase">Enrolled Credits</span>
+                  <p className="text-base font-bold text-[#292C32] mt-0.5">22 Credits</p>
                 </div>
-                <div className="p-3 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase">Degree Program</span>
-                  <p className="text-base font-bold text-slate-800 dark:text-slate-200 mt-0.5">B.Tech Computer Science</p>
+                <div className="p-3 rounded-xl border border-[#E9EAF0] bg-[#F2F3F5]">
+                  <span className="text-[10px] text-[#85878F] font-bold uppercase">Degree Program</span>
+                  <p className="text-base font-bold text-[#292C32] mt-0.5">B.Tech Computer Science</p>
                 </div>
               </div>
             </div>
 
             {/* Quick Topic Progress Summary */}
-            <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+            <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="text-sm font-bold text-[#292C32]">
                   Core Topics Progression
                 </h3>
                 <button
                   onClick={() => setActiveTab('progress')}
-                  className="text-xs font-semibold text-indigo-600 hover:underline"
+                  className="text-xs font-semibold text-[#8B6DE9] hover:underline cursor-pointer"
                 >
                   View all
                 </button>
@@ -250,7 +250,7 @@ export function StudentProfileClient({
               <div className="space-y-4">
                 {student.topicProgress.map((tp: any) => (
                   <div key={tp.id} className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-medium">
+                    <div className="flex justify-between text-xs font-medium text-[#292C32]">
                       <span>{tp.topic.title}</span>
                       <StatusBadge status={tp.status} size="sm" />
                     </div>
@@ -263,43 +263,43 @@ export function StudentProfileClient({
 
           {/* Right Column: Contact & Guardian */}
           <div className="space-y-6">
-            <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mb-4">
+            <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs">
+              <h3 className="text-sm font-bold text-[#292C32] mb-4">
                 Contact & Guardian Information
               </h3>
               <div className="space-y-3.5 text-xs">
                 <div className="flex items-start gap-3">
-                  <Mail className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <Mail className="w-4 h-4 text-[#85878F] shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-slate-400 text-[10px] font-semibold uppercase">Email</span>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{student.user.email}</p>
+                    <span className="text-[#85878F] text-[10px] font-semibold uppercase">Email</span>
+                    <p className="font-semibold text-[#292C32]">{student.user.email}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
-                  <Phone className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                  <Phone className="w-4 h-4 text-[#85878F] shrink-0 mt-0.5" />
                   <div>
-                    <span className="text-slate-400 text-[10px] font-semibold uppercase">Student Phone</span>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">
+                    <span className="text-[#85878F] text-[10px] font-semibold uppercase">Student Phone</span>
+                    <p className="font-semibold text-[#292C32]">
                       {student.studentPhone || 'Not provided'}
                     </p>
                   </div>
                 </div>
 
-                <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
-                  <span className="text-slate-400 text-[10px] font-semibold uppercase">Guardian Contact</span>
-                  <p className="font-bold text-slate-900 dark:text-slate-100 mt-1">
+                <div className="border-t border-[#E9EAF0] pt-3">
+                  <span className="text-[#85878F] text-[10px] font-semibold uppercase">Guardian Contact</span>
+                  <p className="font-bold text-[#292C32] mt-1">
                     {student.guardianName || 'Parent / Guardian'}
                   </p>
-                  <p className="text-indigo-600 font-semibold mt-0.5">{student.guardianPhone || 'N/A'}</p>
+                  <p className="text-[#625BEB] font-semibold mt-0.5">{student.guardianPhone || 'N/A'}</p>
                 </div>
 
                 {student.address && (
                   <div className="flex items-start gap-3 pt-2">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+                    <MapPin className="w-4 h-4 text-[#85878F] shrink-0 mt-0.5" />
                     <div>
-                      <span className="text-slate-400 text-[10px] font-semibold uppercase">Permanent Address</span>
-                      <p className="text-slate-600 dark:text-slate-400 leading-relaxed mt-0.5">{student.address}</p>
+                      <span className="text-[#85878F] text-[10px] font-semibold uppercase">Permanent Address</span>
+                      <p className="text-[#85878F] leading-relaxed mt-0.5">{student.address}</p>
                     </div>
                   </div>
                 )}
@@ -313,17 +313,17 @@ export function StudentProfileClient({
       {activeTab === 'attendance' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+            <h3 className="text-sm font-bold text-[#292C32]">
               Verified Attendance Records ({student.attendanceRecords.length} Sessions)
             </h3>
-            <span className="text-xs text-slate-400">
+            <span className="text-xs text-[#85878F]">
               Biometric Face & GPS Geofence Audited
             </span>
           </div>
 
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xs">
+          <div className="rounded-2xl bg-white border border-[#E9EAF0] overflow-hidden shadow-xs">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 dark:bg-slate-800/60 uppercase font-semibold text-slate-500 border-b border-slate-200 dark:border-slate-800 text-[10px]">
+              <thead className="bg-[#F2F3F5] uppercase font-semibold text-[#85878F] border-b border-[#E9EAF0] text-[10px]">
                 <tr>
                   <th className="px-4 py-3">Session Date & Subject</th>
                   <th className="px-4 py-3">Topic Covered</th>
@@ -332,22 +332,22 @@ export function StudentProfileClient({
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+              <tbody className="divide-y divide-[#E9EAF0]">
                 {student.attendanceRecords.map((rec: any) => (
-                  <tr key={rec.id} className="hover:bg-slate-50/50">
+                  <tr key={rec.id} className="hover:bg-[#F2F3F5]/50">
                     <td className="px-4 py-3">
-                      <p className="font-bold text-slate-900 dark:text-slate-100">
+                      <p className="font-bold text-[#292C32]">
                         {new Date(rec.session.sessionDate).toLocaleDateString('en-US', {
                           month: 'short',
                           day: 'numeric',
                           year: 'numeric',
                         })}
                       </p>
-                      <p className="text-[10px] text-slate-400">
+                      <p className="text-[10px] text-[#85878F]">
                         {rec.session.courseOffering.subject.code} - {rec.session.courseOffering.subject.name}
                       </p>
                     </td>
-                    <td className="px-4 py-3 font-medium text-slate-700 dark:text-slate-300">
+                    <td className="px-4 py-3 font-medium text-[#292C32]">
                       {rec.session.topicCovered || 'Regular Class'}
                     </td>
                     <td className="px-4 py-3">
@@ -359,12 +359,18 @@ export function StudentProfileClient({
                           <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-semibold text-[10px] border border-emerald-200">
                             Face: {rec.faceConfidence ? `${Math.round(rec.faceConfidence * 100)}%` : 'Verified'}
                           </span>
-                          <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 font-semibold text-[10px] border border-sky-200">
-                            GPS In-Geofence
-                          </span>
+                          {rec.withinGeofence ? (
+                            <span className="px-2 py-0.5 rounded-md bg-sky-50 text-sky-700 font-semibold text-[10px] border border-sky-200">
+                              ✓ In Geofence
+                            </span>
+                          ) : (
+                            <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 font-semibold text-[10px] border border-amber-200">
+                              ⚠ Outside Geofence
+                            </span>
+                          )}
                         </div>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">
+                        <span className="text-[#85878F] text-[11px]">
                           {rec.overrideReason || 'Absent at session close'}
                         </span>
                       )}
@@ -376,7 +382,7 @@ export function StudentProfileClient({
                             setOverrideSessionId(rec.sessionId)
                             setIsOverrideModalOpen(true)
                           }}
-                          className="px-2.5 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 font-semibold text-xs transition-colors"
+                          className="px-2.5 py-1 rounded-lg bg-[#D9D1F5]/60 hover:bg-[#D9D1F5] text-[#625BEB] font-semibold text-xs transition-colors cursor-pointer"
                         >
                           Manual Override
                         </button>
@@ -396,27 +402,27 @@ export function StudentProfileClient({
           {student.enrollments.map((enr: any) => (
             <div
               key={enr.id}
-              className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xs"
+              className="rounded-2xl bg-white border border-[#E9EAF0] p-5 shadow-xs"
             >
               <div className="flex items-center justify-between">
-                <span className="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400 font-mono font-bold text-xs">
+                <span className="px-2.5 py-1 rounded-lg bg-[#D9D1F5]/50 text-[#625BEB] font-mono font-bold text-xs border border-[#D9D1F5]">
                   {enr.courseOffering.subject.code}
                 </span>
-                <span className="text-xs font-semibold text-slate-500">
+                <span className="text-xs font-semibold text-[#85878F]">
                   {enr.courseOffering.subject.credits} Credits
                 </span>
               </div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 mt-2">
+              <h3 className="text-sm font-bold text-[#292C32] mt-2">
                 {enr.courseOffering.subject.name}
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <p className="text-xs text-[#85878F] mt-1">
                 Faculty: {enr.courseOffering.faculty.user.name} ({enr.courseOffering.faculty.designation})
               </p>
-              <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                <span className="text-slate-500">Section {enr.courseOffering.section}</span>
+              <div className="mt-4 pt-4 border-t border-[#E9EAF0] flex items-center justify-between text-xs">
+                <span className="text-[#85878F]">Section {enr.courseOffering.section}</span>
                 <Link
                   href={`/faculty/subjects`}
-                  className="text-indigo-600 font-semibold hover:underline flex items-center gap-1"
+                  className="text-[#8B6DE9] font-semibold hover:underline flex items-center gap-1"
                 >
                   <span>Syllabus & Units</span>
                   <ExternalLink className="w-3.5 h-3.5" />
@@ -433,26 +439,26 @@ export function StudentProfileClient({
           {student.semesterResults.map((res: any) => (
             <div
               key={res.id}
-              className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4"
+              className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs space-y-4"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 dark:border-slate-800 pb-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#E9EAF0] pb-4">
                 <div>
-                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                  <h3 className="text-base font-bold text-[#292C32]">
                     Semester {res.semester} Official Grade Sheet
                   </h3>
-                  <p className="text-xs text-slate-400">Academic Session {res.academicYear}</p>
+                  <p className="text-xs text-[#85878F]">Academic Session {res.academicYear}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="text-right">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase">SGPA</span>
-                    <p className="text-lg font-black text-indigo-600">{res.sgpa.toFixed(2)}</p>
+                    <span className="text-[10px] text-[#85878F] font-bold uppercase">SGPA</span>
+                    <p className="text-lg font-black text-[#625BEB]">{res.sgpa.toFixed(2)}</p>
                   </div>
                   <StatusBadge status={res.status} />
                 </div>
               </div>
 
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 dark:bg-slate-800/60 uppercase font-semibold text-slate-500 text-[10px]">
+                <thead className="bg-[#F2F3F5] uppercase font-semibold text-[#85878F] text-[10px]">
                   <tr>
                     <th className="px-4 py-2.5">Course</th>
                     <th className="px-4 py-2.5">Credits</th>
@@ -462,18 +468,18 @@ export function StudentProfileClient({
                     <th className="px-4 py-2.5">Grade</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                <tbody className="divide-y divide-[#E9EAF0]">
                   {res.subjectResults.map((sub: any) => (
                     <tr key={sub.id}>
-                      <td className="px-4 py-2.5 font-semibold text-slate-900 dark:text-slate-100">
+                      <td className="px-4 py-2.5 font-semibold text-[#292C32]">
                         {sub.subjectCode} - {sub.subjectName}
                       </td>
-                      <td className="px-4 py-2.5">{sub.credits}</td>
-                      <td className="px-4 py-2.5">{sub.internalMarks}</td>
-                      <td className="px-4 py-2.5">{sub.externalMarks}</td>
-                      <td className="px-4 py-2.5 font-bold">{sub.totalMarks}</td>
+                      <td className="px-4 py-2.5 text-[#292C32]">{sub.credits}</td>
+                      <td className="px-4 py-2.5 text-[#292C32]">{sub.internalMarks}</td>
+                      <td className="px-4 py-2.5 text-[#292C32]">{sub.externalMarks}</td>
+                      <td className="px-4 py-2.5 font-bold text-[#292C32]">{sub.totalMarks}</td>
                       <td className="px-4 py-2.5">
-                        <span className="px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 font-bold">
+                        <span className="px-2 py-0.5 rounded-md bg-[#D9D1F5]/60 text-[#625BEB] font-bold">
                           {sub.grade}
                         </span>
                       </td>
@@ -489,25 +495,25 @@ export function StudentProfileClient({
       {/* Tab 5: ASSESSMENTS */}
       {activeTab === 'assessments' && (
         <div className="space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+          <h3 className="text-sm font-bold text-[#292C32]">
             Assessment & Quiz Submissions ({student.attempts.length})
           </h3>
           <div className="space-y-4">
             {student.attempts.map((att: any) => (
               <div
                 key={att.id}
-                className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                className="rounded-2xl bg-white border border-[#E9EAF0] p-5 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                    <span className="text-sm font-bold text-[#292C32]">
                       {att.assessment.title}
                     </span>
                     <StatusBadge status={att.status} />
                   </div>
-                  <p className="text-xs text-slate-500 mt-1">{att.assessment.description}</p>
+                  <p className="text-xs text-[#85878F] mt-1">{att.assessment.description}</p>
                   {att.feedback && (
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mt-1 italic">
+                    <p className="text-xs text-[#625BEB] mt-1 italic">
                       Faculty Feedback: &ldquo;{att.feedback}&rdquo;
                     </p>
                   )}
@@ -515,16 +521,16 @@ export function StudentProfileClient({
 
                 <div className="flex items-center gap-4">
                   <div className="text-right">
-                    <p className="text-lg font-black text-slate-900 dark:text-slate-100">
+                    <p className="text-lg font-black text-[#292C32]">
                       {att.score} / {att.totalMarks}
                     </p>
-                    <p className="text-xs font-semibold text-slate-400">{att.percentage}% Score</p>
+                    <p className="text-xs font-semibold text-[#85878F]">{att.percentage}% Score</p>
                   </div>
 
                   {att.status === 'SUBMITTED' && (
                     <Link
                       href="/faculty/evaluation"
-                      className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs"
+                      className="px-3 py-1.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-xs"
                     >
                       Grade Now
                     </Link>
@@ -538,20 +544,20 @@ export function StudentProfileClient({
 
       {/* Tab 6: TOPIC MASTERY */}
       {activeTab === 'progress' && (
-        <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-6">
-          <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+        <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs space-y-6">
+          <h3 className="text-sm font-bold text-[#292C32]">
             Syllabus Topic Mastery Progression
           </h3>
 
           <div className="space-y-6">
             {student.topicProgress.map((tp: any) => (
-              <div key={tp.id} className="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 space-y-3">
+              <div key={tp.id} className="p-4 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0] space-y-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                    <h4 className="text-xs font-bold text-[#292C32]">
                       {tp.topic.title}
                     </h4>
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-[#85878F]">
                       Estimated Hours: {tp.topic.estimatedHours}h • Difficulty: {tp.topic.difficulty}
                     </p>
                   </div>
@@ -560,9 +566,9 @@ export function StudentProfileClient({
 
                 <ProgressBar value={tp.masteryScore} label="Topic Competency Mastery" />
 
-                <div className="flex items-center gap-4 text-xs text-slate-500 pt-1">
-                  <span>Quizzes Attempted: <strong>{tp.quizzesAttempted}</strong></span>
-                  <span>Accuracy Rate: <strong>{tp.accuracyRate}%</strong></span>
+                <div className="flex items-center gap-4 text-xs text-[#85878F] pt-1">
+                  <span>Quizzes Attempted: <strong className="text-[#292C32]">{tp.quizzesAttempted}</strong></span>
+                  <span>Accuracy Rate: <strong className="text-[#292C32]">{tp.accuracyRate}%</strong></span>
                 </div>
               </div>
             ))}
@@ -575,17 +581,17 @@ export function StudentProfileClient({
         <div className="space-y-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Compass className="w-4 h-4 text-indigo-600" />
+              <h3 className="text-sm font-bold text-[#292C32] flex items-center gap-2">
+                <Compass className="w-4 h-4 text-[#8B6DE9]" />
                 <span>AI Remedial Mastery Paths</span>
               </h3>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[#85878F]">
                 Personalized topic intervention trajectories synthesized by the academic engine
               </p>
             </div>
             <Link
               href="/faculty/learning-paths"
-              className="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-xs"
+              className="px-3 py-1.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-xs"
             >
               Generate New Path
             </Link>
@@ -595,12 +601,12 @@ export function StudentProfileClient({
             student.learningPaths.map((lp: any) => (
               <div
                 key={lp.id}
-                className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4"
+                className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs space-y-4"
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100">{lp.title}</h4>
-                    <p className="text-xs text-rose-600 dark:text-rose-400 mt-0.5">
+                    <h4 className="text-sm font-bold text-[#292C32]">{lp.title}</h4>
+                    <p className="text-xs text-rose-600 mt-0.5">
                       Trigger: {lp.reason}
                     </p>
                   </div>
@@ -612,33 +618,33 @@ export function StudentProfileClient({
                   {lp.steps.map((step: any, idx: number) => (
                     <div
                       key={step.id}
-                      className="flex items-start gap-3 p-3 rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40"
+                      className="flex items-start gap-3 p-3 rounded-xl border border-[#E9EAF0] bg-[#F2F3F5]"
                     >
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 ${
                           step.isCompleted
-                            ? 'bg-emerald-500 text-white'
-                            : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300'
+                            ? 'bg-[#35C979] text-white'
+                            : 'bg-[#E9EAF0] text-[#292C32]'
                         }`}
                       >
                         {step.isCompleted ? <CheckCircle2 className="w-4 h-4" /> : idx + 1}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between">
-                          <p className="text-xs font-bold text-slate-900 dark:text-slate-100">
+                          <p className="text-xs font-bold text-[#292C32]">
                             {step.title}
                           </p>
                           {step.isCompleted && (
-                            <span className="text-[10px] text-emerald-600 font-semibold">Completed</span>
+                            <span className="text-[10px] text-[#35C979] font-semibold">Completed</span>
                           )}
                         </div>
-                        <p className="text-[11px] text-slate-500 mt-0.5">{step.description}</p>
+                        <p className="text-[11px] text-[#85878F] mt-0.5">{step.description}</p>
                         {step.resourceUrl && (
                           <a
                             href={step.resourceUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-[11px] text-indigo-600 hover:underline mt-1 font-semibold"
+                            className="inline-flex items-center gap-1 text-[11px] text-[#8B6DE9] hover:underline mt-1 font-semibold"
                           >
                             <span>Open Learning Module</span>
                             <ExternalLink className="w-3 h-3" />
@@ -651,7 +657,7 @@ export function StudentProfileClient({
               </div>
             ))
           ) : (
-            <div className="p-12 text-center text-xs text-slate-400 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800">
+            <div className="p-12 text-center text-xs text-[#85878F] rounded-2xl bg-white border border-[#E9EAF0]">
               No active remedial learning path assigned. Student is on track.
             </div>
           )}
@@ -661,50 +667,50 @@ export function StudentProfileClient({
       {/* Tab 8: ACADEMIC RISK & INTERVENTIONS */}
       {activeTab === 'risk' && (
         <div className="space-y-6">
-          <div className="rounded-2xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="rounded-2xl bg-rose-50 border border-rose-200 p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
               <div className="p-3 rounded-2xl bg-rose-500 text-white shadow-md">
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                <h3 className="text-base font-bold text-[#292C32]">
                   Diagnostic Risk Classification: {student.riskLevel}
                 </h3>
-                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 max-w-xl">
+                <p className="text-xs text-[#292C32] mt-1 max-w-xl">
                   {student.riskProfiles[0]?.primaryReason || 'Student exhibits attendance or grade risk flags.'}
                 </p>
               </div>
             </div>
             <button
               onClick={() => setIsInterventionModalOpen(true)}
-              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs whitespace-nowrap"
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-xs whitespace-nowrap cursor-pointer"
             >
               Schedule Faculty Intervention
             </button>
           </div>
 
           {/* Active Interventions Table */}
-          <div className="rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-4">
-            <h3 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+          <div className="rounded-2xl bg-white border border-[#E9EAF0] p-6 shadow-xs space-y-4">
+            <h3 className="text-sm font-bold text-[#292C32]">
               Assigned Faculty Interventions ({student.interventions.length})
             </h3>
-            <div className="divide-y divide-slate-100 dark:divide-slate-800">
+            <div className="divide-y divide-[#E9EAF0]">
               {student.interventions.map((intv: any) => (
                 <div key={intv.id} className="py-3.5 flex items-start justify-between gap-4">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-xs text-slate-900 dark:text-slate-100">
+                      <span className="font-bold text-xs text-[#292C32]">
                         {intv.type.replace(/_/g, ' ')}
                       </span>
                       <StatusBadge status={intv.status} />
                     </div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1">{intv.description}</p>
+                    <p className="text-xs text-[#85878F] mt-1">{intv.description}</p>
                     {intv.notes && (
-                      <p className="text-[11px] text-slate-500 mt-1 italic">Notes: {intv.notes}</p>
+                      <p className="text-[11px] text-[#85878F] mt-1 italic">Notes: {intv.notes}</p>
                     )}
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-[#85878F]">
                       Target:{' '}
                       {intv.targetDate
                         ? new Date(intv.targetDate).toLocaleDateString()
@@ -732,20 +738,20 @@ export function StudentProfileClient({
 
       {/* Schedule Intervention Modal */}
       {isInterventionModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 max-w-md w-full shadow-2xl">
-            <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#292C32]/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl border border-[#E9EAF0] p-6 max-w-md w-full shadow-2xl">
+            <h3 className="text-base font-bold text-[#292C32]">
               Schedule Faculty Intervention
             </h3>
             <form onSubmit={handleCreateIntervention} className="space-y-4 mt-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-[#292C32] mb-1">
                   Intervention Action Type
                 </label>
                 <select
                   value={interventionData.type}
                   onChange={(e) => setInterventionData({ ...interventionData, type: e.target.value })}
-                  className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
+                  className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                 >
                   <option value="COUNSELING">Faculty Academic Counseling</option>
                   <option value="PARENT_MEETING">Urgent Parent Meeting</option>
@@ -756,7 +762,7 @@ export function StudentProfileClient({
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-[#292C32] mb-1">
                   Description / Action Plan *
                 </label>
                 <textarea
@@ -765,12 +771,12 @@ export function StudentProfileClient({
                   value={interventionData.description}
                   onChange={(e) => setInterventionData({ ...interventionData, description: e.target.value })}
                   placeholder="Outline the scheduled meeting or required remedial deliverables..."
-                  className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
+                  className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-[#292C32] mb-1">
                   Internal Notes
                 </label>
                 <input
@@ -778,7 +784,7 @@ export function StudentProfileClient({
                   value={interventionData.notes}
                   onChange={(e) => setInterventionData({ ...interventionData, notes: e.target.value })}
                   placeholder="e.g. Scheduled in HOD Cabin LH-301"
-                  className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-2.5"
+                  className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] p-2.5 placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
                 />
               </div>
 
@@ -786,13 +792,13 @@ export function StudentProfileClient({
                 <button
                   type="button"
                   onClick={() => setIsInterventionModalOpen(false)}
-                  className="px-4 py-2 text-xs font-medium text-slate-500 hover:bg-slate-100 rounded-xl"
+                  className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-xl shadow-xs"
+                  className="px-4 py-2 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-xs cursor-pointer"
                 >
                   Schedule Intervention
                 </button>

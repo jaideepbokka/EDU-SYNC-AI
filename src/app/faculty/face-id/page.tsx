@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma'
 import { requireFacultyUser } from '@/lib/auth'
 import { FacultyFaceIdWidget } from '@/components/FacultyFaceIdWidget'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export const metadata = {
   title: 'Real-Time Face ID Generator | EduSync AI Faculty',
   description: 'Generate real-time 7-digit Face ID codes and manage biometric registration for Section A & B students.',

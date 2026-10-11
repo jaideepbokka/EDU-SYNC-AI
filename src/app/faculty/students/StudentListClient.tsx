@@ -132,7 +132,6 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to delete student')
 
-      // Optimistically remove from state
       setStudents((prev) => prev.filter((s) => s.id !== id))
       router.refresh()
     } catch (err: any) {
@@ -149,7 +148,7 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
       sortable: true,
       cell: (row) => (
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-[#151718] border border-[#383C3F] overflow-hidden font-bold flex items-center justify-center text-xs text-[#FFF3C8] shrink-0">
+          <div className="w-10 h-10 rounded-2xl bg-[#D9D1F5]/60 border border-[#D9D1F5] overflow-hidden font-bold flex items-center justify-center text-xs text-[#625BEB] shrink-0 shadow-xs">
             {row.user.avatar ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={row.user.avatar} alt={row.user.name} className="w-full h-full object-cover" />
@@ -160,11 +159,11 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
           <div>
             <Link
               href={`/faculty/students/${row.id}`}
-              className="font-bold text-[#FCFBF7] hover:text-[#FFF3C8] hover:underline text-xs flex items-center gap-1.5"
+              className="font-bold text-[#292C32] hover:text-[#8B6DE9] hover:underline text-xs flex items-center gap-1.5"
             >
               <span>{row.user.name}</span>
             </Link>
-            <p className="text-[11px] text-[#A8ACAF]">{row.user.email}</p>
+            <p className="text-[11px] text-[#85878F]">{row.user.email}</p>
           </div>
         </div>
       ),
@@ -175,15 +174,15 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
       sortable: true,
       cell: (row) => (
         <div>
-          <span className="font-mono font-bold text-[#FCFBF7]">{row.rollNo}</span>
-          <p className="text-[10px] text-[#A8ACAF] font-mono">{row.registerNo}</p>
+          <span className="font-mono font-bold text-[#292C32]">{row.rollNo}</span>
+          <p className="text-[10px] text-[#85878F] font-mono">{row.registerNo}</p>
         </div>
       ),
     },
     {
       header: 'Class / Sec',
       cell: (row) => (
-        <span className="px-2 py-0.5 rounded-lg bg-[#151718] border border-[#383C3F] text-[11px] font-semibold text-[#D8D4CA]">
+        <span className="px-2.5 py-1 rounded-xl bg-[#F2F3F5] border border-[#E9EAF0] text-[11px] font-semibold text-[#292C32]">
           Sem {row.currentSemester} - {row.section}
         </span>
       ),
@@ -196,13 +195,13 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
         <div className="flex items-center gap-2">
           <span
             className={`font-bold text-xs ${
-              row.attendancePercentage >= 75 ? 'text-emerald-400' : 'text-rose-400'
+              row.attendancePercentage >= 75 ? 'text-[#35C979]' : 'text-rose-600'
             }`}
           >
             {row.attendancePercentage}%
           </span>
           {row.attendancePercentage < 75 && (
-            <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
           )}
         </div>
       ),
@@ -212,7 +211,7 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
       accessorKey: 'currentCgpa',
       sortable: true,
       cell: (row) => (
-        <span className="font-mono font-bold text-[#E5CB90]">{row.currentCgpa.toFixed(2)}</span>
+        <span className="font-mono font-bold text-[#625BEB]">{row.currentCgpa.toFixed(2)}</span>
       ),
     },
     {
@@ -227,9 +226,9 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
         <div className="flex items-center gap-2">
           <Link
             href={`/faculty/students/${row.id}`}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl border border-[#383C3F] bg-[#151718] hover:bg-[#2E3235] text-[#D8D4CA] hover:text-[#FCFBF7] text-xs font-semibold transition-colors"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] hover:bg-[#E9EAF0] text-[#292C32] text-xs font-bold transition-colors"
           >
-            <Eye className="w-3.5 h-3.5 text-[#E5CB90]" />
+            <Eye className="w-3.5 h-3.5 text-[#8B6DE9]" />
             <span>Profile</span>
           </Link>
 
@@ -238,7 +237,7 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
             onClick={() => handleDeleteStudent(row.id, row.user.name, row.rollNo)}
             disabled={deletingId === row.id}
             title={`Delete ${row.user.name}`}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-rose-500/10 hover:bg-rose-500/25 text-rose-400 hover:text-rose-300 border border-rose-500/30 text-xs font-semibold transition-all cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
           >
             <Trash2 className="w-3.5 h-3.5" />
             <span>{deletingId === row.id ? 'Deleting...' : 'Delete'}</span>
@@ -249,19 +248,19 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
   ]
 
   return (
-    <div className="space-y-6">
-      {/* Top Controls Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#383C3F]">
+    <div className="space-y-8">
+      {/* Top Banner */}
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#E5CB90]/20 text-[#FFF3C8] text-xs font-semibold mb-2 border border-[#E5CB90]/30">
-            <Sparkles className="w-3.5 h-3.5 text-[#E5CB90]" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-3 border border-white/30 backdrop-blur-xs">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
             <span>Student Academic Dossiers</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-[#FCFBF7] flex items-center gap-2.5">
-            <Users className="w-6 h-6 text-[#E5CB90]" />
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight flex items-center gap-2.5">
+            <Users className="w-7 h-7 text-white" />
             <span>Student Management Directory</span>
           </h1>
-          <p className="text-xs text-[#A8ACAF] mt-1">
+          <p className="mt-2 text-xs sm:text-sm text-white/90 max-w-xl leading-relaxed">
             Access holistic student academic dossiers, attendance tracking, diagnostic risk indicators, and mentor notes.
           </p>
         </div>
@@ -269,7 +268,7 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 text-[#151718] text-xs font-black shadow-lg shadow-[#E5CB90]/20 transition-all hover:scale-105 cursor-pointer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
           >
             <UserPlus className="w-4 h-4" />
             <span>+ Enroll New Student</span>
@@ -278,22 +277,22 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-wrap items-center gap-3 p-3 rounded-2xl bg-[#222527] border border-[#383C3F] shadow-xl">
-        <div className="flex items-center gap-2 text-xs font-semibold text-[#A8ACAF] pl-2">
-          <Filter className="w-4 h-4 text-[#E5CB90]" />
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-3xl bg-white border border-[#E9EAF0] shadow-xs">
+        <div className="flex items-center gap-2 text-xs font-bold text-[#292C32] pl-2">
+          <Filter className="w-4 h-4 text-[#8B6DE9]" />
           <span>Filters:</span>
         </div>
 
         {/* Section Filter */}
-        <div className="flex items-center gap-1.5 bg-[#151718] p-1 rounded-xl border border-[#383C3F]">
+        <div className="flex items-center gap-1.5 bg-[#F2F3F5] p-1 rounded-xl border border-[#E9EAF0]">
           {['ALL', 'A', 'B'].map((sec) => (
             <button
               key={sec}
               onClick={() => setSelectedSection(sec)}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 selectedSection === sec
-                  ? 'bg-[#222527] text-[#FFF3C8] border border-[#E5CB90]/40 shadow-xs'
-                  : 'text-[#A8ACAF] hover:text-[#FCFBF7]'
+                  ? 'bg-[#292C32] text-white font-bold shadow-xs'
+                  : 'text-[#85878F] hover:text-[#292C32]'
               }`}
             >
               {sec === 'ALL' ? 'All Sections' : `Sec ${sec}`}
@@ -302,20 +301,24 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
         </div>
 
         {/* Risk Level Filter */}
-        <div className="flex items-center gap-1.5 bg-[#151718] p-1 rounded-xl border border-[#383C3F] overflow-x-auto">
+        <div className="flex items-center gap-1.5 bg-[#F2F3F5] p-1 rounded-xl border border-[#E9EAF0] overflow-x-auto">
           {['ALL', 'LOW', 'MEDIUM', 'HIGH', 'CRITICAL'].map((lvl) => (
             <button
               key={lvl}
               onClick={() => setSelectedRisk(lvl)}
-              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
                 selectedRisk === lvl
-                  ? 'bg-[#222527] text-[#FFF3C8] border border-[#E5CB90]/40 shadow-xs'
-                  : 'text-[#A8ACAF] hover:text-[#FCFBF7]'
+                  ? 'bg-[#292C32] text-white font-bold shadow-xs'
+                  : 'text-[#85878F] hover:text-[#292C32]'
               }`}
             >
               {lvl}
             </button>
           ))}
+        </div>
+
+        <div className="ml-auto text-xs font-semibold text-[#85878F] pr-2">
+          Total <strong>{filteredStudents.length}</strong> students enrolled
         </div>
       </div>
 
@@ -338,14 +341,14 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
       >
         <form onSubmit={handleCreateStudent} className="space-y-4">
           {formError && (
-            <div className="p-3 rounded-xl bg-rose-500/10 text-rose-300 text-xs border border-rose-500/30">
+            <div className="p-3.5 rounded-2xl bg-rose-50 text-rose-700 text-xs border border-rose-200">
               {formError}
             </div>
           )}
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Full Name *
               </label>
               <input
@@ -354,11 +357,11 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="e.g. Maya Krishnan"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 University Email *
               </label>
               <input
@@ -367,14 +370,14 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="maya.k@edusync.edu"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Class Roll Number *
               </label>
               <input
@@ -383,11 +386,11 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
                 value={formData.rollNo}
                 onChange={(e) => setFormData({ ...formData, rollNo: e.target.value })}
                 placeholder="e.g. 23CS11"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 University Register No *
               </label>
               <input
@@ -396,57 +399,57 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
                 value={formData.registerNo}
                 onChange={(e) => setFormData({ ...formData, registerNo: e.target.value })}
                 placeholder="e.g. REG2023011"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Section
               </label>
               <select
                 value={formData.section}
                 onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden cursor-pointer"
               >
-                <option value="A" className="bg-[#151718]">Section A</option>
-                <option value="B" className="bg-[#151718]">Section B</option>
+                <option value="A" className="bg-white text-[#292C32]">Section A</option>
+                <option value="B" className="bg-white text-[#292C32]">Section B</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Semester
               </label>
               <select
                 value={formData.currentSemester}
                 onChange={(e) => setFormData({ ...formData, currentSemester: Number(e.target.value) })}
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden cursor-pointer"
               >
                 {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                  <option key={s} value={s} className="bg-[#151718]">
+                  <option key={s} value={s} className="bg-white text-[#292C32]">
                     Semester {s}
                   </option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Batch
               </label>
               <input
                 type="text"
                 disabled
                 value="2023-2027"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718]/60 p-2.5 text-[#A8ACAF]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#85878F]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Guardian Name
               </label>
               <input
@@ -454,11 +457,11 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
                 value={formData.guardianName}
                 onChange={(e) => setFormData({ ...formData, guardianName: e.target.value })}
                 placeholder="Parent or Guardian"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-[#D8D4CA] mb-1">
+              <label className="block text-xs font-semibold text-[#292C32] mb-1">
                 Guardian Phone
               </label>
               <input
@@ -466,23 +469,23 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
                 value={formData.guardianPhone}
                 onChange={(e) => setFormData({ ...formData, guardianPhone: e.target.value })}
                 placeholder="+91 98XXX XXXXX"
-                className="w-full text-xs rounded-xl border border-[#383C3F] bg-[#151718] p-2.5 text-[#FCFBF7] focus:border-[#E5CB90]"
+                className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-2.5 text-[#292C32] placeholder:text-[#85878F] focus:ring-2 focus:ring-[#8B6DE9] focus:outline-hidden"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-3 pt-3 border-t border-[#383C3F]">
+          <div className="flex justify-end gap-3 pt-3 border-t border-[#E9EAF0]">
             <button
               type="button"
               onClick={() => setIsAddModalOpen(false)}
-              className="px-4 py-2 text-xs font-medium text-[#A8ACAF] hover:bg-[#151718] rounded-xl cursor-pointer"
+              className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-5 py-2 text-xs font-black text-[#151718] bg-gradient-to-r from-[#E5CB90] to-[#FFF3C8] hover:brightness-105 rounded-xl shadow-md cursor-pointer disabled:opacity-50"
+              className="px-5 py-2.5 text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] rounded-xl shadow-md cursor-pointer disabled:opacity-50 transition-all hover:scale-105"
             >
               {isSubmitting ? 'Enrolling...' : 'Confirm Enrollment'}
             </button>

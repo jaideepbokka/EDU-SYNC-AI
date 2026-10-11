@@ -10,6 +10,7 @@ import {
   Award,
   AlertTriangle,
   GraduationCap,
+  Sparkles,
 } from 'lucide-react'
 
 interface ReportsClientProps {
@@ -75,13 +76,17 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
   return (
     <div className="space-y-6">
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="rounded-3xl bg-gradient-to-r from-[#8B6DE9] via-[#7A5CE5] to-[#625BEB] border border-[#A99AE8]/40 p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2.5">
-            <FileSpreadsheet className="w-6 h-6 text-indigo-600" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-2 border border-white/20 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+            <span>Official Regulatory Audit • University Export</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
+            <FileSpreadsheet className="w-6 h-6 text-white" />
             <span>Academic Regulatory Reports & Data Export</span>
           </h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+          <p className="text-xs text-white/90 mt-1 max-w-2xl">
             Generate official university compliance reports for attendance shortage, examination eligibility, and cognitive risk logs.
           </p>
         </div>
@@ -89,7 +94,7 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => window.print()}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-bold transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/20 transition-colors backdrop-blur-md cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             <span>Print Layout</span>
@@ -97,7 +102,7 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
 
           <button
             onClick={downloadCsv}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-md shadow-indigo-600/30 transition-all hover:scale-105"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#292C32] hover:bg-[#1E2024] text-white text-xs font-bold shadow-md transition-all hover:scale-105 cursor-pointer whitespace-nowrap"
           >
             <Download className="w-4 h-4" />
             <span>Download CSV Export</span>
@@ -106,13 +111,13 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
       </div>
 
       {/* Report Selection Tabs */}
-      <div className="flex items-center gap-2 p-1 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs w-fit">
+      <div className="flex items-center gap-2 p-1 rounded-2xl bg-white border border-[#E9EAF0] shadow-xs w-fit">
         <button
           onClick={() => setReportType('attendance')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             reportType === 'attendance'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-[#292C32] text-white shadow-xs'
+              : 'text-[#85878F] hover:bg-[#F2F3F5]'
           }`}
         >
           <CalendarCheck className="w-3.5 h-3.5" />
@@ -121,10 +126,10 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
 
         <button
           onClick={() => setReportType('performance')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             reportType === 'performance'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-[#292C32] text-white shadow-xs'
+              : 'text-[#85878F] hover:bg-[#F2F3F5]'
           }`}
         >
           <GraduationCap className="w-3.5 h-3.5" />
@@ -133,10 +138,10 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
 
         <button
           onClick={() => setReportType('risk')}
-          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all ${
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${
             reportType === 'risk'
-              ? 'bg-indigo-600 text-white shadow-xs'
-              : 'text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+              ? 'bg-[#292C32] text-white shadow-xs'
+              : 'text-[#85878F] hover:bg-[#F2F3F5]'
           }`}
         >
           <AlertTriangle className="w-3.5 h-3.5" />
@@ -145,10 +150,10 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
       </div>
 
       {/* Report Table View */}
-      <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
+      <div className="rounded-3xl bg-white border border-[#E9EAF0] shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 dark:bg-slate-800/60 uppercase font-semibold text-slate-500 text-[10px] border-b border-slate-200 dark:border-slate-800">
+            <thead className="bg-[#F2F3F5] uppercase font-semibold text-[#85878F] text-[10px] border-b border-[#E9EAF0]">
               {reportType === 'attendance' && (
                 <tr>
                   <th className="px-5 py-3.5">Roll No</th>
@@ -181,22 +186,22 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
                 </tr>
               )}
             </thead>
-            <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            <tbody className="divide-y divide-[#E9EAF0]">
               {reportType === 'attendance' &&
                 students.map((s) => (
-                  <tr key={s.id} className="hover:bg-slate-50/50">
-                    <td className="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">
+                  <tr key={s.id} className="hover:bg-[#F2F3F5]/60 transition-colors">
+                    <td className="px-5 py-3.5 font-mono font-bold text-[#292C32]">
                       {s.rollNo}
                     </td>
-                    <td className="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-200">
+                    <td className="px-5 py-3.5 font-bold text-[#292C32]">
                       {s.user.name}
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-slate-400">{s.registerNo}</td>
-                    <td className="px-5 py-3.5">Sec {s.section}</td>
+                    <td className="px-5 py-3.5 font-mono text-[#85878F]">{s.registerNo}</td>
+                    <td className="px-5 py-3.5 text-[#292C32]">Sec {s.section}</td>
                     <td className="px-5 py-3.5">
                       <span
                         className={`font-bold ${
-                          s.attendancePercentage >= 75 ? 'text-emerald-600' : 'text-rose-600'
+                          s.attendancePercentage >= 75 ? 'text-[#35C979]' : 'text-rose-600'
                         }`}
                       >
                         {s.attendancePercentage}%
@@ -218,21 +223,21 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
 
               {reportType === 'performance' &&
                 results.map((r) => (
-                  <tr key={r.id} className="hover:bg-slate-50/50">
-                    <td className="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">
+                  <tr key={r.id} className="hover:bg-[#F2F3F5]/60 transition-colors">
+                    <td className="px-5 py-3.5 font-mono font-bold text-[#292C32]">
                       {r.student.rollNo}
                     </td>
-                    <td className="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-200">
+                    <td className="px-5 py-3.5 font-bold text-[#292C32]">
                       {r.student.user.name}
                     </td>
-                    <td className="px-5 py-3.5">Sem {r.semester}</td>
-                    <td className="px-5 py-3.5 font-mono font-bold text-indigo-600">
+                    <td className="px-5 py-3.5 text-[#292C32]">Sem {r.semester}</td>
+                    <td className="px-5 py-3.5 font-mono font-bold text-[#625BEB]">
                       {r.sgpa.toFixed(2)}
                     </td>
-                    <td className="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">
+                    <td className="px-5 py-3.5 font-mono font-bold text-[#292C32]">
                       {r.cgpa.toFixed(2)}
                     </td>
-                    <td className="px-5 py-3.5 font-mono text-slate-500">
+                    <td className="px-5 py-3.5 font-mono text-[#85878F]">
                       {r.earnedCredits}/{r.totalCredits}
                     </td>
                     <td className="px-5 py-3.5">
@@ -243,11 +248,11 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
 
               {reportType === 'risk' &&
                 students.map((s) => (
-                  <tr key={s.id} className="hover:bg-slate-50/50">
-                    <td className="px-5 py-3.5 font-mono font-bold text-slate-900 dark:text-slate-100">
+                  <tr key={s.id} className="hover:bg-[#F2F3F5]/60 transition-colors">
+                    <td className="px-5 py-3.5 font-mono font-bold text-[#292C32]">
                       {s.rollNo}
                     </td>
-                    <td className="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-200">
+                    <td className="px-5 py-3.5 font-bold text-[#292C32]">
                       {s.user.name}
                     </td>
                     <td className="px-5 py-3.5">
@@ -256,10 +261,10 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
                     <td className="px-5 py-3.5 font-mono font-bold text-rose-600">
                       {s.riskScore}/100
                     </td>
-                    <td className="px-5 py-3.5 font-bold text-slate-700 dark:text-slate-300">
+                    <td className="px-5 py-3.5 font-bold text-[#292C32]">
                       {s.attendancePercentage}%
                     </td>
-                    <td className="px-5 py-3.5 text-slate-500 text-xs line-clamp-1 max-w-sm">
+                    <td className="px-5 py-3.5 text-[#85878F] text-xs line-clamp-1 max-w-sm">
                       {s.riskProfiles[0]?.primaryReason || 'Within thresholds'}
                     </td>
                   </tr>
@@ -271,3 +276,4 @@ export function ReportsClient({ students, results }: ReportsClientProps) {
     </div>
   )
 }
+

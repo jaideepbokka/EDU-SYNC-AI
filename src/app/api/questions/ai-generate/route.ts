@@ -5,7 +5,7 @@ import { generateAiQuiz } from '@/lib/gemini'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { topicId, difficulty = 'MEDIUM', count = 3, bloomLevel } = body
+    const { topicId, difficulty = 'MEDIUM', count = 3, bloomLevel, seedOffset } = body
 
     if (!topicId) {
       return NextResponse.json({ error: 'Topic ID is required' }, { status: 400 })
@@ -26,11 +26,18 @@ export async function POST(request: Request) {
       difficulty: difficulty as any,
       count: Number(count),
       bloomsLevel: bloomLevel,
+      seedOffset: seedOffset ? Number(seedOffset) : Math.floor(Math.random() * 10000),
     })
 
     return NextResponse.json({
       success: true,
-      topic: { id: topic.id, title: topic.title, subjectName: topic.unit.subject.name },
+      topic: {
+        id: topic.id,
+        title: topic.title,
+        subjectName: topic.unit.subject.name,
+        subjectCode: topic.unit.subject.code,
+        unitTitle: topic.unit.title,
+      },
       questions,
     })
   } catch (err: any) {

@@ -130,6 +130,20 @@ export async function POST(request: Request) {
       })
     }
 
+    // 1c. Reset all face descriptors for clean testing
+    if (action === 'RESET_ALL') {
+      await prisma.student.updateMany({
+        data: {
+          faceDescriptor: null,
+        },
+      })
+
+      return NextResponse.json({
+        success: true,
+        message: 'Cleared all biometric facial descriptors for clean re-enrollment.',
+      })
+    }
+
     // 2. Bulk Generation for Section or All
     if (action === 'BULK_GENERATE') {
       const where: any = {}

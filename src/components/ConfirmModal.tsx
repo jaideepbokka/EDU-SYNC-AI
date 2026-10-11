@@ -58,20 +58,20 @@ export function ConfirmModal({
           <div
             className={`p-2.5 rounded-xl ${
               isDanger
-                ? 'bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400'
-                : 'bg-amber-100 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400'
+                ? 'bg-rose-100 text-rose-600'
+                : 'bg-amber-100 text-amber-600'
             }`}
           >
             <AlertTriangle className="w-5 h-5 shrink-0" />
           </div>
-          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          <p className="text-sm text-[#292C32] leading-relaxed">
             {message}
           </p>
         </div>
 
         {requireReason && (
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+            <label className="block text-xs font-semibold text-[#292C32] mb-1">
               Audit Reason / Academic Justification *
             </label>
             <textarea
@@ -79,7 +79,7 @@ export function ConfirmModal({
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               placeholder={reasonPlaceholder}
-              className="w-full text-xs rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-3 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
+              className="w-full text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] p-3 text-[#292C32] placeholder:text-[#85878F] focus:outline-hidden focus:ring-2 focus:ring-[#8B6DE9]"
             />
             {error && <p className="mt-1 text-xs text-rose-500">{error}</p>}
           </div>
@@ -90,7 +90,7 @@ export function ConfirmModal({
             type="button"
             onClick={onClose}
             disabled={loading}
-            className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors"
+            className="px-4 py-2 text-xs font-medium text-[#85878F] hover:bg-[#F2F3F5] rounded-xl transition-colors cursor-pointer"
           >
             {cancelText}
           </button>
@@ -98,10 +98,10 @@ export function ConfirmModal({
             type="button"
             onClick={handleConfirm}
             disabled={loading}
-            className={`px-4 py-2 text-xs font-semibold text-white rounded-xl shadow-xs transition-all ${
+            className={`px-4 py-2 text-xs font-semibold text-white rounded-xl shadow-xs transition-all cursor-pointer ${
               isDanger
                 ? 'bg-rose-600 hover:bg-rose-700'
-                : 'bg-indigo-600 hover:bg-indigo-700'
+                : 'bg-[#292C32] hover:bg-[#1E2024]'
             } disabled:opacity-50`}
           >
             {loading ? 'Processing...' : confirmText}

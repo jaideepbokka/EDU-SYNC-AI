@@ -5,7 +5,51 @@ import { logAuditAction } from '@/lib/auth'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { action, courseOfferingId, topicCovered, geofenceRadiusMeters = 100, sessionId } = body
+    const {
+      action,
+      courseOfferingId,
+      topicCovered,
+      geofenceRadiusMeters = 100,
+      sessionId,
+      roomLatitude,
+      roomLongitude,
+    } = body
+
+    if (action === 'CALIBRATE_GEOFENCE') {
+      if (!sessionId) {
+        return NextResponse.json({ error: 'Session ID required to calibrate geofence' }, { status: 400 })
+      }
+      const lat = roomLatitude ? Number(roomLatitude) : 16.603849
+      const lng = roomLongitude ? Number(roomLongitude) : 82.082664
+      const updated = await prisma.attendanceSession.update({
+        where: { id: sessionId },
+        data: {
+          roomLatitude: lat,
+          roomLongitude: lng,
+          ...(geofenceRadiusMeters ? { geofenceRadiusMeters: Number(geofenceRadiusMeters) } : {}),
+        },
+      })
+
+      // Also retroactively mark existing records for this session within the new geofence
+      await prisma.attendanceRecord.updateMany({
+        where: { sessionId },
+        data: {
+          withinGeofence: true,
+          overrideReason: 'Classroom geofence calibrated by faculty',
+        },
+      })
+
+      await logAuditAction({
+        actorRole: 'FACULTY',
+        action: 'GEOFENCE_CALIBRATED',
+        entityType: 'AttendanceSession',
+        entityId: sessionId,
+        newValue: `Lat: ${lat}, Lng: ${lng}`,
+        reason: 'Classroom geofence center calibrated by faculty',
+      })
+
+      return NextResponse.json({ success: true, session: updated })
+    }
 
     if (action === 'CLOSE') {
       if (!sessionId) {
@@ -75,6 +119,9 @@ export async function POST(request: Request) {
       data: { status: 'CLOSED', endTime: new Date() },
     })
 
+    const finalLat = roomLatitude ? Number(roomLatitude) : 16.603849
+    const finalLng = roomLongitude ? Number(roomLongitude) : 82.082664
+
     const newSession = await prisma.attendanceSession.create({
       data: {
         courseOfferingId,
@@ -83,8 +130,8 @@ export async function POST(request: Request) {
         startTime: new Date(),
         topicCovered: topicCovered || 'Regular Curriculum Class',
         status: 'ACTIVE',
-        roomLatitude: 12.9716, // Default college coordinates
-        roomLongitude: 77.5946,
+        roomLatitude: finalLat,
+        roomLongitude: finalLng,
         geofenceRadiusMeters: Number(geofenceRadiusMeters),
       },
       include: {

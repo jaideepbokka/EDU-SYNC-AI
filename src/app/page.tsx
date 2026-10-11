@@ -17,13 +17,9 @@ export default async function HomePage({
 
   let errorMsg = ''
   if (errorParam === 'login_required') {
-    errorMsg = 'Authentication required. Please sign in to access this portal.'
-  } else if (errorParam === 'unauthorized') {
-    errorMsg = 'Session expired or unauthorized. Please authenticate with institutional credentials.'
-  } else if (errorParam === 'faculty_access_only') {
-    errorMsg = 'Access Denied: This area is restricted to faculty members only.'
-  } else if (errorParam === 'student_access_only') {
-    errorMsg = 'Access Denied: This area is restricted to enrolled students only.'
+    errorMsg = 'Please sign in to access this portal.'
+  } else if (errorParam === 'unauthorized' || errorParam === 'faculty_access_only' || errorParam === 'student_access_only') {
+    errorMsg = 'Access denied'
   }
 
   return (
