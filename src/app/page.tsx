@@ -18,8 +18,12 @@ export default async function HomePage({
   let errorMsg = ''
   if (errorParam === 'login_required') {
     errorMsg = 'Please sign in to access this portal.'
-  } else if (errorParam === 'unauthorized' || errorParam === 'faculty_access_only' || errorParam === 'student_access_only') {
-    errorMsg = 'Access denied'
+  } else if (errorParam === 'faculty_access_only') {
+    errorMsg = 'Faculty access required. Please sign in with your Faculty ID.'
+  } else if (errorParam === 'student_access_only') {
+    errorMsg = 'Student access required. Please sign in with your Roll Number.'
+  } else if (errorParam === 'unauthorized') {
+    errorMsg = 'Session expired. Please sign in to continue.'
   }
 
   return (

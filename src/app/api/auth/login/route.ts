@@ -6,10 +6,13 @@ import { logAuditAction } from '@/lib/auth'
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { email, password, role = 'FACULTY' } = body
+    const { email, role = 'FACULTY' } = body
 
     if (!email || !email.trim()) {
-      return NextResponse.json({ error: 'Email or ID is required.' }, { status: 400 })
+      return NextResponse.json(
+        { error: role === 'FACULTY' ? 'Faculty ID is required.' : 'Student Roll Number is required.' },
+        { status: 400 }
+      )
     }
 
     const input = email.trim()
@@ -71,7 +74,10 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         {
-          error: 'Access denied',
+          error:
+            role === 'FACULTY'
+              ? `Faculty ID "${input}" not found in institutional directory.`
+              : `Student Roll Number "${input}" not found in institutional directory.`,
         },
         { status: 401 }
       )
@@ -81,7 +87,10 @@ export async function POST(request: Request) {
     if (role && user.role !== role) {
       return NextResponse.json(
         {
-          error: 'Access denied',
+          error:
+            user.role === 'STUDENT'
+              ? `ID "${input}" belongs to a student. Please switch to the Student Portal tab.`
+              : `ID "${input}" belongs to a faculty member. Please switch to the Faculty Portal tab.`,
         },
         { status: 403 }
       )

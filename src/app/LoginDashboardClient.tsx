@@ -6,14 +6,9 @@ import {
   ShieldCheck,
   GraduationCap,
   Users,
-  Lock,
-  Mail,
-  Eye,
-  EyeOff,
   ArrowRight,
   Sparkles,
   Camera,
-  CheckCircle2,
   AlertTriangle,
   KeyRound,
 } from 'lucide-react'
@@ -29,26 +24,30 @@ export function LoginDashboardClient({
 }: LoginDashboardClientProps) {
   const router = useRouter()
   const [activeTab, setActiveTab] = useState<'FACULTY' | 'STUDENT'>(initialRole)
-  const [email, setEmail] = useState(initialRole === 'STUDENT' ? '101' : 'fac101edusync@gmail.com')
-  const [password, setPassword] = useState(initialRole === 'STUDENT' ? 'student123' : 'faculty123')
-  const [showPassword, setShowPassword] = useState(false)
+  const [identifier, setIdentifier] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(errorMessage || '')
 
-  const handleLogin = async (loginEmail: string, loginPass?: string, role = activeTab) => {
+  const handleLogin = async (loginId: string, role = activeTab) => {
     setError('')
-    setLoading(true)
+    const finalId = loginId.trim()
+    if (!finalId) {
+      setError(
+        role === 'FACULTY'
+          ? 'Please enter your Faculty ID (e.g. FAC101).'
+          : 'Please enter your Student Roll Number (e.g. 101).'
+      )
+      return
+    }
 
-    const finalEmail = (loginEmail || (role === 'STUDENT' ? '101' : 'fac101edusync@gmail.com')).trim()
-    const finalPass = loginPass || (role === 'STUDENT' ? 'student123' : 'faculty123')
+    setLoading(true)
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: finalEmail,
-          password: finalPass,
+          email: finalId,
           role,
         }),
       })
@@ -68,7 +67,7 @@ export function LoginDashboardClient({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    handleLogin(email, password, activeTab)
+    handleLogin(identifier, activeTab)
   }
 
   return (
@@ -160,8 +159,7 @@ export function LoginDashboardClient({
                   type="button"
                   onClick={() => {
                     setActiveTab('FACULTY')
-                    setEmail('fac101edusync@gmail.com')
-                    setPassword('faculty123')
+                    setIdentifier('')
                     setError('')
                   }}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
@@ -178,8 +176,7 @@ export function LoginDashboardClient({
                   type="button"
                   onClick={() => {
                     setActiveTab('STUDENT')
-                    setEmail('101')
-                    setPassword('student123')
+                    setIdentifier('')
                     setError('')
                   }}
                   className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
@@ -200,8 +197,8 @@ export function LoginDashboardClient({
                 </h2>
                 <p className="text-xs text-[#85878F] mt-1">
                   {activeTab === 'FACULTY'
-                    ? 'Enter your institutional faculty email (e.g. FAC101EDUSYNC@gmail.com) or Faculty ID (FAC101).'
-                    : 'Enter your student email (e.g. 26CSE101@edusync.edu) or Roll Number (101).'}
+                    ? 'Enter your institutional Faculty ID to access the portal.'
+                    : 'Enter your Student Roll Number to access your dashboard.'}
                 </p>
               </div>
 
@@ -216,70 +213,61 @@ export function LoginDashboardClient({
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                   <label className="block text-xs font-semibold text-[#292C32] mb-1.5">
-                    Institutional Email or ID *
+                    {activeTab === 'FACULTY' ? 'Faculty ID *' : 'Student Roll Number *'}
                   </label>
                   <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#85878F]" />
+                    {activeTab === 'FACULTY' ? (
+                      <GraduationCap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#85878F]" />
+                    ) : (
+                      <Users className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#85878F]" />
+                    )}
                     <input
                       type="text"
                       required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder={
-                        activeTab === 'FACULTY'
-                          ? 'FAC101EDUSYNC@gmail.com or FAC101'
-                          : '26CSE101@edusync.edu or 101'
-                      }
-                      className="w-full pl-10 pr-4 py-3 text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] placeholder:text-[#85878F] focus:outline-hidden focus:border-[#8B6DE9] focus:bg-white focus:ring-2 focus:ring-[#8B6DE9]/20 transition-all"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
+                      placeholder={activeTab === 'FACULTY' ? 'e.g. FAC101' : 'e.g. 101'}
+                      className="w-full pl-10 pr-4 py-3 text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] placeholder:text-[#85878F] focus:outline-hidden focus:border-[#8B6DE9] focus:bg-white focus:ring-2 focus:ring-[#8B6DE9]/20 transition-all font-medium"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-[#292C32] mb-1.5">
-                    Password *
-                  </label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#85878F]" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      required
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-10 pr-10 py-3 text-xs rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] placeholder:text-[#85878F] focus:outline-hidden focus:border-[#8B6DE9] focus:bg-white focus:ring-2 focus:ring-[#8B6DE9]/20 transition-all"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#85878F] hover:text-[#292C32] transition-colors cursor-pointer"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
+                  {/* Quick Select demo pills */}
+                  <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                    <span className="text-[11px] text-[#85878F]">Sample ID:</span>
+                    {(activeTab === 'FACULTY'
+                      ? [
+                          { label: 'FAC101', name: 'Dr. Anil' },
+                          { label: 'FAC102', name: 'Mrs. Priya' },
+                          { label: 'FAC103', name: 'Mr. Ravi' },
+                        ]
+                      : [
+                          { label: '101', name: 'Aarav' },
+                          { label: '102', name: 'Ananya' },
+                          { label: '103', name: 'Rohan' },
+                        ]
+                    ).map((item) => (
+                      <button
+                        key={item.label}
+                        type="button"
+                        onClick={() => {
+                          setIdentifier(item.label)
+                          setError('')
+                        }}
+                        className="text-[11px] px-2 py-0.5 rounded-lg bg-[#F2F3F5] hover:bg-[#D9D1F5]/50 hover:text-[#625BEB] text-[#292C32] font-semibold border border-[#E9EAF0] transition-colors cursor-pointer"
+                      >
+                        {item.label} <span className="text-[10px] text-[#85878F]">({item.name})</span>
+                      </button>
+                    ))}
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between text-[11px] text-[#85878F]">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      defaultChecked
-                      className="accent-[#8B6DE9] rounded-sm"
-                    />
-                    <span>Remember this session</span>
-                  </label>
-                  <span className="text-[#8B6DE9] hover:underline cursor-pointer">
-                    Forgot Password?
-                  </span>
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 rounded-2xl text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] active:scale-[0.99] shadow-md shadow-[#292C32]/10 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
+                  className="w-full py-3.5 rounded-2xl text-xs font-bold text-white bg-[#292C32] hover:bg-[#1E2024] active:scale-[0.99] shadow-md shadow-[#292C32]/10 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer mt-4"
                 >
                   {loading ? (
-                    <span>Verifying Credentials...</span>
+                    <span>Verifying ID...</span>
                   ) : (
                     <>
                       <span>
@@ -294,7 +282,7 @@ export function LoginDashboardClient({
               {/* Clean Footer Notice */}
               <div className="pt-4 border-t border-[#E9EAF0] flex items-center justify-center gap-2 text-[11px] text-[#85878F]">
                 <KeyRound className="w-3.5 h-3.5 text-[#8B6DE9]" />
-                <span>End-to-end encrypted session • Institutional Zero-Trust SSO</span>
+                <span>Instant Institutional Authentication • AY 2025-26</span>
               </div>
             </div>
           </div>
