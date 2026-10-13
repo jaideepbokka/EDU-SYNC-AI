@@ -55,28 +55,33 @@ export async function POST(request: Request) {
       },
     })
 
-    // Attach questions
-    for (let i = 0; i < questionIds.length; i++) {
-      const qId = questionIds[i]
-      const question = await prisma.question.findUnique({ where: { id: qId } })
-      await prisma.assessmentQuestion.create({
-        data: {
+    // Attach questions in a single batch operation
+    if (questionIds.length > 0) {
+      const questions = await prisma.question.findMany({
+        where: { id: { in: questionIds } },
+        select: { id: true, marks: true },
+      })
+      const questionMarksMap = new Map(questions.map((q) => [q.id, q.marks]))
+
+      await prisma.assessmentQuestion.createMany({
+        data: questionIds.map((qId: string, i: number) => ({
           assessmentId: assessment.id,
           questionId: qId,
           orderIndex: i + 1,
-          marks: question?.marks || 2,
-        },
+          marks: questionMarksMap.get(qId) || 2,
+        })),
+        skipDuplicates: true,
       })
     }
 
-    await logAuditAction({
+    logAuditAction({
       actorRole: 'FACULTY',
       action: 'ASSESSMENT_CREATED',
       entityType: 'Assessment',
       entityId: assessment.id,
       newValue: `${title} (${status})`,
       reason: 'New examination assessment created by faculty',
-    })
+    }).catch(console.error)
 
     return NextResponse.json({ success: true, assessment }, { status: 201 })
   } catch (err: any) {

@@ -22,12 +22,14 @@ interface EvaluationClientProps {
 }
 
 export function EvaluationClient({
-  pendingAnswers,
-  evaluatedAnswers,
+  pendingAnswers: initialPending,
+  evaluatedAnswers: initialEvaluated,
 }: EvaluationClientProps) {
   const router = useRouter()
+  const [pendingAnswers, setPendingAnswers] = useState<any[]>(initialPending)
+  const [evaluatedAnswers, setEvaluatedAnswers] = useState<any[]>(initialEvaluated)
   const [selectedAnswerId, setSelectedAnswerId] = useState<string>(
-    pendingAnswers[0]?.id || evaluatedAnswers[0]?.id || ''
+    initialPending[0]?.id || initialEvaluated[0]?.id || ''
   )
   const [marksInput, setMarksInput] = useState<number>(3)
   const [feedbackInput, setFeedbackInput] = useState<string>(
@@ -47,19 +49,36 @@ export function EvaluationClient({
     if (!currentAnswer) return
 
     setSubmitting(true)
+    const answerIdToMove = currentAnswer.id
+    const updatedAnswer = {
+      ...currentAnswer,
+      marksAwarded: Number(marksInput),
+      facultyFeedback: feedbackInput,
+      evaluatedAt: new Date().toISOString(),
+    }
+
+    // Optimistically update lists immediately
+    setPendingAnswers((prev) => prev.filter((a) => a.id !== answerIdToMove))
+    setEvaluatedAnswers((prev) => [updatedAnswer, ...prev])
+
+    // Pick next pending item
+    const remainingPending = pendingAnswers.filter((a) => a.id !== answerIdToMove)
+    if (remainingPending.length > 0) {
+      setSelectedAnswerId(remainingPending[0].id)
+    }
+
     try {
       const res = await fetch('/api/evaluation/grade', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          answerId: currentAnswer.id,
+          answerId: answerIdToMove,
           marksAwarded: Number(marksInput),
           feedback: feedbackInput,
         }),
       })
 
       if (!res.ok) throw new Error('Failed to submit grade')
-      router.refresh()
     } catch (err: any) {
       alert(err.message)
     } finally {

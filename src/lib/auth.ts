@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { prisma } from './prisma'
@@ -17,7 +18,7 @@ export interface SessionUser {
   currentCgpa?: number
 }
 
-export async function getCurrentUser(): Promise<SessionUser | null> {
+export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
   const cookieStore = await cookies()
   const userId = cookieStore.get('edusync_user_id')?.value
 
@@ -86,7 +87,7 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
     role: (user.role as any) || 'FACULTY',
     avatar: user.avatar || undefined,
   }
-}
+})
 
 export async function requireFacultyUser(): Promise<SessionUser> {
   const user = await getCurrentUser()

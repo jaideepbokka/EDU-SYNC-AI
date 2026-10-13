@@ -75,30 +75,33 @@ export async function POST(request: Request) {
 
       if (session) {
         const checkedInStudentIds = new Set(session.records.map((r) => r.studentId))
-        for (const enr of session.courseOffering.enrollments) {
-          if (!checkedInStudentIds.has(enr.studentId)) {
-            await prisma.attendanceRecord.create({
-              data: {
-                sessionId: session.id,
-                studentId: enr.studentId,
-                status: 'ABSENT',
-                verificationMethod: 'MANUAL',
-                withinGeofence: false,
-                overrideReason: 'Automated absence marked at session closure',
-              },
-            })
-          }
+        const absentRecords = session.courseOffering.enrollments
+          .filter((enr) => !checkedInStudentIds.has(enr.studentId))
+          .map((enr) => ({
+            sessionId: session.id,
+            studentId: enr.studentId,
+            status: 'ABSENT' as const,
+            verificationMethod: 'MANUAL' as const,
+            withinGeofence: false,
+            overrideReason: 'Automated absence marked at session closure',
+          }))
+
+        if (absentRecords.length > 0) {
+          await prisma.attendanceRecord.createMany({
+            data: absentRecords,
+            skipDuplicates: true,
+          })
         }
       }
 
-      await logAuditAction({
+      logAuditAction({
         actorRole: 'FACULTY',
         action: 'ATTENDANCE_SESSION_CLOSED',
         entityType: 'AttendanceSession',
         entityId: sessionId,
         newValue: 'CLOSED',
         reason: 'Session ended by faculty',
-      })
+      }).catch(console.error)
 
       return NextResponse.json({ success: true, session: closedSession })
     }

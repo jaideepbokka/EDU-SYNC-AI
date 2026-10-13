@@ -34,48 +34,48 @@ export async function POST(request: Request) {
     const body = await request.json()
     const faculty = await prisma.faculty.findFirst()
 
-    // Handle Bulk Questions Array
+    // Handle Bulk Questions Array concurrently
     if (Array.isArray(body.questions) || Array.isArray(body)) {
-      const items = Array.isArray(body.questions) ? body.questions : body
-      const createdQuestions: any[] = []
+      const items = (Array.isArray(body.questions) ? body.questions : body).filter(
+        (item: any) => item.topicId && item.questionText
+      )
 
-      for (const item of items) {
-        if (!item.topicId || !item.questionText) continue
-
-        const q = await prisma.question.create({
-          data: {
-            topicId: item.topicId,
-            facultyId: faculty?.id,
-            type: item.type || 'MCQ',
-            questionText: item.questionText,
-            explanation: item.explanation,
-            difficulty: item.difficulty || 'MEDIUM',
-            marks: Number(item.marks || 2),
-            bloomLevel: item.bloomLevel || 'APPLY',
-            correctAnswer: item.correctAnswer,
-            sampleAnswer: item.sampleAnswer,
-            codeSnippet: item.codeSnippet,
-            options: {
-              create: (item.options || []).map((opt: any) => ({
-                optionKey: opt.optionKey,
-                optionText: opt.optionText,
-                isCorrect: Boolean(opt.isCorrect),
-              })),
+      const createdQuestions = await Promise.all(
+        items.map((item: any) =>
+          prisma.question.create({
+            data: {
+              topicId: item.topicId,
+              facultyId: faculty?.id,
+              type: item.type || 'MCQ',
+              questionText: item.questionText,
+              explanation: item.explanation,
+              difficulty: item.difficulty || 'MEDIUM',
+              marks: Number(item.marks || 2),
+              bloomLevel: item.bloomLevel || 'APPLY',
+              correctAnswer: item.correctAnswer,
+              sampleAnswer: item.sampleAnswer,
+              codeSnippet: item.codeSnippet,
+              options: {
+                create: (item.options || []).map((opt: any) => ({
+                  optionKey: opt.optionKey,
+                  optionText: opt.optionText,
+                  isCorrect: Boolean(opt.isCorrect),
+                })),
+              },
             },
-          },
-          include: { options: true, topic: true },
-        })
-        createdQuestions.push(q)
-      }
+            include: { options: true, topic: true },
+          })
+        )
+      )
 
-      await logAuditAction({
+      logAuditAction({
         actorRole: 'FACULTY',
         action: 'QUESTION_CREATED',
         entityType: 'Question',
         entityId: 'BULK',
         newValue: `${createdQuestions.length} questions approved into Question Bank`,
         reason: 'Bulk AI Question Approval',
-      })
+      }).catch(console.error)
 
       return NextResponse.json(
         { success: true, count: createdQuestions.length, questions: createdQuestions },

@@ -14,41 +14,25 @@ export async function POST(request: Request) {
 
     const input = email.trim()
     const inputLower = input.toLowerCase()
+    let user: any = null
 
-    // 1. Check exact email in User table
-    let user = await prisma.user.findFirst({
-      where: {
-        email: {
-          equals: inputLower,
-        },
-      },
-      include: {
-        faculty: true,
-        student: true,
-      },
-    })
-
-    // 2. If not found by email, check if it's a Faculty ID (e.g. FAC101)
-    if (!user) {
+    // Fast-path 1: Email format
+    if (inputLower.includes('@')) {
+      user = await prisma.user.findFirst({
+        where: { email: { equals: inputLower } },
+        include: { faculty: true, student: true },
+      })
+    } else if (input.toUpperCase().startsWith('FAC')) {
+      // Fast-path 2: Faculty Employee ID
       const faculty = await prisma.faculty.findFirst({
-        where: {
-          employeeId: {
-            equals: input.toUpperCase(),
-          },
-        },
+        where: { employeeId: { equals: input.toUpperCase() } },
         include: { user: true },
       })
       if (faculty) {
-        user = {
-          ...faculty.user,
-          faculty,
-          student: null,
-        } as any
+        user = { ...faculty.user, faculty, student: null }
       }
-    }
-
-    // 3. If not found, check if it's a Student Roll No (e.g. 24221A0519, 519, 101) or Register No
-    if (!user) {
+    } else {
+      // Fast-path 3: Student Roll No or Register No
       const student = await prisma.student.findFirst({
         where: {
           OR: [
@@ -60,12 +44,16 @@ export async function POST(request: Request) {
         include: { user: true },
       })
       if (student) {
-        user = {
-          ...student.user,
-          faculty: null,
-          student,
-        } as any
+        user = { ...student.user, faculty: null, student }
       }
+    }
+
+    // Fallback if not resolved yet
+    if (!user && !inputLower.includes('@')) {
+      user = await prisma.user.findFirst({
+        where: { email: { equals: inputLower } },
+        include: { faculty: true, student: true },
+      })
     }
 
     // Strict validation: No arbitrary fallback. User must exist in the dataset!
@@ -131,7 +119,7 @@ export async function POST(request: Request) {
       maxAge: 86400 * 7,
     })
 
-    await logAuditAction({
+    logAuditAction({
       actorId: user.id,
       actorRole: user.role,
       action: 'USER_LOGIN_SUCCESS',
@@ -139,7 +127,7 @@ export async function POST(request: Request) {
       entityId: user.id,
       newValue: user.email,
       reason: `Logged in to ${user.role} portal with verified dataset identity`,
-    })
+    }).catch(console.error)
 
     const redirectUrl = user.role === 'STUDENT' ? '/student' : user.role === 'HOD' ? '/hod' : '/faculty'
 

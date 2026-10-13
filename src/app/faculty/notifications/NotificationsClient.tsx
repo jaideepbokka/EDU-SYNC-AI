@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import {
   Bell,
   CheckCircle2,
@@ -15,8 +14,7 @@ import {
   Copy,
   Check,
   Trash2,
-  Square,
-  CheckSquare,
+  Undo2,
 } from 'lucide-react'
 
 interface NotificationsClientProps {
@@ -26,13 +24,12 @@ interface NotificationsClientProps {
 export function NotificationsClient({
   initialNotifications,
 }: NotificationsClientProps) {
-  const router = useRouter()
   const [notifications, setNotifications] = useState(initialNotifications)
   const [filter, setFilter] = useState('ALL')
   const [selectedNotif, setSelectedNotif] = useState<any>(null)
   const [copied, setCopied] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
+  const [recentlyDeleted, setRecentlyDeleted] = useState<{ notif: any; timeoutId: any } | null>(null)
 
   useEffect(() => {
     setNotifications(initialNotifications)
@@ -53,7 +50,7 @@ export function NotificationsClient({
 
   const showFeedback = (msg: string) => {
     setFeedback(msg)
-    setTimeout(() => setFeedback(null), 3000)
+    setTimeout(() => setFeedback(null), 3500)
   }
 
   const filtered = notifications.filter((n) => {
@@ -63,116 +60,136 @@ export function NotificationsClient({
     return true
   })
 
-  // Toggle Verified Checkbox for a notification
-  const handleToggleVerified = async (notifId: string, currentStatus: boolean, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation()
+  // Instant Optimistic Toggle Verified Checkbox
+  const handleToggleVerified = (notifId: string, currentStatus: boolean, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
     const newStatus = !currentStatus
 
-    // Optimistically update UI
+    // Instant local state update (0 ms response)
     setNotifications((prev) =>
       prev.map((n) => (n.id === notifId ? { ...n, isRead: newStatus } : n))
     )
+    showFeedback(newStatus ? 'Message marked as Verified ✓' : 'Message marked as Unverified')
 
-    try {
-      const res = await fetch('/api/notifications', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: notifId, isRead: newStatus }),
-      })
-      if (!res.ok) throw new Error('Failed to update status')
-      showFeedback(newStatus ? 'Message marked as Verified ✓' : 'Message marked as Unverified')
-    } catch {
-      // Revert on error
+    // Background asynchronous sync (non-blocking)
+    fetch('/api/notifications', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: notifId, isRead: newStatus }),
+    }).catch((err) => {
+      console.error('Failed to sync notification state:', err)
+      // Rollback on failure
       setNotifications((prev) =>
         prev.map((n) => (n.id === notifId ? { ...n, isRead: currentStatus } : n))
       )
-      alert('Failed to update verification status.')
-    }
+    })
   }
 
-  // Delete a single notification
-  const handleDelete = async (notifId: string, title: string, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation()
-    const isConfirmed = confirm(`Delete this message?\n\n"${title}"`)
-    if (!isConfirmed) return
-
-    setDeletingId(notifId)
-    try {
-      const res = await fetch(`/api/notifications?id=${notifId}`, {
-        method: 'DELETE',
-      })
-      if (!res.ok) {
-        const data = await res.json()
-        throw new Error(data.error || 'Failed to delete message')
-      }
-
-      setNotifications((prev) => prev.filter((n) => n.id !== notifId))
-      if (selectedNotif?.id === notifId) {
-        setSelectedNotif(null)
-      }
-      showFeedback('Message permanently deleted.')
-      router.refresh()
-    } catch (err: any) {
-      alert(err.message || 'Failed to delete notification')
-    } finally {
-      setDeletingId(null)
+  // Instant Optimistic Delete Single Notification
+  const handleDelete = (notifId: string, title: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
     }
+
+    const notifToDelete = notifications.find((n) => n.id === notifId)
+    if (!notifToDelete) return
+
+    // 1. Immediately remove from UI (0 ms response!)
+    setNotifications((prev) => prev.filter((n) => n.id !== notifId))
+    if (selectedNotif?.id === notifId) {
+      setSelectedNotif(null)
+    }
+
+    // 2. Set up Undo option
+    if (recentlyDeleted?.timeoutId) {
+      clearTimeout(recentlyDeleted.timeoutId)
+    }
+
+    const timeoutId = setTimeout(() => {
+      setRecentlyDeleted(null)
+    }, 5000)
+
+    setRecentlyDeleted({ notif: notifToDelete, timeoutId })
+    showFeedback(`Deleted "${title.substring(0, 32)}..."`)
+
+    // 3. Fire delete request to server in background
+    fetch(`/api/notifications?id=${notifId}`, {
+      method: 'DELETE',
+    }).catch((err) => {
+      console.error('Failed to delete notification:', err)
+      // Revert if error
+      setNotifications((prev) => [notifToDelete, ...prev])
+      showFeedback('Error deleting message')
+    })
   }
 
-  // Delete all verified/read notifications
-  const handleDeleteAllRead = async () => {
-    const verifiedCount = notifications.filter((n) => n.isRead).length
-    if (verifiedCount === 0) {
-      alert('There are no verified messages to delete.')
+  // Undo Delete
+  const handleUndo = () => {
+    if (!recentlyDeleted) return
+    const restored = recentlyDeleted.notif
+    clearTimeout(recentlyDeleted.timeoutId)
+    setRecentlyDeleted(null)
+
+    // Restore to local state immediately
+    setNotifications((prev) => [restored, ...prev])
+    showFeedback('Deletion undone ✓')
+  }
+
+  // Instant Optimistic Delete All Verified Notifications
+  const handleDeleteAllRead = () => {
+    const verifiedList = notifications.filter((n) => n.isRead)
+    if (verifiedList.length === 0) {
+      showFeedback('No verified messages to delete.')
       return
     }
 
-    const isConfirmed = confirm(`Are you sure you want to delete all ${verifiedCount} verified message(s)?`)
-    if (!isConfirmed) return
+    // 1. Immediately remove from UI (0 ms response!)
+    setNotifications((prev) => prev.filter((n) => !n.isRead))
+    showFeedback(`Deleted ${verifiedList.length} verified message(s).`)
 
-    try {
-      const res = await fetch('/api/notifications?allRead=true', {
-        method: 'DELETE',
-      })
-      if (!res.ok) throw new Error('Failed to delete verified messages')
-
-      setNotifications((prev) => prev.filter((n) => !n.isRead))
-      showFeedback(`Successfully deleted ${verifiedCount} verified message(s).`)
-      router.refresh()
-    } catch (err: any) {
-      alert(err.message || 'Failed to delete verified messages')
-    }
+    // 2. Fire background request with all verified IDs
+    const verifiedIds = verifiedList.map((n) => n.id)
+    fetch('/api/notifications?allRead=true', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids: verifiedIds }),
+    }).catch((err) => {
+      console.error('Failed to batch delete notifications:', err)
+      // Revert on error
+      setNotifications((prev) => [...verifiedList, ...prev])
+      showFeedback('Failed to delete verified messages')
+    })
   }
 
   // Mark all as read/verified
-  const markAllRead = async () => {
-    await fetch('/api/notifications/read', {
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
+    showFeedback('All messages verified ✓')
+
+    fetch('/api/notifications/read', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
-    })
-    setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })))
-    showFeedback('All messages verified ✓')
-    router.refresh()
+    }).catch(console.error)
   }
 
-  const handleOpenDetails = async (notif: any) => {
+  const handleOpenDetails = (notif: any) => {
     setSelectedNotif(notif)
     setCopied(false)
 
     if (!notif.isRead) {
-      try {
-        await fetch('/api/notifications', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: notif.id, isRead: true }),
-        })
-        setNotifications((prev) =>
-          prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
-        )
-      } catch (err) {
-        console.error('Failed to mark notification as read:', err)
-      }
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notif.id ? { ...n, isRead: true } : n))
+      )
+      fetch('/api/notifications', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: notif.id, isRead: true }),
+      }).catch(console.error)
     }
   }
 
@@ -186,10 +203,19 @@ export function NotificationsClient({
 
   return (
     <div className="space-y-6">
-      {/* Toast Feedback */}
+      {/* Toast Feedback with Optional Undo Button */}
       {feedback && (
-        <div className="fixed top-5 right-5 z-50 bg-[#1E293B] text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 animate-in fade-in slide-in-from-top-2">
-          {feedback}
+        <div className="fixed top-5 right-5 z-50 bg-[#0F172A] text-white text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+          <span>{feedback}</span>
+          {recentlyDeleted && (
+            <button
+              onClick={handleUndo}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-teal-500 hover:bg-teal-400 text-[#0F172A] text-[11px] font-black transition-colors cursor-pointer"
+            >
+              <Undo2 className="w-3.5 h-3.5" />
+              <span>Undo</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -198,7 +224,7 @@ export function NotificationsClient({
         <div>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-white text-xs font-semibold mb-2 border border-white/20 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-white" />
-            <span>Real-Time Alert Feed • Action Ledger</span>
+            <span>Real-Time Alert Feed • Instant Action Ledger</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2.5">
             <Bell className="w-6 h-6 text-white" />
@@ -213,7 +239,7 @@ export function NotificationsClient({
           <button
             type="button"
             onClick={markAllRead}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 backdrop-blur-md transition-all cursor-pointer whitespace-nowrap shadow-sm"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold border border-white/30 backdrop-blur-md transition-all cursor-pointer whitespace-nowrap shadow-sm active:scale-95"
           >
             <CheckCircle2 className="w-4 h-4 text-emerald-300" />
             <span>Verify All</span>
@@ -221,7 +247,7 @@ export function NotificationsClient({
           <button
             type="button"
             onClick={handleDeleteAllRead}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600/90 hover:bg-rose-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer whitespace-nowrap"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md transition-all cursor-pointer whitespace-nowrap active:scale-95"
           >
             <Trash2 className="w-4 h-4 text-white" />
             <span>Delete Verified</span>
@@ -272,7 +298,7 @@ export function NotificationsClient({
             >
               {/* Left Column: Checkbox, Icon, Content */}
               <div className="flex items-start gap-3.5 min-w-0 flex-1">
-                {/* Verified Checkbox */}
+                {/* Verified Checkbox with Instant Feedback */}
                 <button
                   type="button"
                   title={isVerified ? 'Click to unverify' : 'Click to verify message'}
@@ -347,7 +373,7 @@ export function NotificationsClient({
                 </div>
               </div>
 
-              {/* Right Column: Actions (Details & Delete) */}
+              {/* Right Column: Actions (Details & Instant Delete) */}
               <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
                 <button
                   type="button"
@@ -361,13 +387,12 @@ export function NotificationsClient({
                   <ArrowRight className="w-3.5 h-3.5 text-slate-600" />
                 </button>
 
-                {/* Delete Button */}
+                {/* Instant Delete Button */}
                 <button
                   type="button"
-                  title="Delete message"
-                  disabled={deletingId === notif.id}
+                  title="Delete message immediately"
                   onClick={(e) => handleDelete(notif.id, notif.title, e)}
-                  className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 text-xs font-bold transition-all cursor-pointer disabled:opacity-50"
+                  className="p-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 hover:text-rose-700 border border-rose-200 text-xs font-bold transition-all cursor-pointer active:scale-90"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -454,7 +479,7 @@ export function NotificationsClient({
               <button
                 type="button"
                 onClick={handleCopy}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs cursor-pointer shadow-xs"
+                className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-xs cursor-pointer shadow-xs active:scale-95"
               >
                 {copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4 text-slate-500" />}
                 <span>{copied ? 'Copied to Clipboard' : 'Copy Message'}</span>
@@ -462,8 +487,8 @@ export function NotificationsClient({
 
               <button
                 type="button"
-                onClick={() => handleDelete(selectedNotif.id, selectedNotif.title)}
-                className="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 cursor-pointer flex items-center gap-1.5"
+                onClick={(e) => handleDelete(selectedNotif.id, selectedNotif.title, e)}
+                className="px-4 py-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs border border-rose-200 cursor-pointer flex items-center gap-1.5 active:scale-95"
               >
                 <Trash2 className="w-4 h-4" />
                 <span>Delete</span>

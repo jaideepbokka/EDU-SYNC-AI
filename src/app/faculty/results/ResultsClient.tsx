@@ -37,29 +37,25 @@ export function ResultsClient({ semesterResults: initialResults }: ResultsClient
   }, [initialResults])
 
   const handleDeleteResult = async (id: string, semester: number, studentName: string, rollNo: string) => {
-    const isConfirmed = confirm(
-      `Are you sure you want to delete Semester ${semester} Result for "${studentName}" (${rollNo})?\n\nThis will permanently delete the semester grade sheet and all associated subject marks.`
-    )
-    if (!isConfirmed) return
+    // Optimistically remove from state immediately for 0ms visual feedback
+    const previousResults = [...results]
+    setResults((prev) => prev.filter((r) => r.id !== id))
+    if (selectedResult?.id === id) {
+      setSelectedResult(null)
+    }
 
-    setDeletingId(id)
     try {
       const res = await fetch(`/api/results?id=${id}`, {
         method: 'DELETE',
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete semester result')
-
-      // Optimistically remove from state
-      setResults((prev) => prev.filter((r) => r.id !== id))
-      if (selectedResult?.id === id) {
-        setSelectedResult(null)
+      if (!res.ok) {
+        // Rollback on failure
+        setResults(previousResults)
+        throw new Error(data.error || 'Failed to delete semester result')
       }
-      router.refresh()
     } catch (err: any) {
       alert(err.message || 'Failed to delete semester result')
-    } finally {
-      setDeletingId(null)
     }
   }
 

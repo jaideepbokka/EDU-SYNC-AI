@@ -74,23 +74,26 @@ export async function POST(request: Request) {
       where: { unit: { subjectId } },
     })
 
-    for (let i = 0; i < aiPath.steps.length; i++) {
-      const s = aiPath.steps[i]
+    const stepData = aiPath.steps.map((s: any, i: number) => {
       const matchedTopic =
         availableTopics.find((t) => t.title.toLowerCase().includes(s.topicTitle.toLowerCase())) ||
         availableTopics[i % availableTopics.length] ||
         topic
 
-      await prisma.learningPathStep.create({
-        data: {
-          learningPathId: path.id,
-          topicId: matchedTopic.id,
-          orderIndex: i + 1,
-          title: s.topicTitle,
-          description: s.description,
-          resourceUrl: 'https://visualgo.net/en',
-          isCompleted: false,
-        },
+      return {
+        learningPathId: path.id,
+        topicId: matchedTopic.id,
+        orderIndex: i + 1,
+        title: s.topicTitle,
+        description: s.description,
+        resourceUrl: 'https://visualgo.net/en',
+        isCompleted: false,
+      }
+    })
+
+    if (stepData.length > 0) {
+      await prisma.learningPathStep.createMany({
+        data: stepData,
       })
     }
 

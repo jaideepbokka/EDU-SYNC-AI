@@ -31,11 +31,12 @@ interface AttendanceClientProps {
 }
 
 export function AttendanceClient({
-  activeSession,
+  activeSession: initialActiveSession,
   pastSessions: initialPastSessions,
   courseOfferings,
 }: AttendanceClientProps) {
   const router = useRouter()
+  const [activeSession, setActiveSession] = useState<any>(initialActiveSession)
   const [pastSessions, setPastSessions] = useState<any[]>(initialPastSessions)
   const [isNewSessionModalOpen, setIsNewSessionModalOpen] = useState(false)
   const [isCloseConfirmOpen, setIsCloseConfirmOpen] = useState(false)
@@ -142,47 +143,48 @@ export function AttendanceClient({
 
   const handleCloseSession = async () => {
     if (!activeSession) return
-    setLoading(true)
+    const closingSession = activeSession
+    // Optimistically update UI immediately
+    setActiveSession(null)
+    setIsCloseConfirmOpen(false)
+    setPastSessions((prev) => [{ ...closingSession, status: 'CLOSED' }, ...prev])
+
     try {
       const res = await fetch('/api/attendance/session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: 'CLOSE',
-          sessionId: activeSession.id,
+          sessionId: closingSession.id,
         }),
       })
-      if (!res.ok) throw new Error('Failed to close session')
-      setIsCloseConfirmOpen(false)
-      router.refresh()
+      if (!res.ok) {
+        // Rollback on failure
+        setActiveSession(closingSession)
+        setPastSessions((prev) => prev.filter((s) => s.id !== closingSession.id))
+        throw new Error('Failed to close session')
+      }
     } catch (err: any) {
       alert(err.message)
-    } finally {
-      setLoading(false)
     }
   }
 
   const handleDeleteSession = async (sessionId: string, courseCode: string, topic?: string) => {
-    const label = topic ? `${courseCode} - "${topic}"` : courseCode
-    const isConfirmed = confirm(
-      `Are you sure you want to delete this lecture attendance log for ${label}?\n\nThis will permanently delete this session and all verified student check-in records.`
-    )
-    if (!isConfirmed) return
+    // Optimistically remove session from state immediately
+    const previous = [...pastSessions]
+    setPastSessions((prev) => prev.filter((s) => s.id !== sessionId))
 
-    setDeletingId(sessionId)
     try {
       const res = await fetch(`/api/attendance/session?id=${sessionId}`, {
         method: 'DELETE',
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete attendance session')
-
-      setPastSessions((prev) => prev.filter((s) => s.id !== sessionId))
-      router.refresh()
+      if (!res.ok) {
+        setPastSessions(previous)
+        throw new Error(data.error || 'Failed to delete attendance session')
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to delete attendance session')
-    } finally {
-      setDeletingId(null)
     }
   }
 

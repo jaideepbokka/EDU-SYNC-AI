@@ -106,7 +106,6 @@ export function SyllabusClient({ subjects: initialSubjects }: SyllabusClientProp
           }
         })
       )
-      router.refresh()
     } catch (err: any) {
       alert(err.message || 'Failed to delete unit')
     } finally {
@@ -167,7 +166,6 @@ export function SyllabusClient({ subjects: initialSubjects }: SyllabusClientProp
           }
         })
       )
-      router.refresh()
     } catch (err: any) {
       alert(err.message || 'Failed to delete topic')
     } finally {

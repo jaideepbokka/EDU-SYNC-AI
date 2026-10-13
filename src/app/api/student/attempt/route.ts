@@ -215,37 +215,39 @@ export async function POST(request: Request) {
       },
     })
 
-    // Upsert each StudentAnswer with evaluated marks & feedback
-    for (const ar of answerRecords) {
-      await prisma.studentAnswer.upsert({
-        where: {
-          attemptId_questionId: { attemptId: attempt.id, questionId: ar.questionId },
-        },
-        update: {
-          selectedOptionKeys: ar.selectedOptionKeys,
-          studentAnswerText: ar.studentAnswerText,
-          isCorrect: ar.isCorrect,
-          marksAwarded: ar.marksAwarded,
-          facultyFeedback: ar.facultyFeedback,
-          evaluatedBy: ar.evaluatedBy,
-          evaluatedAt: ar.evaluatedAt,
-        },
-        create: {
-          attemptId: attempt.id,
-          questionId: ar.questionId,
-          selectedOptionKeys: ar.selectedOptionKeys,
-          studentAnswerText: ar.studentAnswerText,
-          isCorrect: ar.isCorrect,
-          marksAwarded: ar.marksAwarded,
-          facultyFeedback: ar.facultyFeedback,
-          evaluatedBy: ar.evaluatedBy,
-          evaluatedAt: ar.evaluatedAt,
-        },
-      })
-    }
+    // Upsert each StudentAnswer with evaluated marks & feedback concurrently
+    await Promise.all(
+      answerRecords.map((ar) =>
+        prisma.studentAnswer.upsert({
+          where: {
+            attemptId_questionId: { attemptId: attempt.id, questionId: ar.questionId },
+          },
+          update: {
+            selectedOptionKeys: ar.selectedOptionKeys,
+            studentAnswerText: ar.studentAnswerText,
+            isCorrect: ar.isCorrect,
+            marksAwarded: ar.marksAwarded,
+            facultyFeedback: ar.facultyFeedback,
+            evaluatedBy: ar.evaluatedBy,
+            evaluatedAt: ar.evaluatedAt,
+          },
+          create: {
+            attemptId: attempt.id,
+            questionId: ar.questionId,
+            selectedOptionKeys: ar.selectedOptionKeys,
+            studentAnswerText: ar.studentAnswerText,
+            isCorrect: ar.isCorrect,
+            marksAwarded: ar.marksAwarded,
+            facultyFeedback: ar.facultyFeedback,
+            evaluatedBy: ar.evaluatedBy,
+            evaluatedAt: ar.evaluatedAt,
+          },
+        })
+      )
+    )
 
-    // Trigger Student Risk Calculation update in background
-    await evaluateStudentRisk(studentId)
+    // Trigger Student Risk Calculation update in background without blocking response
+    evaluateStudentRisk(studentId).catch(console.error)
 
     return NextResponse.json({
       success: true,

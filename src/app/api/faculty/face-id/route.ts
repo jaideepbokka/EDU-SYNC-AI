@@ -152,25 +152,25 @@ export async function POST(request: Request) {
       }
 
       const students = await prisma.student.findMany({ where })
-      let count = 0
 
-      for (const s of students) {
-        const faceId = generate7DigitFaceId()
-        await prisma.student.update({
-          where: { id: s.id },
-          data: { faceId },
-        })
-        count++
-      }
+      await Promise.all(
+        students.map((s) =>
+          prisma.student.update({
+            where: { id: s.id },
+            data: { faceId: generate7DigitFaceId() },
+          })
+        )
+      )
+      const count = students.length
 
-      await logAuditAction({
+      logAuditAction({
         actorRole: 'FACULTY',
         action: 'BULK_FACE_ID_REGENERATED',
         entityType: 'Department',
         entityId: section || 'ALL',
         newValue: `${count} student Face IDs refreshed`,
         reason: 'Faculty initiated bulk Face ID regeneration',
-      })
+      }).catch(console.error)
 
       return NextResponse.json({
         success: true,

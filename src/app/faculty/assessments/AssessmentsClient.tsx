@@ -77,6 +77,9 @@ export function AssessmentsClient({
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to create assessment')
 
+      if (data.assessment) {
+        setAssessments((prev) => [data.assessment, ...prev])
+      }
       setIsBuilderOpen(false)
       setStep(1)
       setFormData({
@@ -90,7 +93,6 @@ export function AssessmentsClient({
         status: 'PUBLISHED',
         selectedQuestionIds: [],
       })
-      router.refresh()
     } catch (err: any) {
       alert(err.message)
     } finally {
@@ -99,25 +101,21 @@ export function AssessmentsClient({
   }
 
   const handleDeleteAssessment = async (id: string, title: string) => {
-    const isConfirmed = confirm(
-      `Are you sure you want to delete the test "${title}"?\n\nThis will permanently delete the assessment and all student attempt data.`
-    )
-    if (!isConfirmed) return
+    // Optimistic removal for instant response
+    const previous = [...assessments]
+    setAssessments((prev) => prev.filter((a) => a.id !== id))
 
-    setDeletingId(id)
     try {
       const res = await fetch(`/api/assessments?id=${id}`, {
         method: 'DELETE',
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete assessment')
-
-      setAssessments((prev) => prev.filter((a) => a.id !== id))
-      router.refresh()
+      if (!res.ok) {
+        setAssessments(previous)
+        throw new Error(data.error || 'Failed to delete assessment')
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to delete assessment')
-    } finally {
-      setDeletingId(null)
     }
   }
 

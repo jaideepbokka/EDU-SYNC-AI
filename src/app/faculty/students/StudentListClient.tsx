@@ -110,7 +110,6 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
         studentPhone: '',
         address: '',
       })
-      router.refresh()
     } catch (err: any) {
       setFormError(err.message)
     } finally {
@@ -119,25 +118,21 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
   }
 
   const handleDeleteStudent = async (id: string, name: string, rollNo: string) => {
-    const isConfirmed = confirm(
-      `Are you sure you want to delete student "${name}" (${rollNo})?\n\nThis will permanently remove the student dossier, attendance records, quiz attempts, and evaluation history.`
-    )
-    if (!isConfirmed) return
+    // Optimistic removal for instant UI feedback
+    const previous = [...students]
+    setStudents((prev) => prev.filter((s) => s.id !== id))
 
-    setDeletingId(id)
     try {
       const res = await fetch(`/api/students?id=${id}`, {
         method: 'DELETE',
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete student')
-
-      setStudents((prev) => prev.filter((s) => s.id !== id))
-      router.refresh()
+      if (!res.ok) {
+        setStudents(previous)
+        throw new Error(data.error || 'Failed to delete student')
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to delete student')
-    } finally {
-      setDeletingId(null)
     }
   }
 

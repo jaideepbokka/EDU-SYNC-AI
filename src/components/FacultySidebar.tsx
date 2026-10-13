@@ -196,6 +196,7 @@ export function FacultySidebar({
                     <Link
                       key={item.href}
                       href={item.href}
+                      prefetch={true}
                       onClick={onClose}
                       className={`group flex items-center justify-between px-3 py-2 text-xs font-semibold rounded-xl transition-all ${
                         isActive

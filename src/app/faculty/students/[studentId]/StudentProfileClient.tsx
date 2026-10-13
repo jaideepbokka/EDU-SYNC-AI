@@ -34,10 +34,11 @@ interface StudentProfileClientProps {
 }
 
 export function StudentProfileClient({
-  student,
+  student: initialStudent,
   initialTab = 'overview',
 }: StudentProfileClientProps) {
   const router = useRouter()
+  const [student, setStudent] = useState<any>(initialStudent)
   const [activeTab, setActiveTab] = useState(initialTab)
   const [overrideSessionId, setOverrideSessionId] = useState<string | null>(null)
   const [isOverrideModalOpen, setIsOverrideModalOpen] = useState(false)
@@ -62,36 +63,59 @@ export function StudentProfileClient({
 
   const handleAttendanceOverride = async (reason: string) => {
     if (!overrideSessionId) return
-    const res = await fetch('/api/attendance/override', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: overrideSessionId,
-        studentId: student.id,
-        newStatus: 'PRESENT',
-        reason,
-      }),
-    })
-    if (!res.ok) {
-      const err = await res.json()
-      throw new Error(err.error || 'Failed to override attendance')
+    // Optimistically update attendance in state
+    setStudent((prev: any) => ({
+      ...prev,
+      attendanceRecords: (prev.attendanceRecords || []).map((r: any) =>
+        r.sessionId === overrideSessionId ? { ...r, status: 'PRESENT', overrideReason: reason } : r
+      ),
+    }))
+
+    try {
+      const res = await fetch('/api/attendance/override', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: overrideSessionId,
+          studentId: student.id,
+          newStatus: 'PRESENT',
+          reason,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'Failed to override attendance')
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to override attendance')
     }
-    router.refresh()
   }
 
   const handleCreateIntervention = async (e: React.FormEvent) => {
     e.preventDefault()
-    const res = await fetch('/api/interventions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        studentId: student.id,
-        ...interventionData,
-      }),
-    })
-    if (res.ok) {
-      setIsInterventionModalOpen(false)
-      router.refresh()
+    setIsInterventionModalOpen(false)
+    const newIntervention = {
+      id: `temp-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      status: 'OPEN',
+      ...interventionData,
+    }
+    setStudent((prev: any) => ({
+      ...prev,
+      interventions: [newIntervention, ...(prev.interventions || [])],
+    }))
+
+    try {
+      await fetch('/api/interventions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          studentId: student.id,
+          ...interventionData,
+        }),
+      })
+    } catch (err) {
+      console.error(err)
     }
   }
 

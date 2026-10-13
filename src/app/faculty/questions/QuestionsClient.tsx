@@ -76,6 +76,9 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Failed to create question')
 
+      if (data.question) {
+        setQuestionList((prev) => [data.question, ...prev])
+      }
       setIsModalOpen(false)
       setFormData({
         topicId: topics[0]?.id || '',
@@ -94,7 +97,6 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
         correctAnswer: 'True',
         sampleAnswer: '',
       })
-      router.refresh()
     } catch (err: any) {
       alert(err.message)
     } finally {
@@ -103,26 +105,21 @@ export function QuestionsClient({ questions: initialQuestions, topics }: Questio
   }
 
   const handleDeleteQuestion = async (id: string, text: string) => {
-    const preview = text.length > 70 ? text.substring(0, 70) + '...' : text
-    const isConfirmed = confirm(
-      `Are you sure you want to delete this question from the Question Bank?\n\n"${preview}"`
-    )
-    if (!isConfirmed) return
+    // Optimistic removal for immediate response
+    const previous = [...questionList]
+    setQuestionList((prev) => prev.filter((q) => q.id !== id))
 
-    setDeletingId(id)
     try {
       const res = await fetch(`/api/questions?id=${id}`, {
         method: 'DELETE',
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete question')
-
-      setQuestionList((prev) => prev.filter((q) => q.id !== id))
-      router.refresh()
+      if (!res.ok) {
+        setQuestionList(previous)
+        throw new Error(data.error || 'Failed to delete question')
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to delete question')
-    } finally {
-      setDeletingId(null)
     }
   }
 

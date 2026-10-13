@@ -62,7 +62,6 @@ export function AcademicRiskClient({
       })
       if (res.ok) {
         setSelectedStudentForIntervention(null)
-        router.refresh()
       }
     } catch (err) {
       console.error(err)

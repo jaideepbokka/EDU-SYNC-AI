@@ -36,6 +36,7 @@ export default async function FacultyDashboardPage() {
     todayTimetable,
     recentSessions,
     publishedAssessments,
+    allStudentsForFaceId,
   ] = await Promise.all([
     prisma.student.count(),
     prisma.subject.count(),
@@ -77,26 +78,22 @@ export default async function FacultyDashboardPage() {
     prisma.assessment.count({
       where: { status: 'PUBLISHED' },
     }),
+    prisma.student.findMany({
+      include: { user: true },
+      orderBy: { rollNo: 'asc' },
+    }),
   ])
 
-  // Compute average attendance from students
-  const allStudents = await prisma.student.findMany({
-    select: { attendancePercentage: true, currentCgpa: true },
-  })
+  // Compute average attendance and CGPA directly from students list without redundant DB queries
   const avgAttendance =
-    allStudents.length > 0
-      ? (allStudents.reduce((acc, s) => acc + s.attendancePercentage, 0) / allStudents.length).toFixed(1)
+    allStudentsForFaceId.length > 0
+      ? (allStudentsForFaceId.reduce((acc, s) => acc + s.attendancePercentage, 0) / allStudentsForFaceId.length).toFixed(1)
       : '0.0'
 
   const avgCgpa =
-    allStudents.length > 0
-      ? (allStudents.reduce((acc, s) => acc + s.currentCgpa, 0) / allStudents.length).toFixed(2)
+    allStudentsForFaceId.length > 0
+      ? (allStudentsForFaceId.reduce((acc, s) => acc + s.currentCgpa, 0) / allStudentsForFaceId.length).toFixed(2)
       : '0.00'
-
-  const allStudentsForFaceId = await prisma.student.findMany({
-    include: { user: true },
-    orderBy: { rollNo: 'asc' },
-  })
 
   // Format attendance chart trend data from sessions
   const attendanceTrend = recentSessions.map((s, idx) => {

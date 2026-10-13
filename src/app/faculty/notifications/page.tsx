@@ -7,6 +7,8 @@ export const metadata = {
   description: 'View real-time academic notifications and operational alerts.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function FacultyNotificationsPage() {
   const notifications = await prisma.notification.findMany({
     orderBy: { createdAt: 'desc' },

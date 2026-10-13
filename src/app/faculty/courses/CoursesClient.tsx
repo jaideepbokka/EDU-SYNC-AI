@@ -10,8 +10,9 @@ interface CoursesClientProps {
   subjects: any[]
 }
 
-export function CoursesClient({ offerings, subjects }: CoursesClientProps) {
+export function CoursesClient({ offerings: initialOfferings, subjects }: CoursesClientProps) {
   const router = useRouter()
+  const [offerings, setOfferings] = useState<any[]>(initialOfferings)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedOfferingForRoster, setSelectedOfferingForRoster] = useState<any | null>(null)
   const [formData, setFormData] = useState({
@@ -32,8 +33,11 @@ export function CoursesClient({ offerings, subjects }: CoursesClientProps) {
         body: JSON.stringify(formData),
       })
       if (!res.ok) throw new Error('Failed to create offering')
+      const newOffering = await res.json()
+      if (newOffering) {
+        setOfferings((prev) => [newOffering, ...prev])
+      }
       setIsModalOpen(false)
-      router.refresh()
     } catch (err: any) {
       alert(err.message)
     } finally {

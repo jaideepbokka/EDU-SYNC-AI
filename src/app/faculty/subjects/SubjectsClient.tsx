@@ -53,9 +53,10 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
         const data = await res.json()
         throw new Error(data.error || 'Failed to create subject')
       }
+      const newSubject = await res.json()
+      setSubjects((prev) => [newSubject, ...prev])
       setIsModalOpen(false)
       setFormData({ code: '', name: '', credits: 4, semester: 5, description: '' })
-      router.refresh()
     } catch (err: any) {
       alert(err.message)
     } finally {
@@ -64,25 +65,21 @@ export function SubjectsClient({ subjects: initialSubjects }: SubjectsClientProp
   }
 
   const handleDeleteSubject = async (id: string, code: string, name: string) => {
-    const isConfirmed = confirm(
-      `Are you sure you want to delete the course "${code} - ${name}"?\n\nThis will permanently remove this course, its syllabus units, and any assigned offerings.`
-    )
-    if (!isConfirmed) return
+    // Optimistic removal
+    const previous = [...subjects]
+    setSubjects((prev) => prev.filter((s) => s.id !== id))
 
-    setDeletingId(id)
     try {
       const res = await fetch(`/api/subjects?id=${id}`, {
         method: 'DELETE',
       })
       const data = await res.json()
-      if (!res.ok) throw new Error(data.error || 'Failed to delete course')
-
-      setSubjects((prev) => prev.filter((s) => s.id !== id))
-      router.refresh()
+      if (!res.ok) {
+        setSubjects(previous)
+        throw new Error(data.error || 'Failed to delete course')
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to delete course')
-    } finally {
-      setDeletingId(null)
     }
   }
 

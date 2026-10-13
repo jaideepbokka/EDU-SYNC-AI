@@ -23,11 +23,12 @@ interface LearningPathsClientProps {
 }
 
 export function LearningPathsClient({
-  learningPaths,
+  learningPaths: initialLearningPaths,
   students,
   subjects,
 }: LearningPathsClientProps) {
   const router = useRouter()
+  const [learningPaths, setLearningPaths] = useState<any[]>(initialLearningPaths)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -36,20 +37,25 @@ export function LearningPathsClient({
   })
 
   const handleToggleStep = async (stepId: string, currentVal: boolean) => {
-    try {
-      await fetch('/api/learning-paths', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'TOGGLE_STEP',
-          stepId,
-          isCompleted: !currentVal,
-        }),
-      })
-      router.refresh()
-    } catch (err) {
-      console.error(err)
-    }
+    // Optimistically toggle step in UI immediately
+    setLearningPaths((prev) =>
+      prev.map((lp) => ({
+        ...lp,
+        steps: lp.steps.map((st: any) =>
+          st.id === stepId ? { ...st, isCompleted: !currentVal } : st
+        ),
+      }))
+    )
+
+    fetch('/api/learning-paths', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'TOGGLE_STEP',
+        stepId,
+        isCompleted: !currentVal,
+      }),
+    }).catch(console.error)
   }
 
   const handleCreatePath = async (e: React.FormEvent) => {
@@ -62,8 +68,11 @@ export function LearningPathsClient({
         body: JSON.stringify(formData),
       })
       if (!res.ok) throw new Error('Failed to generate path')
+      const data = await res.json()
+      if (data.path) {
+        setLearningPaths((prev) => [data.path, ...prev])
+      }
       setIsModalOpen(false)
-      router.refresh()
     } catch (err: any) {
       alert(err.message)
     } finally {

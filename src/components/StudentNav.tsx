@@ -224,6 +224,7 @@ export function StudentNav({ user }: StudentNavProps) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  prefetch={true}
                   onClick={() => setIsMobileOpen(false)}
                   className={`group flex items-center justify-between p-3 rounded-2xl transition-all cursor-pointer ${
                     isActive

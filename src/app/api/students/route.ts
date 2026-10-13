@@ -90,28 +90,29 @@ export async function POST(request: Request) {
       include: { user: true },
     })
 
-    // Enroll in active course offerings
+    // Enroll in active course offerings in a single batch query
     const offerings = await prisma.courseOffering.findMany({
       where: { semester: Number(currentSemester), section },
     })
 
-    for (const off of offerings) {
-      await prisma.studentEnrollment.create({
-        data: {
+    if (offerings.length > 0) {
+      await prisma.studentEnrollment.createMany({
+        data: offerings.map((off) => ({
           studentId: student.id,
           courseOfferingId: off.id,
-        },
+        })),
+        skipDuplicates: true,
       })
     }
 
-    await logAuditAction({
+    logAuditAction({
       actorRole: 'FACULTY',
       action: 'STUDENT_ENROLLED',
       entityType: 'Student',
       entityId: student.id,
       newValue: `${name} (${rollNo})`,
       reason: 'New student admission enrollment',
-    })
+    }).catch(console.error)
 
     return NextResponse.json(student, { status: 201 })
   } catch (err: any) {

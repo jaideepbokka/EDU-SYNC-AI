@@ -126,7 +126,6 @@ export function FacultyProfileClient({
       setFaculty(data.faculty)
       setSuccessMessage('Your personal details have been updated and saved successfully!')
       setIsEditModalOpen(false)
-      router.refresh()
     } catch (err: any) {
       setErrorMessage(err.message || 'An error occurred while saving details.')
     } finally {
