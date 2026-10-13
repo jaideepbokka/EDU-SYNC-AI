@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import * as THREE from 'three'
 import { Volume2, VolumeX } from 'lucide-react'
-import { getCustomVideo, hasCustomVideoSync } from '@/lib/customVideoStorage'
+import { getCustomVideo, hasCustomVideoSync, isCustomVideoReset } from '@/lib/customVideoStorage'
 
 interface WelcomeClientProps {
   initialVideoUrl?: string | null
@@ -25,10 +25,17 @@ export function WelcomeClient({ initialVideoUrl }: WelcomeClientProps = {}) {
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   // Custom Video Playback State
-  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(initialVideoUrl || null)
-  const [isCustomMode, setIsCustomMode] = useState<boolean>(
-    Boolean(initialVideoUrl) || (typeof window !== 'undefined' && hasCustomVideoSync())
-  )
+  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(() => {
+    if (typeof window !== 'undefined' && isCustomVideoReset()) return null
+    return initialVideoUrl || null
+  })
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      if (isCustomVideoReset()) return false
+      return Boolean(initialVideoUrl) || hasCustomVideoSync()
+    }
+    return Boolean(initialVideoUrl)
+  })
   const [customTransitionProgress, setCustomTransitionProgress] = useState(0)
   const customVideoRef = useRef<HTMLVideoElement | null>(null)
 
@@ -36,6 +43,14 @@ export function WelcomeClient({ initialVideoUrl }: WelcomeClientProps = {}) {
   useEffect(() => {
     let isMounted = true
     const checkCustom = async () => {
+      if (isCustomVideoReset()) {
+        if (isMounted) {
+          setIsCustomMode(false)
+          setCustomVideoUrl(null)
+        }
+        return
+      }
+
       const res = await getCustomVideo()
       if (!isMounted) return
       if (res && res.url) {
@@ -44,8 +59,9 @@ export function WelcomeClient({ initialVideoUrl }: WelcomeClientProps = {}) {
         return
       }
 
-      if (!initialVideoUrl && isMounted) {
+      if (isMounted) {
         setIsCustomMode(false)
+        setCustomVideoUrl(null)
       }
     }
 

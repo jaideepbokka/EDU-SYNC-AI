@@ -40,6 +40,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# custom welcome videos
+public/custom_video_config.json
+public/custom_welcome_video*
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
