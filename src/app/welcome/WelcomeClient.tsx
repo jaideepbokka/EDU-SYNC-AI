@@ -3,7 +3,8 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import * as THREE from 'three'
-
+import { Volume2, VolumeX } from 'lucide-react'
+import { getCustomVideo, hasCustomVideoSync } from '@/lib/customVideoStorage'
 
 export function WelcomeClient() {
   const router = useRouter()
@@ -18,6 +19,53 @@ export function WelcomeClient() {
   const [hasRecorded, setHasRecorded] = useState(false)
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
   const [isRedirecting, setIsRedirecting] = useState(false)
+
+  // Custom Video Playback State
+  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null)
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      return hasCustomVideoSync()
+    }
+    return false
+  })
+  const [customTransitionProgress, setCustomTransitionProgress] = useState(0)
+  const customVideoRef = useRef<HTMLVideoElement | null>(null)
+
+  // Verify and load custom video if configured
+  useEffect(() => {
+    let isMounted = true
+    const checkCustom = async () => {
+      const res = await getCustomVideo()
+      if (!isMounted) return
+      if (res && res.url) {
+        setCustomVideoUrl(res.url)
+        setIsCustomMode(true)
+        return
+      }
+
+      // Secondary check: verify server upload
+      try {
+        const apiRes = await fetch('/api/custom-welcome-video')
+        if (apiRes.ok) {
+          const json = await apiRes.json()
+          if (json.exists && json.videoUrl && isMounted) {
+            setCustomVideoUrl(json.videoUrl)
+            setIsCustomMode(true)
+            return
+          }
+        }
+      } catch {}
+
+      if (isMounted) {
+        setIsCustomMode(false)
+      }
+    }
+
+    checkCustom()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -166,6 +214,7 @@ export function WelcomeClient() {
 
   // Setup Three.js WebGL Scene with Integrated 3D HUD Typography
   useEffect(() => {
+    if (isCustomMode) return
     const container = canvasContainerRef.current
     if (!container) return
 
@@ -671,9 +720,18 @@ export function WelcomeClient() {
       hudTexture.dispose()
       hudMat.dispose()
     }
-  }, [])
+  }, [isCustomMode])
 
   const handleReplay = () => {
+    if (isCustomMode && customVideoRef.current) {
+      customVideoRef.current.currentTime = 0
+      customVideoRef.current.play().catch(console.warn)
+      setIsPlaying(true)
+      setIsRedirecting(false)
+      setCustomTransitionProgress(0)
+      return
+    }
+
     startTimeRef.current = null
     pausedTimeRef.current = 0
     setCurrentTime(0)
@@ -687,6 +745,17 @@ export function WelcomeClient() {
   }
 
   const togglePlay = () => {
+    if (isCustomMode && customVideoRef.current) {
+      if (customVideoRef.current.paused) {
+        customVideoRef.current.play().catch(console.warn)
+        setIsPlaying(true)
+      } else {
+        customVideoRef.current.pause()
+        setIsPlaying(false)
+      }
+      return
+    }
+
     if (isPlaying) {
       pausedTimeRef.current = currentTime
       isPlayingRef.current = false
@@ -713,6 +782,46 @@ export function WelcomeClient() {
     }
   }
 
+  // Handle custom video timeupdate & transition trigger
+  const handleCustomTimeUpdate = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget
+    if (!video.duration || isNaN(video.duration)) return
+    setCurrentTime(video.currentTime)
+    const remaining = video.duration - video.currentTime
+
+    // Start clean light dissolve into #F2F3F5 when remaining <= 0.85s
+    if (remaining <= 0.85) {
+      const progress = Math.min(1, Math.max(0, (0.85 - remaining) / 0.85))
+      setCustomTransitionProgress(progress)
+    } else {
+      setCustomTransitionProgress(0)
+    }
+
+    if (remaining <= 0.05 && !isRedirecting) {
+      handleCustomEnded()
+    }
+  }
+
+  const handleCustomEnded = () => {
+    if (isRedirecting) return
+    setIsRedirecting(true)
+    setCustomTransitionProgress(1)
+    const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
+    const isNoRedirect =
+      urlParams?.has('noredirect') || (typeof window !== 'undefined' && (window as any).__NO_REDIRECT)
+
+    if (!isNoRedirect) {
+      router.push('/?from=welcome')
+    }
+  }
+
+  // Synchronize audio mute state with custom video element
+  useEffect(() => {
+    if (customVideoRef.current) {
+      customVideoRef.current.muted = isMuted
+    }
+  }, [isMuted])
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'Enter') {
@@ -734,30 +843,66 @@ export function WelcomeClient() {
     }
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [router])
+  }, [router, isCustomMode, isPlaying])
 
-  const showCleanTransition = currentTime >= 8.8
-  const transitionOpacity = Math.min(1, Math.max(0, (currentTime - 8.8) / 1.1))
+  const showCleanTransition = isCustomMode ? customTransitionProgress > 0 : currentTime >= 8.8
+  const transitionOpacity = isCustomMode
+    ? customTransitionProgress
+    : Math.min(1, Math.max(0, (currentTime - 8.8) / 1.1))
 
   return (
     <div
       ref={containerRef}
       className="fixed inset-0 w-screen h-screen overflow-hidden bg-[#030712] select-none z-50 flex flex-col justify-between"
     >
-      {/* 3D WebGL Canvas Layer - Fills entire 100vw x 100vh display */}
-      <div
-        ref={canvasContainerRef}
-        className="absolute inset-0 w-full h-full z-0 block cursor-pointer"
-        onClick={togglePlay}
-        onDoubleClick={toggleFullscreen}
-      />
+      {isCustomMode && customVideoUrl ? (
+        <video
+          ref={customVideoRef}
+          src={customVideoUrl}
+          autoPlay
+          playsInline
+          muted={isMuted}
+          className="fixed inset-0 w-full h-full object-cover z-0 bg-black cursor-pointer"
+          onClick={togglePlay}
+          onDoubleClick={toggleFullscreen}
+          onTimeUpdate={handleCustomTimeUpdate}
+          onEnded={handleCustomEnded}
+        />
+      ) : (
+        /* 3D WebGL Canvas Layer - Fills entire 100vw x 100vh display */
+        <div
+          ref={canvasContainerRef}
+          className="absolute inset-0 w-full h-full z-0 block cursor-pointer"
+          onClick={togglePlay}
+          onDoubleClick={toggleFullscreen}
+        />
+      )}
 
-      {/* Cybernetic Tech Scanlines and Radial Vignette */}
-      <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(3,7,18,0.6)_80%,rgba(3,7,18,0.92)_100%)]" />
-      <div
-        className="absolute inset-0 pointer-events-none z-10 opacity-[0.05] bg-[linear-gradient(rgba(255,255,255,0)_50%,rgba(0,0,0,0.8)_50%)]"
-        style={{ backgroundSize: '100% 4px' }}
-      />
+      {/* Cybernetic Tech Scanlines and Radial Vignette (for 3D animation mode) */}
+      {!isCustomMode && (
+        <>
+          <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(3,7,18,0.6)_80%,rgba(3,7,18,0.92)_100%)]" />
+          <div
+            className="absolute inset-0 pointer-events-none z-10 opacity-[0.05] bg-[linear-gradient(rgba(255,255,255,0)_50%,rgba(0,0,0,0.8)_50%)]"
+            style={{ backgroundSize: '100% 4px' }}
+          />
+        </>
+      )}
+
+      {/* Subtle Audio Indicator (only if custom video is active) */}
+      {isCustomMode && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation()
+            setIsMuted((prev) => !prev)
+          }}
+          title={isMuted ? 'Click or press M to Unmute' : 'Click or press M to Mute'}
+          className="absolute top-4 right-4 z-30 p-2.5 rounded-full bg-black/40 hover:bg-black/70 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all opacity-40 hover:opacity-100 cursor-pointer"
+        >
+          {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+        </button>
+      )}
 
       {/* Clean Smooth Light Crossfade Transition directly into Login Portal Canvas (#F2F3F5) */}
       {showCleanTransition && (

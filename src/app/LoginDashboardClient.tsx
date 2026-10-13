@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   ShieldCheck,
@@ -18,7 +18,11 @@ import {
   Building2,
   CheckCircle2,
   Play,
+  Plus,
+  Film,
 } from 'lucide-react'
+import { CustomVideoModal } from '@/components/CustomVideoModal'
+import { hasCustomVideoSync } from '@/lib/customVideoStorage'
 
 interface LoginDashboardClientProps {
   initialRole?: 'HOD' | 'FACULTY' | 'STUDENT'
@@ -36,6 +40,12 @@ export function LoginDashboardClient({
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(errorMessage || '')
+  const [showCustomVideoModal, setShowCustomVideoModal] = useState(false)
+  const [hasCustomVideo, setHasCustomVideo] = useState(false)
+
+  useEffect(() => {
+    setHasCustomVideo(hasCustomVideoSync())
+  }, [])
 
   const handleLogin = async (loginEmail: string, loginPass?: string, role = activeTab) => {
     setError('')
@@ -126,15 +136,28 @@ export function LoginDashboardClient({
           </div>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           <a
             href="/welcome"
-            title="Watch 10-Second Modern Motion Graphics Intro"
+            title="Watch Welcome Video"
             className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-[#EDE9FE] hover:bg-[#DDD6FE] text-[#6D28D9] border border-[#C4B5FD] transition-all shadow-xs active:scale-95 cursor-pointer"
           >
             <Play className="w-3.5 h-3.5 fill-[#6D28D9]" />
             <span>10s Intro</span>
           </a>
+
+          <button
+            type="button"
+            onClick={() => setShowCustomVideoModal(true)}
+            title="Add or Customize Welcome Video"
+            className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-white hover:bg-[#F2F3F5] text-[#292C32] border border-[#E9EAF0] hover:border-[#8B6DE9]/40 transition-all shadow-xs active:scale-95 cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5 text-[#625BEB]" />
+            <span>Add Video</span>
+            {hasCustomVideo && (
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse ml-0.5" title="Custom Video Active" />
+            )}
+          </button>
 
           <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-[#E9EAF0] shadow-xs text-[#292C32]">
             <span className="w-2 h-2 rounded-full bg-[#35C979] animate-pulse" />
@@ -465,6 +488,13 @@ export function LoginDashboardClient({
           Authorized institutional access only. Protected by biometric verification and audit ledger.
         </p>
       </footer>
+
+      {/* Custom Welcome Video Modal Dialog */}
+      <CustomVideoModal
+        isOpen={showCustomVideoModal}
+        onClose={() => setShowCustomVideoModal(false)}
+        onVideoUpdated={() => setHasCustomVideo(hasCustomVideoSync())}
+      />
     </div>
   )
 }
