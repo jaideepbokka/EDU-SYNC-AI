@@ -19,7 +19,6 @@ import {
   CheckCircle2,
   Play,
 } from 'lucide-react'
-import { IntroVideoSplash } from '@/components/IntroVideoSplash'
 
 interface LoginDashboardClientProps {
   initialRole?: 'HOD' | 'FACULTY' | 'STUDENT'
@@ -31,7 +30,6 @@ export function LoginDashboardClient({
   errorMessage,
 }: LoginDashboardClientProps) {
   const router = useRouter()
-  const [showIntro, setShowIntro] = useState(!errorMessage)
   const [activeTab, setActiveTab] = useState<'HOD' | 'FACULTY' | 'STUDENT'>(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -100,60 +98,51 @@ export function LoginDashboardClient({
   }
 
   return (
-    <>
-      {showIntro && (
-        <IntroVideoSplash
-          videoId="B6r1cPFUmWA"
-          onComplete={() => setShowIntro(false)}
+    <div className="relative min-h-screen bg-[#F2F3F5] text-[#292C32] flex flex-col justify-between overflow-x-hidden selection:bg-[#8B6DE9] selection:text-white">
+      {/* Ambient background decoration with subtle image blend */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <img
+          src="/campus-hero.jpg"
+          alt="Campus Ambient Background"
+          className="w-full h-full object-cover opacity-[0.035] filter blur-xs scale-105"
         />
-      )}
+        <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#A99AE8]/15 blur-3xl" />
+        <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-[#D9D1F5]/25 blur-3xl" />
+      </div>
 
-      <div className="relative min-h-screen bg-[#F2F3F5] text-[#292C32] flex flex-col justify-between overflow-x-hidden selection:bg-[#8B6DE9] selection:text-white">
-        {/* Ambient background decoration with subtle image blend */}
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-          <img
-            src="/campus-hero.jpg"
-            alt="Campus Ambient Background"
-            className="w-full h-full object-cover opacity-[0.035] filter blur-xs scale-105"
-          />
-          <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[#A99AE8]/15 blur-3xl" />
-          <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-[#D9D1F5]/25 blur-3xl" />
+      {/* Top Global Bar */}
+      <header className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] flex items-center justify-center text-white font-bold shadow-lg shadow-[#8B6DE9]/25">
+            <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
+          <div>
+            <span className="text-lg sm:text-xl font-black tracking-tight text-[#292C32] flex items-center gap-2">
+              EduSync <span className="text-[11px] sm:text-xs px-2 py-0.5 rounded-lg bg-[#D9D1F5]/60 text-[#625BEB] font-bold border border-[#A99AE8]/40">AI</span>
+            </span>
+            <p className="text-[10px] sm:text-[11px] text-[#85878F] font-medium hidden xs:block">
+              Academic Management & Student Biometric Portal
+            </p>
+          </div>
         </div>
 
-        {/* Top Global Bar */}
-        <header className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] flex items-center justify-center text-white font-bold shadow-lg shadow-[#8B6DE9]/25">
-              <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6" />
-            </div>
-            <div>
-              <span className="text-lg sm:text-xl font-black tracking-tight text-[#292C32] flex items-center gap-2">
-                EduSync <span className="text-[11px] sm:text-xs px-2 py-0.5 rounded-lg bg-[#D9D1F5]/60 text-[#625BEB] font-bold border border-[#A99AE8]/40">AI</span>
-              </span>
-              <p className="text-[10px] sm:text-[11px] text-[#85878F] font-medium hidden xs:block">
-                Academic Management & Student Biometric Portal
-              </p>
-            </div>
-          </div>
+        <div className="flex items-center gap-2.5">
+          <a
+            href="/welcome"
+            title="Watch 10-Second Modern Motion Graphics Intro"
+            className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-[#EDE9FE] hover:bg-[#DDD6FE] text-[#6D28D9] border border-[#C4B5FD] transition-all shadow-xs active:scale-95 cursor-pointer"
+          >
+            <Play className="w-3.5 h-3.5 fill-[#6D28D9]" />
+            <span>10s Intro</span>
+          </a>
 
-          <div className="flex items-center gap-2.5">
-            <button
-              type="button"
-              onClick={() => setShowIntro(true)}
-              title="Replay 1080p Intro Animation"
-              className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-[#EDE9FE] hover:bg-[#DDD6FE] text-[#6D28D9] border border-[#C4B5FD] transition-all shadow-xs active:scale-95 cursor-pointer"
-            >
-              <Play className="w-3.5 h-3.5 fill-[#6D28D9]" />
-              <span>Play Intro</span>
-            </button>
-
-            <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-[#E9EAF0] shadow-xs text-[#292C32]">
-              <span className="w-2 h-2 rounded-full bg-[#35C979] animate-pulse" />
-              <span className="hidden sm:inline">Institutional SSO •</span>
-              <span>AY 2025-26</span>
-            </div>
+          <div className="flex items-center gap-2 text-xs font-bold px-3 py-1.5 rounded-full bg-white border border-[#E9EAF0] shadow-xs text-[#292C32]">
+            <span className="w-2 h-2 rounded-full bg-[#35C979] animate-pulse" />
+            <span className="hidden sm:inline">Institutional SSO •</span>
+            <span>AY 2025-26</span>
           </div>
-        </header>
+        </div>
+      </header>
 
       {/* Main Container: Split Desktop & Clean Mobile Presentation */}
       <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 flex flex-col justify-center my-auto">
@@ -477,6 +466,5 @@ export function LoginDashboardClient({
         </p>
       </footer>
     </div>
-    </>
   )
 }
