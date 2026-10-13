@@ -7,6 +7,8 @@ export const metadata = {
   description: 'View and manage student semester SGPA and grade sheets.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function FacultyResultsPage() {
   const results = await prisma.semesterResult.findMany({
     include: {

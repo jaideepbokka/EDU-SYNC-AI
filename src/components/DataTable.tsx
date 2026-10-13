@@ -42,6 +42,9 @@ export function DataTable<T extends Record<string, any>>({
     return data.filter((item) => {
       const val = item[searchKey]
       if (val === undefined || val === null) return false
+      if (typeof val === 'object') {
+        return JSON.stringify(val).toLowerCase().includes(term)
+      }
       return String(val).toLowerCase().includes(term)
     })
   }, [data, searchTerm, searchKey])

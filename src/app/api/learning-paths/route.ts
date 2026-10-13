@@ -24,10 +24,31 @@ export async function POST(request: Request) {
     }
 
     const subject = await prisma.subject.findUnique({ where: { id: subjectId } })
-    const topic = await prisma.topic.findFirst({ where: { unit: { subjectId } } })
+    if (!subject) {
+      return NextResponse.json({ error: 'Subject not found' }, { status: 404 })
+    }
 
-    if (!topic || !subject) {
-      return NextResponse.json({ error: 'Topic or Subject not found' }, { status: 404 })
+    let topic = await prisma.topic.findFirst({ where: { unit: { subjectId } } })
+    if (!topic) {
+      let unit = await prisma.unit.findFirst({ where: { subjectId } })
+      if (!unit) {
+        unit = await prisma.unit.create({
+          data: {
+            subjectId,
+            unitNumber: 1,
+            title: `${subject.name} - Core Foundations`,
+            description: `Curriculum unit for ${subject.name}`,
+          },
+        })
+      }
+      topic = await prisma.topic.create({
+        data: {
+          unitId: unit.id,
+          topicNumber: 1,
+          title: `${subject.name} - Core Foundations`,
+          description: `Foundational principles in ${subject.name}`,
+        },
+      })
     }
 
     // Call Gemini or Academic rule engine
@@ -48,12 +69,22 @@ export async function POST(request: Request) {
       },
     })
 
+    // Find any topic matching or fallback
+    const availableTopics = await prisma.topic.findMany({
+      where: { unit: { subjectId } },
+    })
+
     for (let i = 0; i < aiPath.steps.length; i++) {
       const s = aiPath.steps[i]
+      const matchedTopic =
+        availableTopics.find((t) => t.title.toLowerCase().includes(s.topicTitle.toLowerCase())) ||
+        availableTopics[i % availableTopics.length] ||
+        topic
+
       await prisma.learningPathStep.create({
         data: {
           learningPathId: path.id,
-          topicId: topic.id,
+          topicId: matchedTopic.id,
           orderIndex: i + 1,
           title: s.topicTitle,
           description: s.description,
@@ -63,14 +94,18 @@ export async function POST(request: Request) {
       })
     }
 
-    await logAuditAction({
-      actorRole: 'FACULTY',
-      action: 'LEARNING_PATH_GENERATED',
-      entityType: 'LearningPath',
-      entityId: path.id,
-      newValue: path.title,
-      reason: 'AI Remedial Learning Path assigned to at-risk student',
-    })
+    try {
+      await logAuditAction({
+        actorRole: 'FACULTY',
+        action: 'LEARNING_PATH_GENERATED',
+        entityType: 'LearningPath',
+        entityId: path.id,
+        newValue: path.title,
+        reason: 'AI Remedial Learning Path assigned to at-risk student',
+      })
+    } catch (auditErr) {
+      console.warn('Audit logging warning:', auditErr)
+    }
 
     return NextResponse.json({ success: true, path }, { status: 201 })
   } catch (err: any) {

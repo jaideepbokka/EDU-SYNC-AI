@@ -12,6 +12,9 @@ export interface SessionUser {
   departmentCode?: string
   designation?: string
   avatar?: string
+  rollNo?: string
+  attendancePercentage?: number
+  currentCgpa?: number
 }
 
 export async function getCurrentUser(): Promise<SessionUser | null> {
@@ -57,6 +60,9 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
       departmentCode: user.student.department.code,
       designation: `Semester ${user.student.currentSemester} (Sec ${user.student.section})`,
       avatar: user.avatar || '/avatars/student1.jpg',
+      rollNo: user.student.rollNo,
+      attendancePercentage: user.student.attendancePercentage,
+      currentCgpa: user.student.currentCgpa,
     }
   }
 

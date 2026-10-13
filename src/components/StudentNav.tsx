@@ -104,10 +104,17 @@ export function StudentNav({ user }: StudentNavProps) {
     { code: 'AI', name: 'Artificial Intelligence & ML', status: 'Quiz Active' },
   ]
 
-  const studentName = user?.name || 'Aarav Reddy'
+  const studentName = user?.name || 'Student'
   const studentInitial = studentName.charAt(0).toUpperCase()
-  const studentRoll = user?.designation || 'Roll No: 101 • Semester 6 (Sec A)'
+  const studentRoll = user?.rollNo
+    ? `Roll No: ${user.rollNo} • ${user.designation || 'CSE'}`
+    : user?.designation || 'CSE Student'
   const deptCode = user?.departmentCode || 'CSE'
+
+  const attendanceValue = user?.attendancePercentage != null ? user.attendancePercentage : 80
+  const attendanceDisplay = `${attendanceValue}%`
+  const cgpaDisplay = user?.currentCgpa != null ? Number(user.currentCgpa).toFixed(2) : '8.37'
+  const isGoodAttendance = attendanceValue >= 75
 
   const drawerContent = (
     <div className="h-full flex flex-col justify-between bg-white overflow-y-auto">
@@ -165,14 +172,16 @@ export function StudentNav({ user }: StudentNavProps) {
             <div className="p-2.5 rounded-xl bg-white border border-[#E9EAF0] shadow-xs flex items-center justify-between">
               <div>
                 <p className="text-[9px] uppercase font-black text-[#85878F] tracking-wider">Attendance</p>
-                <p className="text-sm font-black text-[#35C979]">100%</p>
+                <p className={`text-sm font-black ${isGoodAttendance ? 'text-[#35C979]' : 'text-amber-600'}`}>
+                  {attendanceDisplay}
+                </p>
               </div>
-              <span className="w-2 h-2 rounded-full bg-[#35C979] animate-pulse" />
+              <span className={`w-2 h-2 rounded-full ${isGoodAttendance ? 'bg-[#35C979]' : 'bg-amber-500'} animate-pulse`} />
             </div>
             <div className="p-2.5 rounded-xl bg-white border border-[#E9EAF0] shadow-xs flex items-center justify-between">
               <div>
                 <p className="text-[9px] uppercase font-black text-[#85878F] tracking-wider">CGPA</p>
-                <p className="text-sm font-black text-[#8B6DE9]">7.80</p>
+                <p className="text-sm font-black text-[#8B6DE9] font-mono">{cgpaDisplay}</p>
               </div>
               <Sparkles className="w-3.5 h-3.5 text-[#8B6DE9]" />
             </div>
