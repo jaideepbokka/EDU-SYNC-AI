@@ -2,12 +2,14 @@
 
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
+import * as THREE from 'three'
 import {
   Play,
   RotateCcw,
   Download,
   ArrowRight,
   Maximize2,
+  Minimize2,
   Volume2,
   VolumeX,
   Sparkles,
@@ -16,12 +18,13 @@ import {
 
 export function WelcomeClient() {
   const router = useRouter()
-  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const canvasContainerRef = useRef<HTMLDivElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
 
   const [currentTime, setCurrentTime] = useState(0)
   const [isPlaying, setIsPlaying] = useState(true)
   const [isMuted, setIsMuted] = useState(true)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [hasRecorded, setHasRecorded] = useState(false)
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null)
@@ -33,88 +36,117 @@ export function WelcomeClient() {
   const animationFrameId = useRef<number | null>(null)
   const startTimeRef = useRef<number | null>(null)
   const pausedTimeRef = useRef<number>(0)
+  const isPlayingRef = useRef(true)
+  const isRecordingRef = useRef(false)
+  const hasRecordedRef = useRef(false)
+  const recordCanvasRef = useRef<HTMLCanvasElement | null>(null)
+  const recordCtxRef = useRef<CanvasRenderingContext2D | null>(null)
 
-  const DURATION = 10.0 // 10 seconds total
+  const DURATION = 10.0 // Exactly 10 seconds
 
-  // Sound generator using Web Audio API
-  const playAmbientSound = useCallback((time: number) => {
-    if (isMuted) return
-    try {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
-      }
-      const ctx = audioCtxRef.current
-      if (ctx.state === 'suspended') {
-        ctx.resume()
-      }
+  // Ambient sound synthesizer using Web Audio API
+  const playAmbientSound = useCallback(
+    (time: number) => {
+      if (isMuted) return
+      try {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)()
+        }
+        const ctx = audioCtxRef.current
+        if (ctx.state === 'suspended') ctx.resume()
 
-      // Grand chord at text entrance (4.5s)
-      if (time >= 4.45 && time <= 4.55) {
-        const freqs = [220, 277.18, 329.63, 440, 554.37, 659.25] // A Major chord
-        freqs.forEach((f, i) => {
+        // 0.1s - Sub-bass whoosh
+        if (time >= 0.1 && time <= 0.2) {
           const osc = ctx.createOscillator()
           const gain = ctx.createGain()
-          osc.type = i % 2 === 0 ? 'sine' : 'triangle'
-          osc.frequency.setValueAtTime(f, ctx.currentTime)
-          gain.gain.setValueAtTime(0.001, ctx.currentTime)
-          gain.gain.exponentialRampToValueAtTime(0.04 / (i + 1), ctx.currentTime + 0.1)
-          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 2.5)
+          osc.type = 'sine'
+          osc.frequency.setValueAtTime(55, ctx.currentTime)
+          osc.frequency.exponentialRampToValueAtTime(140, ctx.currentTime + 1.2)
+          gain.gain.setValueAtTime(0.08, ctx.currentTime)
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.5)
           osc.connect(gain)
           gain.connect(ctx.destination)
           osc.start()
-          osc.stop(ctx.currentTime + 2.6)
-        })
-      }
+          osc.stop(ctx.currentTime + 1.6)
+        }
 
-      // Sub-bass sweep at start (0.1s)
-      if (time >= 0.1 && time <= 0.2) {
-        const osc = ctx.createOscillator()
-        const gain = ctx.createGain()
-        osc.type = 'sine'
-        osc.frequency.setValueAtTime(65, ctx.currentTime)
-        osc.frequency.exponentialRampToValueAtTime(130, ctx.currentTime + 1.2)
-        gain.gain.setValueAtTime(0.05, ctx.currentTime)
-        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.5)
-        osc.connect(gain)
-        gain.connect(ctx.destination)
-        osc.start()
-        osc.stop(ctx.currentTime + 1.6)
-      }
-    } catch {
-      // Audio autoplay policy fallback
-    }
-  }, [isMuted])
+        // 4.2s - Grand orchestral synth bloom on "Welcome to EduSync" entrance
+        if (time >= 4.2 && time <= 4.35) {
+          const freqs = [174.61, 220.0, 261.63, 329.63, 392.0, 523.25, 659.25] // F-Maj9 chord
+          freqs.forEach((f, i) => {
+            const osc = ctx.createOscillator()
+            const gain = ctx.createGain()
+            osc.type = i % 2 === 0 ? 'sine' : 'triangle'
+            osc.frequency.setValueAtTime(f, ctx.currentTime)
+            gain.gain.setValueAtTime(0.001, ctx.currentTime)
+            gain.gain.exponentialRampToValueAtTime(0.05 / (i + 1), ctx.currentTime + 0.15)
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 3.0)
+            osc.connect(gain)
+            gain.connect(ctx.destination)
+            osc.start()
+            osc.stop(ctx.currentTime + 3.1)
+          })
+        }
 
-  // Start video recording with MediaRecorder
-  const startRecording = useCallback(() => {
-    const canvas = canvasRef.current
-    if (!canvas || !window.MediaRecorder) return
+        // 8.8s - High speed warp riser
+        if (time >= 8.8 && time <= 8.95) {
+          const osc = ctx.createOscillator()
+          const gain = ctx.createGain()
+          osc.type = 'sawtooth'
+          osc.frequency.setValueAtTime(220, ctx.currentTime)
+          osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 1.0)
+          gain.gain.setValueAtTime(0.02, ctx.currentTime)
+          gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.1)
+          osc.connect(gain)
+          gain.connect(ctx.destination)
+          osc.start()
+          osc.stop(ctx.currentTime + 1.2)
+        }
+      } catch {
+        // Fallback for strict browser autoplay
+      }
+    },
+    [isMuted]
+  )
+
+  // Start 60FPS Ultra-HD Recording
+  const startRecording = useCallback((canvas: HTMLCanvasElement) => {
+    if (!canvas || !window.MediaRecorder || isRecordingRef.current) return
 
     try {
-      const stream = canvas.captureStream(60) // 60 FPS
-      const mimeTypes = ['video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm']
+      const targetCanvas = recordCanvasRef.current || canvas
+      const stream = targetCanvas.captureStream(60) // 60 FPS
+      const mimeTypes = [
+        'video/webm;codecs=vp9',
+        'video/webm;codecs=vp8',
+        'video/webm',
+      ]
       const supportedType = mimeTypes.find((t) => MediaRecorder.isTypeSupported(t)) || 'video/webm'
 
       const recorder = new MediaRecorder(stream, {
         mimeType: supportedType,
-        videoBitsPerSecond: 8000000, // 8 Mbps high quality
+        videoBitsPerSecond: 25000000, // 25 Mbps Ultra-HD 1080p/4K Clarity
       })
 
       recordedChunksRef.current = []
       recorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
+        if (e.data && e.data.size > 0) {
           recordedChunksRef.current.push(e.data)
+          console.log('RECORD_CHUNK_RECEIVED:', e.data.size, 'Total chunks:', recordedChunksRef.current.length)
         }
       }
 
       recorder.onstop = async () => {
+        isRecordingRef.current = false
+        setIsRecording(false)
+        hasRecordedRef.current = true
+        setHasRecorded(true)
+
         const blob = new Blob(recordedChunksRef.current, { type: 'video/webm' })
         const url = URL.createObjectURL(blob)
         setDownloadUrl(url)
-        setHasRecorded(true)
-        setIsRecording(false)
+        console.log('RECORD_BLOB_READY, size:', blob.size, 'Total chunks:', recordedChunksRef.current.length)
 
-        // Automatically upload to server so it is saved in /public and artifacts directory
         try {
           const form = new FormData()
           form.append('video', blob, 'edusing_welcome_10s.webm')
@@ -123,7 +155,7 @@ export function WelcomeClient() {
             body: form,
           })
           if (res.ok) {
-            console.log('VIDEO_SAVED_SUCCESSFULLY')
+            console.log('VIDEO_SAVED_SUCCESSFULLY, size:', blob.size)
             if (typeof window !== 'undefined') {
               ;(window as any).__VIDEO_SAVED = true
             }
@@ -133,63 +165,245 @@ export function WelcomeClient() {
         }
       }
 
-      recorder.start()
+      recorder.start(100) // Collect 100ms timeslices continuously
+      console.log('RECORD_STARTED_AT_FPS: 60')
       mediaRecorderRef.current = recorder
+      isRecordingRef.current = true
       setIsRecording(true)
     } catch (e) {
       console.warn('MediaRecorder error:', e)
     }
   }, [])
 
-  // Canvas Motion Graphics Rendering Loop
+  // Setup Three.js WebGL Scene with Integrated 3D HUD Typography
   useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
+    const container = canvasContainerRef.current
+    if (!container) return
 
-    // High DPI setup
-    const updateSize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const width = canvas.parentElement?.clientWidth || 1280
-      const height = canvas.parentElement?.clientHeight || 720
-      canvas.width = width * dpr
-      canvas.height = height * dpr
-      ctx.scale(dpr, dpr)
+    // 1. Scene, Camera & WebGL Renderer with preserveDrawingBuffer for captureStream
+    const scene = new THREE.Scene()
+    scene.fog = new THREE.FogExp2(0x030712, 0.016)
+
+    const camera = new THREE.PerspectiveCamera(
+      55,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      1000
+    )
+    camera.position.set(0, 0, 32)
+
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      powerPreference: 'high-performance',
+      stencil: false,
+      depth: true,
+      preserveDrawingBuffer: true, // Crucial for 60FPS video recording!
+    })
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = 1.3
+    container.innerHTML = ''
+    container.appendChild(renderer.domElement)
+
+    // 2. Lighting System
+    const ambientLight = new THREE.AmbientLight(0x4338ca, 0.9)
+    scene.add(ambientLight)
+
+    const coreLight = new THREE.PointLight(0xa855f7, 5, 80)
+    coreLight.position.set(0, 0, 0)
+    scene.add(coreLight)
+
+    const cyanLight = new THREE.PointLight(0x06b6d4, 4, 70)
+    cyanLight.position.set(12, 8, 10)
+    scene.add(cyanLight)
+
+    const rimLight = new THREE.DirectionalLight(0xffffff, 1.2)
+    rimLight.position.set(-10, 15, 20)
+    scene.add(rimLight)
+
+    // 3. Hyper-Space Warp Starfield (3,500 particles with depth velocity)
+    const starCount = 3500
+    const starGeometry = new THREE.BufferGeometry()
+    const starPositions = new Float32Array(starCount * 3)
+    const starColors = new Float32Array(starCount * 3)
+
+    const palette = [
+      new THREE.Color(0xa855f7), // Purple
+      new THREE.Color(0x38bdf8), // Cyan
+      new THREE.Color(0x6366f1), // Indigo
+      new THREE.Color(0x10b981), // Emerald
+      new THREE.Color(0xf8fafc), // Bright White
+    ]
+
+    for (let i = 0; i < starCount; i++) {
+      starPositions[i * 3] = (Math.random() - 0.5) * 120
+      starPositions[i * 3 + 1] = (Math.random() - 0.5) * 120
+      starPositions[i * 3 + 2] = (Math.random() - 0.5) * 140 - 20
+
+      const c = palette[Math.floor(Math.random() * palette.length)]
+      starColors[i * 3] = c.r
+      starColors[i * 3 + 1] = c.g
+      starColors[i * 3 + 2] = c.b
     }
-    updateSize()
-    window.addEventListener('resize', updateSize)
 
-    // Particles system (120 animated stars/nodes)
-    const particleCount = 100
-    const particles: {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      radius: number
-      baseAlpha: number
-      color: string
-    }[] = []
+    starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3))
+    starGeometry.setAttribute('color', new THREE.BufferAttribute(starColors, 3))
 
-    const colors = ['#8B6DE9', '#625BEB', '#38BDF8', '#10B981', '#F59E0B', '#FFFFFF']
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random(),
-        y: Math.random(),
-        vx: (Math.random() - 0.5) * 0.08,
-        vy: (Math.random() - 0.5) * 0.08,
-        radius: Math.random() * 2.2 + 0.8,
-        baseAlpha: Math.random() * 0.6 + 0.3,
-        color: colors[Math.floor(Math.random() * colors.length)],
-      })
+    const starMaterial = new THREE.PointsMaterial({
+      size: 0.6,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.85,
+      blending: THREE.AdditiveBlending,
+    })
+
+    const starField = new THREE.Points(starGeometry, starMaterial)
+    scene.add(starField)
+
+    // 4. Central 3D Quantum Geometric Core
+    const coreGroup = new THREE.Group()
+    scene.add(coreGroup)
+
+    // 4a. Outer Geodesic Wireframe Icosahedron
+    const outerGeo = new THREE.IcosahedronGeometry(4.2, 1)
+    const outerMat = new THREE.MeshStandardMaterial({
+      color: 0x818cf8,
+      wireframe: true,
+      emissive: 0x6366f1,
+      emissiveIntensity: 0.8,
+      roughness: 0.2,
+      metalness: 0.8,
+    })
+    const outerCore = new THREE.Mesh(outerGeo, outerMat)
+    coreGroup.add(outerCore)
+
+    // 4b. Inner Holographic Octahedron Crystal
+    const innerGeo = new THREE.OctahedronGeometry(2.4, 0)
+    const innerMat = new THREE.MeshPhysicalMaterial({
+      color: 0xc084fc,
+      metalness: 0.3,
+      roughness: 0.1,
+      transmission: 0.7,
+      thickness: 1.2,
+      emissive: 0xa855f7,
+      emissiveIntensity: 0.6,
+      wireframe: false,
+    })
+    const innerCrystal = new THREE.Mesh(innerGeo, innerMat)
+    coreGroup.add(innerCrystal)
+
+    // 4c. Pulsing Plasma Sphere at exact center
+    const plasmaGeo = new THREE.SphereGeometry(1.2, 32, 32)
+    const plasmaMat = new THREE.MeshBasicMaterial({
+      color: 0xffffff,
+      wireframe: false,
+    })
+    const plasmaSphere = new THREE.Mesh(plasmaGeo, plasmaMat)
+    coreGroup.add(plasmaSphere)
+
+    // 5. Multi-Tiered Holographic Gyro HUD Rings
+    const ringGroup = new THREE.Group()
+    scene.add(ringGroup)
+
+    // Ring 1: Cyan Orbit Ring
+    const ring1Geo = new THREE.TorusGeometry(8.2, 0.05, 16, 120)
+    const ring1Mat = new THREE.MeshStandardMaterial({
+      color: 0x06b6d4,
+      emissive: 0x06b6d4,
+      emissiveIntensity: 1.2,
+    })
+    const ring1 = new THREE.Mesh(ring1Geo, ring1Mat)
+    ringGroup.add(ring1)
+
+    // Ring 2: Purple Tilted Orbit Ring
+    const ring2Geo = new THREE.TorusGeometry(7.0, 0.07, 16, 120)
+    const ring2Mat = new THREE.MeshStandardMaterial({
+      color: 0xa855f7,
+      emissive: 0xa855f7,
+      emissiveIntensity: 1.2,
+    })
+    const ring2 = new THREE.Mesh(ring2Geo, ring2Mat)
+    ring2.rotation.x = Math.PI / 3
+    ringGroup.add(ring2)
+
+    // Ring 3: Segmented Outer Data Ring
+    const ring3Geo = new THREE.TorusGeometry(9.6, 0.04, 16, 120)
+    const ring3Mat = new THREE.MeshStandardMaterial({
+      color: 0x38bdf8,
+      emissive: 0x38bdf8,
+      emissiveIntensity: 0.9,
+    })
+    const ring3 = new THREE.Mesh(ring3Geo, ring3Mat)
+    ring3.rotation.y = Math.PI / 4
+    ringGroup.add(ring3)
+
+    // Orbiting Satellite Data Nodes
+    const nodeCount = 6
+    const nodes: THREE.Mesh[] = []
+    for (let i = 0; i < nodeCount; i++) {
+      const nodeMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(0.24, 16, 16),
+        new THREE.MeshBasicMaterial({ color: i % 2 === 0 ? 0x38bdf8 : 0xa855f7 })
+      )
+      ringGroup.add(nodeMesh)
+      nodes.push(nodeMesh)
     }
 
-    // Auto start recording on initial play
-    if (!hasRecorded && !isRecording) {
-      setTimeout(() => startRecording(), 100)
+    // 6. Expanding Shockwave Torus (for explosive burst at 4.2s)
+    const shockwaveGeo = new THREE.TorusGeometry(1, 0.25, 16, 80)
+    const shockwaveMat = new THREE.MeshBasicMaterial({
+      color: 0xa855f7,
+      transparent: true,
+      opacity: 0,
+      blending: THREE.AdditiveBlending,
+    })
+    const shockwave = new THREE.Mesh(shockwaveGeo, shockwaveMat)
+    scene.add(shockwave)
+
+    // 7. 3D In-Engine HUD Canvas for 4K Typography & Redirection Rendering
+    // This bakes the "Welcome to EduSync" title and redirection sequence directly into the 3D WebGL stream!
+    const hudCanvas = document.createElement('canvas')
+    hudCanvas.width = 2048
+    hudCanvas.height = 1024
+    const hudCtx = hudCanvas.getContext('2d')
+    const hudTexture = new THREE.CanvasTexture(hudCanvas)
+    hudTexture.minFilter = THREE.LinearFilter
+    hudTexture.magFilter = THREE.LinearFilter
+
+    const hudMat = new THREE.MeshBasicMaterial({
+      map: hudTexture,
+      transparent: true,
+      depthWrite: false,
+    })
+    const hudPlane = new THREE.Mesh(new THREE.PlaneGeometry(28, 14), hudMat)
+    hudPlane.position.set(0, 0, 7)
+    scene.add(hudPlane)
+
+    // Create high-res 1080p mirror canvas for 60FPS video recording
+    const recCanvas = document.createElement('canvas')
+    recCanvas.width = 1920
+    recCanvas.height = 1080
+    recordCanvasRef.current = recCanvas
+    recordCtxRef.current = recCanvas.getContext('2d')
+
+    // Start auto recording after canvas mount
+    if (!hasRecordedRef.current && !isRecordingRef.current) {
+      setTimeout(() => startRecording(recCanvas), 150)
     }
 
+    // Handle Window Resize for 1080p / 4K Crispness
+    const handleResize = () => {
+      const width = window.innerWidth
+      const height = window.innerHeight
+      camera.aspect = width / height
+      camera.updateProjectionMatrix()
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+      renderer.setSize(width, height)
+    }
+    window.addEventListener('resize', handleResize)
+
+    // Main 60 FPS Render Loop
     const render = (timestamp: number) => {
       if (!startTimeRef.current) {
         startTimeRef.current = timestamp - pausedTimeRef.current * 1000
@@ -199,299 +413,248 @@ export function WelcomeClient() {
       setCurrentTime(Math.min(elapsed, DURATION))
       playAmbientSound(elapsed)
 
-      const w = canvas.width / (Math.min(window.devicePixelRatio || 1, 2))
-      const h = canvas.height / (Math.min(window.devicePixelRatio || 1, 2))
-      const cx = w / 2
-      const cy = h / 2
+      // ----------------------------------------------------
+      // PHASE 1: CAMERA CINEMATIC FLIGHT (0.0s – 10.0s)
+      // ----------------------------------------------------
+      if (elapsed < 4.2) {
+        // Orbit and dolly in
+        const camProgress = elapsed / 4.2
+        camera.position.x = Math.sin(elapsed * 0.8) * (8 - camProgress * 6)
+        camera.position.y = Math.cos(elapsed * 0.6) * (5 - camProgress * 4)
+        camera.position.z = 32 - camProgress * 12
+        camera.lookAt(0, 0, 0)
+      } else if (elapsed < 8.8) {
+        // Floating gentle breathing camera
+        const drift = elapsed - 4.2
+        camera.position.x = Math.sin(drift * 0.4) * 1.2
+        camera.position.y = Math.cos(drift * 0.3) * 0.6
+        camera.position.z = 20 + Math.sin(drift * 0.5) * 0.8
+        camera.lookAt(0, 0, 0)
+      } else {
+        // Hyperspace warp dive (8.8s – 10.0s)
+        const warpProgress = (elapsed - 8.8) / 1.2
+        camera.position.z = 20 - warpProgress * 18 // Plunges into center
+        camera.position.x *= 0.8
+        camera.position.y *= 0.8
+        camera.lookAt(0, 0, 0)
+      }
 
-      // Clear with deep space gradient
-      const bgGrad = ctx.createRadialGradient(cx, cy, 50, cx, cy, Math.max(w, h) * 0.8)
-      bgGrad.addColorStop(0, '#111322')
-      bgGrad.addColorStop(0.5, '#0B0D18')
-      bgGrad.addColorStop(1, '#05060A')
-      ctx.fillStyle = bgGrad
-      ctx.fillRect(0, 0, w, h)
+      // Keep HUD plane aligned with camera view
+      hudPlane.position.x = camera.position.x * 0.3
+      hudPlane.position.y = camera.position.y * 0.3
+      hudPlane.position.z = camera.position.z - 13
 
-      // ==========================================
-      // STAGE 1: AMBIENT NEURAL CONSTELLATION
-      // ==========================================
-      ctx.lineWidth = 0.6
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i]
-        // Converge particles toward center after 2.5s
-        let currentVx = p.vx
-        let currentVy = p.vy
-        if (elapsed > 2.2 && elapsed < 5.0) {
-          const dx = 0.5 - p.x
-          const dy = 0.5 - p.y
-          currentVx += dx * 0.03
-          currentVy += dy * 0.03
+      // ----------------------------------------------------
+      // PHASE 2: STARFIELD MOTION DYNAMICS
+      // ----------------------------------------------------
+      const positions = starGeometry.attributes.position.array as Float32Array
+      const speedMultiplier = elapsed > 8.5 ? 4.5 : elapsed > 4.2 ? 1.6 : 1.0
+
+      for (let i = 0; i < starCount; i++) {
+        // Move star along Z toward camera
+        positions[i * 3 + 2] += 0.35 * speedMultiplier
+        if (positions[i * 3 + 2] > 35) {
+          positions[i * 3 + 2] = -100
+          positions[i * 3] = (Math.random() - 0.5) * 120
+          positions[i * 3 + 1] = (Math.random() - 0.5) * 120
         }
+      }
+      starGeometry.attributes.position.needsUpdate = true
 
-        p.x = (p.x + currentVx * 0.01 + 1) % 1
-        p.y = (p.y + currentVy * 0.01 + 1) % 1
+      // ----------------------------------------------------
+      // PHASE 3: CORE & GYRO RINGS ROTATION
+      // ----------------------------------------------------
+      const rotSpeed = 1 + elapsed * 0.3
+      outerCore.rotation.x += 0.012 * rotSpeed
+      outerCore.rotation.y += 0.016 * rotSpeed
+      innerCrystal.rotation.x -= 0.02 * rotSpeed
+      innerCrystal.rotation.z += 0.025 * rotSpeed
 
-        const px = p.x * w
-        const py = p.y * h
+      // Pulsing plasma sphere
+      const pulseScale = 1 + Math.sin(elapsed * 6) * 0.18 + (elapsed > 4.0 && elapsed < 4.8 ? 0.6 : 0)
+      plasmaSphere.scale.set(pulseScale, pulseScale, pulseScale)
 
-        ctx.beginPath()
-        ctx.arc(px, py, p.radius, 0, Math.PI * 2)
-        ctx.fillStyle = p.color
-        ctx.globalAlpha = p.baseAlpha * Math.min(1, elapsed * 1.5)
-        ctx.shadowColor = p.color
-        ctx.shadowBlur = 10
-        ctx.fill()
-        ctx.shadowBlur = 0
+      ring1.rotation.z += 0.02 * rotSpeed
+      ring2.rotation.y += 0.024 * rotSpeed
+      ring3.rotation.x += 0.018 * rotSpeed
 
-        // Connect nearby particles with luminous lines
-        for (let j = i + 1; j < particles.length; j += 4) {
-          const p2 = particles[j]
-          const dist = Math.hypot(p.x - p2.x, p.y - p2.y)
-          if (dist < 0.12) {
-            ctx.beginPath()
-            ctx.moveTo(px, py)
-            ctx.lineTo(p2.x * w, p2.y * h)
-            ctx.strokeStyle = '#8B6DE9'
-            ctx.globalAlpha = (1 - dist / 0.12) * 0.18
-            ctx.stroke()
+      // Satellite Nodes motion
+      nodes.forEach((n, idx) => {
+        const angle = elapsed * 1.5 + (idx * Math.PI * 2) / nodeCount
+        const radius = idx % 2 === 0 ? 8.2 : 7.0
+        n.position.x = Math.cos(angle) * radius
+        n.position.y = Math.sin(angle) * (radius * 0.8)
+        n.position.z = Math.sin(angle * 2) * 2
+      })
+
+      // ----------------------------------------------------
+      // PHASE 4: EXPLOSIVE SHOCKWAVE (at 4.2s)
+      // ----------------------------------------------------
+      if (elapsed >= 4.2 && elapsed <= 6.0) {
+        const shockProgress = (elapsed - 4.2) / 1.8 // 0 to 1
+        shockwave.visible = true
+        const scale = 1 + shockProgress * 38
+        shockwave.scale.set(scale, scale, scale)
+        shockwaveMat.opacity = (1 - shockProgress) * 0.95
+      } else {
+        shockwave.visible = false
+      }
+
+      // ----------------------------------------------------
+      // PHASE 5: 3D HUD TYPOGRAPHY & REDIRECTION RENDERING
+      // ----------------------------------------------------
+      if (hudCtx) {
+        hudCtx.clearRect(0, 0, 2048, 1024)
+
+        if (elapsed >= 4.2) {
+          const textProgress = Math.min(1, (elapsed - 4.2) / 0.8)
+          hudCtx.save()
+          hudCtx.globalAlpha = textProgress
+
+          // Status Badge Pill
+          hudCtx.fillStyle = 'rgba(79, 70, 229, 0.35)'
+          hudCtx.strokeStyle = 'rgba(129, 140, 248, 0.8)'
+          hudCtx.lineWidth = 3
+          hudCtx.beginPath()
+          hudCtx.roundRect(1024 - 280, 230, 560, 48, 24)
+          hudCtx.fill()
+          hudCtx.stroke()
+
+          hudCtx.font = '700 20px "Courier New", monospace'
+          hudCtx.fillStyle = '#A5B4FC'
+          hudCtx.textAlign = 'center'
+          hudCtx.fillText('• QUANTUM AI CORE ACTIVE • AY 2025-26', 1024, 262)
+
+          // Main Title: "Welcome to EduSync"
+          hudCtx.font = '900 96px "Inter", "Segoe UI", sans-serif'
+          hudCtx.textAlign = 'center'
+
+          // Neon Drop Shadow & Gradient Fill
+          hudCtx.shadowColor = '#A855F7'
+          hudCtx.shadowBlur = 45
+          const grad = hudCtx.createLinearGradient(600, 320, 1400, 440)
+          grad.addColorStop(0, '#FFFFFF')
+          grad.addColorStop(0.5, '#EDE9FE')
+          grad.addColorStop(1, '#C4B5FD')
+          hudCtx.fillStyle = grad
+          hudCtx.fillText('Welcome to EduSync', 1024, 380)
+
+          // Specular Shimmer Sweep
+          hudCtx.shadowBlur = 0
+          const shimmerX = 500 + ((elapsed - 4.2) * 550) % 1100
+          const shimmerGrad = hudCtx.createLinearGradient(shimmerX - 90, 0, shimmerX + 90, 0)
+          shimmerGrad.addColorStop(0, 'rgba(255,255,255,0)')
+          shimmerGrad.addColorStop(0.5, 'rgba(255,255,255,0.85)')
+          shimmerGrad.addColorStop(1, 'rgba(255,255,255,0)')
+          hudCtx.fillStyle = shimmerGrad
+          hudCtx.fillText('Welcome to EduSync', 1024, 380)
+
+          // Subtitle
+          hudCtx.font = '600 26px "Inter", sans-serif'
+          hudCtx.fillStyle = '#E2E8F0'
+          hudCtx.fillText('Next-Generation AI Academic & Biometric Ecosystem', 1024, 440)
+
+          // Telemetry tags
+          hudCtx.font = '700 18px "Courier New", monospace'
+          hudCtx.fillStyle = '#38BDF8'
+          hudCtx.fillText('⚡ BIOMETRIC SYNC  |  🧠 NEURAL RISK PREDICTION  |  🛡️ ZERO-TRUST', 1024, 490)
+
+          // Redirection HUD (7.3s+)
+          if (elapsed >= 7.3) {
+            const redProgress = Math.min(1, (elapsed - 7.3) / 0.5)
+            const countdownPercent = Math.min(100, Math.floor(((elapsed - 7.3) / 2.7) * 100))
+            hudCtx.globalAlpha = redProgress
+
+            // Glassmorphic status pill
+            hudCtx.fillStyle = 'rgba(15, 23, 42, 0.90)'
+            hudCtx.strokeStyle = '#06B6D4'
+            hudCtx.lineWidth = 3
+            hudCtx.shadowColor = '#06B6D4'
+            hudCtx.shadowBlur = 30
+            hudCtx.beginPath()
+            hudCtx.roundRect(1024 - 360, 560, 720, 96, 28)
+            hudCtx.fill()
+            hudCtx.stroke()
+
+            // Circular progress ring
+            const ringX = 1024 - 300
+            const ringY = 560 + 48
+            hudCtx.beginPath()
+            hudCtx.arc(ringX, ringY, 24, 0, Math.PI * 2)
+            hudCtx.strokeStyle = 'rgba(255, 255, 255, 0.2)'
+            hudCtx.lineWidth = 5
+            hudCtx.stroke()
+
+            hudCtx.beginPath()
+            hudCtx.arc(ringX, ringY, 24, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * countdownPercent) / 100)
+            hudCtx.strokeStyle = '#10B981'
+            hudCtx.lineWidth = 5
+            hudCtx.stroke()
+
+            hudCtx.font = '700 16px "Inter", sans-serif'
+            hudCtx.fillStyle = '#10B981'
+            hudCtx.textAlign = 'center'
+            hudCtx.fillText(`${countdownPercent}%`, ringX, ringY + 6)
+
+            hudCtx.font = '800 24px "Inter", sans-serif'
+            hudCtx.fillStyle = '#FFFFFF'
+            hudCtx.textAlign = 'left'
+            hudCtx.shadowBlur = 0
+            hudCtx.fillText('Redirecting to University Login Portal...', ringX + 44, ringY - 4)
+
+            hudCtx.font = '600 16px "Courier New", monospace'
+            hudCtx.fillStyle = '#38BDF8'
+            hudCtx.fillText('ESTABLISHING SECURE ZERO-TRUST SSO SESSION', ringX + 44, ringY + 22)
           }
+
+          hudCtx.restore()
+          hudTexture.needsUpdate = true
         }
       }
-      ctx.globalAlpha = 1
 
-      // ==========================================
-      // STAGE 2: 3D ROTATING HOLOGRAPHIC RINGS
-      // ==========================================
-      const ringScale = Math.min(1, elapsed / 2.0)
-      const ringRot = elapsed * 0.8
-      const ringRadius = Math.min(w, h) * 0.22 * ringScale
+      // Render WebGL Scene with 3D HUD
+      renderer.render(scene, camera)
 
-      // Ring 1: Violet/Indigo Eclipse
-      ctx.save()
-      ctx.translate(cx, cy)
-      ctx.rotate(ringRot)
-      ctx.beginPath()
-      ctx.ellipse(0, 0, ringRadius, ringRadius * 0.45, Math.PI / 4, 0, Math.PI * 2)
-      ctx.strokeStyle = '#8B6DE9'
-      ctx.lineWidth = 2.5
-      ctx.shadowColor = '#8B6DE9'
-      ctx.shadowBlur = 20
-      ctx.globalAlpha = Math.min(0.85, elapsed * 0.6)
-      ctx.stroke()
-      ctx.restore()
-
-      // Ring 2: Emerald/Teal Harmonic Counter-Rotation
-      ctx.save()
-      ctx.translate(cx, cy)
-      ctx.rotate(-ringRot * 1.3)
-      ctx.beginPath()
-      ctx.ellipse(0, 0, ringRadius * 0.9, ringRadius * 0.35, -Math.PI / 4, 0, Math.PI * 2)
-      ctx.strokeStyle = '#10B981'
-      ctx.lineWidth = 1.8
-      ctx.shadowColor = '#10B981'
-      ctx.shadowBlur = 18
-      ctx.globalAlpha = Math.min(0.75, elapsed * 0.5)
-      ctx.stroke()
-      ctx.restore()
-
-      // Central Pulsing Starlight Core
-      const pulse = 1 + Math.sin(elapsed * 4) * 0.12
-      const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 70 * pulse)
-      coreGrad.addColorStop(0, 'rgba(255, 255, 255, 0.95)')
-      coreGrad.addColorStop(0.2, 'rgba(139, 109, 233, 0.7)')
-      coreGrad.addColorStop(0.5, 'rgba(98, 91, 235, 0.25)')
-      coreGrad.addColorStop(1, 'rgba(0, 0, 0, 0)')
-      ctx.fillStyle = coreGrad
-      ctx.beginPath()
-      ctx.arc(cx, cy, 70 * pulse, 0, Math.PI * 2)
-      ctx.fill()
-
-      // ==========================================
-      // STAGE 3: EMBLEM DRAWING (2.5s – 4.5s)
-      // ==========================================
-      if (elapsed > 2.0) {
-        const emblemProgress = Math.min(1, (elapsed - 2.0) / 1.5)
-        const emblemSize = 44 * Math.min(1, (elapsed - 2.0) * 1.5)
-
-        ctx.save()
-        ctx.translate(cx, cy - (elapsed >= 4.5 ? Math.min(75, (elapsed - 4.5) * 60) : 0))
-        ctx.globalAlpha = Math.min(1, (elapsed - 2.0) * 1.2)
-        ctx.shadowColor = '#8B6DE9'
-        ctx.shadowBlur = 25
-
-        // Outer Shield Silhouette
-        ctx.beginPath()
-        ctx.moveTo(0, -emblemSize)
-        ctx.quadraticCurveTo(emblemSize, -emblemSize * 0.8, emblemSize, 0)
-        ctx.quadraticCurveTo(emblemSize * 0.8, emblemSize, 0, emblemSize * 1.3)
-        ctx.quadraticCurveTo(-emblemSize * 0.8, emblemSize, -emblemSize, 0)
-        ctx.quadraticCurveTo(-emblemSize, -emblemSize * 0.8, 0, -emblemSize)
-        ctx.closePath()
-
-        ctx.strokeStyle = '#FFFFFF'
-        ctx.lineWidth = 2.5
-        ctx.stroke()
-
-        // Inner Graduation / AI Sparkle
-        ctx.beginPath()
-        ctx.arc(0, 0, emblemSize * 0.35, 0, Math.PI * 2 * emblemProgress)
-        ctx.strokeStyle = '#10B981'
-        ctx.lineWidth = 2
-        ctx.stroke()
-
-        ctx.restore()
+      // Mirror WebGL frame to 2D recording canvas for video capture
+      if (recordCtxRef.current && recordCanvasRef.current) {
+        recordCtxRef.current.drawImage(
+          renderer.domElement,
+          0,
+          0,
+          recordCanvasRef.current.width,
+          recordCanvasRef.current.height
+        )
       }
 
-      // ==========================================
-      // STAGE 4: "Welcome to Edusing" ENTRANCE (4.5s – 7.5s)
-      // ==========================================
-      if (elapsed >= 4.2) {
-        const textProgress = Math.min(1, (elapsed - 4.2) / 1.0)
-        const textAlpha = textProgress
-        const textYOffset = (1 - textProgress) * 25
-
-        ctx.save()
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-
-        // Font calculation based on viewport
-        const fontSize = Math.min(54, Math.max(30, w * 0.055))
-        ctx.font = `900 ${fontSize}px "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif`
-
-        // Glowing backdrop behind text
-        ctx.shadowColor = 'rgba(139, 109, 233, 0.9)'
-        ctx.shadowBlur = 35 * textProgress
-        ctx.globalAlpha = textAlpha
-
-        // Metallic / Iridescent Silver Gradient
-        const textGrad = ctx.createLinearGradient(cx - 250, cy + 10, cx + 250, cy + 10)
-        textGrad.addColorStop(0, '#FFFFFF')
-        textGrad.addColorStop(0.35, '#E0E7FF')
-        textGrad.addColorStop(0.5, '#C4B5FD')
-        textGrad.addColorStop(0.7, '#A78BFA')
-        textGrad.addColorStop(1, '#FFFFFF')
-
-        ctx.fillStyle = textGrad
-        ctx.fillText('Welcome to Edusing', cx, cy + 20 + textYOffset)
-
-        // Shimmer specular sweep across letters (5.4s – 6.6s)
-        if (elapsed > 5.2 && elapsed < 6.8) {
-          const sweepX = cx - 300 + ((elapsed - 5.2) / 1.6) * 600
-          const sweepGrad = ctx.createLinearGradient(sweepX - 60, 0, sweepX + 60, 0)
-          sweepGrad.addColorStop(0, 'rgba(255,255,255,0)')
-          sweepGrad.addColorStop(0.5, 'rgba(255,255,255,0.85)')
-          sweepGrad.addColorStop(1, 'rgba(255,255,255,0)')
-
-          ctx.fillStyle = sweepGrad
-          ctx.fillText('Welcome to Edusing', cx, cy + 20 + textYOffset)
-        }
-
-        // Subtitle Entrance (5.0s+)
-        if (elapsed >= 5.0) {
-          const subProgress = Math.min(1, (elapsed - 5.0) / 0.8)
-          ctx.globalAlpha = subProgress * (elapsed < 7.5 ? 0.9 : 0)
-          ctx.font = `600 ${Math.max(12, fontSize * 0.32)}px "Inter", sans-serif`
-          ctx.fillStyle = '#94A3B8'
-          ctx.shadowBlur = 10
-          ctx.fillText('Next-Gen AI Academic & Biometric Operations Suite', cx, cy + 70)
-        }
-
-        ctx.restore()
-      }
-
-      // ==========================================
-      // STAGE 5: REDIRECTION TRANSITION (7.5s – 10.0s)
-      // ==========================================
-      if (elapsed >= 7.3) {
-        const redProgress = Math.min(1, (elapsed - 7.3) / 0.8)
-        const countdownPercent = Math.min(100, Math.floor(((elapsed - 7.3) / 2.7) * 100))
-
-        ctx.save()
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'middle'
-        ctx.globalAlpha = redProgress
-
-        // Status Card Pill
-        const pillY = cy + 75
-        const pillW = Math.min(360, w * 0.85)
-        const pillH = 46
-
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)'
-        ctx.strokeStyle = '#38BDF8'
-        ctx.lineWidth = 1.5
-        ctx.shadowColor = '#38BDF8'
-        ctx.shadowBlur = 18
-
-        // Rounded rect pill
-        ctx.beginPath()
-        ctx.roundRect(cx - pillW / 2, pillY - pillH / 2, pillW, pillH, 16)
-        ctx.fill()
-        ctx.stroke()
-
-        // Circular progress ring inside pill
-        const ringX = cx - pillW / 2 + 28
-        const ringY = pillY
-        ctx.beginPath()
-        ctx.arc(ringX, ringY, 11, 0, Math.PI * 2)
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)'
-        ctx.lineWidth = 2.5
-        ctx.stroke()
-
-        ctx.beginPath()
-        ctx.arc(ringX, ringY, 11, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * countdownPercent) / 100)
-        ctx.strokeStyle = '#10B981'
-        ctx.lineWidth = 2.5
-        ctx.stroke()
-
-        // Redirection Text
-        ctx.font = '700 13px "Inter", sans-serif'
-        ctx.fillStyle = '#FFFFFF'
-        ctx.shadowBlur = 0
-        ctx.fillText(`Redirecting to Login Portal... ${countdownPercent}%`, cx + 12, pillY)
-
-        ctx.restore()
-      }
-
-      // ==========================================
-      // STAGE 6: PORTAL WARP & REDIRECT (9.2s – 10.0s)
-      // ==========================================
-      if (elapsed >= 9.0) {
-        const warpProgress = (elapsed - 9.0) / 1.0 // 0 to 1
-        ctx.save()
-        const warpRadius = Math.max(w, h) * warpProgress * 1.5
-        const warpGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, warpRadius)
-        warpGrad.addColorStop(0, 'rgba(255, 255, 255, 0.98)')
-        warpGrad.addColorStop(0.4, 'rgba(139, 109, 233, 0.8)')
-        warpGrad.addColorStop(0.8, 'rgba(98, 91, 235, 0.4)')
-        warpGrad.addColorStop(1, 'rgba(15, 23, 42, 0)')
-
-        ctx.fillStyle = warpGrad
-        ctx.globalAlpha = Math.min(1, warpProgress * 1.3)
-        ctx.beginPath()
-        ctx.arc(cx, cy, warpRadius, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.restore()
-      }
-
-      // Check if animation finished (10.0s)
+      // ----------------------------------------------------
+      // PHASE 6: COMPLETION & REDIRECT AT 10.0s
+      // ----------------------------------------------------
       if (elapsed >= DURATION) {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-          mediaRecorderRef.current.stop()
+          try {
+            mediaRecorderRef.current.requestData()
+          } catch (e) {}
+          setTimeout(() => {
+            if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+              mediaRecorderRef.current.stop()
+            }
+          }, 150)
         }
         setIsRedirecting(true)
 
         const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null
-        const isNoRedirect = urlParams?.has('noredirect') || (typeof window !== 'undefined' && (window as any).__NO_REDIRECT)
+        const isNoRedirect =
+          urlParams?.has('noredirect') || (typeof window !== 'undefined' && (window as any).__NO_REDIRECT)
 
         if (!isNoRedirect) {
           setTimeout(() => {
             router.push('/?from=welcome')
-          }, 1800)
+          }, 1500)
         }
         return
       }
 
-      if (isPlaying) {
+      if (isPlayingRef.current) {
         animationFrameId.current = requestAnimationFrame(render)
       }
     }
@@ -499,10 +662,29 @@ export function WelcomeClient() {
     animationFrameId.current = requestAnimationFrame(render)
 
     return () => {
-      window.removeEventListener('resize', updateSize)
+      window.removeEventListener('resize', handleResize)
       if (animationFrameId.current) cancelAnimationFrame(animationFrameId.current)
+      renderer.dispose()
+      starGeometry.dispose()
+      starMaterial.dispose()
+      outerGeo.dispose()
+      outerMat.dispose()
+      innerGeo.dispose()
+      innerMat.dispose()
+      plasmaGeo.dispose()
+      plasmaMat.dispose()
+      ring1Geo.dispose()
+      ring1Mat.dispose()
+      ring2Geo.dispose()
+      ring2Mat.dispose()
+      ring3Geo.dispose()
+      ring3Mat.dispose()
+      shockwaveGeo.dispose()
+      shockwaveMat.dispose()
+      hudTexture.dispose()
+      hudMat.dispose()
     }
-  }, [isPlaying, DURATION, hasRecorded, isRecording, playAmbientSound, router, startRecording])
+  }, [])
 
   const handleReplay = () => {
     startTimeRef.current = null
@@ -510,81 +692,130 @@ export function WelcomeClient() {
     setCurrentTime(0)
     setIsRedirecting(false)
     setIsPlaying(true)
-    startRecording()
-  }
-
-  const handleToggleFullscreen = () => {
-    if (!containerRef.current) return
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(console.warn)
-    } else {
-      document.exitFullscreen().catch(console.warn)
+    isPlayingRef.current = true
+    if (canvasContainerRef.current) {
+      const canvas = canvasContainerRef.current.querySelector('canvas')
+      if (canvas) startRecording(canvas)
     }
   }
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      pausedTimeRef.current = currentTime
+      isPlayingRef.current = false
+      setIsPlaying(false)
+    } else {
+      startTimeRef.current = performance.now() - pausedTimeRef.current * 1000
+      isPlayingRef.current = true
+      setIsPlaying(true)
+      if (canvasContainerRef.current) {
+        const canvas = canvasContainerRef.current.querySelector('canvas')
+        if (canvas) {
+          animationFrameId.current = requestAnimationFrame(() => {})
+        }
+      }
+    }
+  }
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().then(() => setIsFullscreen(true)).catch(console.warn)
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(console.warn)
+    }
+  }
+
+  const showWarpFlash = currentTime >= 9.2
+  const warpFlashOpacity = Math.min(1, Math.max(0, (currentTime - 9.2) / 0.8))
 
   return (
     <div
       ref={containerRef}
-      className="relative min-h-screen w-full bg-[#07090E] text-white flex flex-col justify-between overflow-hidden select-none"
+      className="fixed inset-0 w-screen h-screen overflow-hidden bg-[#030712] select-none z-50 flex flex-col justify-between"
     >
-      {/* Top Controls Overlay */}
-      <header className="relative z-20 w-full max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] flex items-center justify-center text-white font-bold shadow-lg shadow-[#8B6DE9]/30">
-            <ShieldCheck className="w-5 h-5" />
+      {/* 3D WebGL Canvas Layer - Fills entire 100vw x 100vh display */}
+      <div
+        ref={canvasContainerRef}
+        className="absolute inset-0 w-full h-full z-0 block cursor-pointer"
+        onClick={togglePlay}
+      />
+
+      {/* Cybernetic Tech Scanlines and Radial Vignette */}
+      <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0)_0%,rgba(3,7,18,0.6)_80%,rgba(3,7,18,0.92)_100%)]" />
+      <div
+        className="absolute inset-0 pointer-events-none z-10 opacity-[0.05] bg-[linear-gradient(rgba(255,255,255,0)_50%,rgba(0,0,0,0.8)_50%)]"
+        style={{ backgroundSize: '100% 4px' }}
+      />
+
+      {/* ============================================================== */}
+      {/* TOP HEADER OVERLAY: Minimalist Glassmorphic Telemetry Bar      */}
+      {/* ============================================================== */}
+      <header className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 pt-5 sm:pt-6 flex items-center justify-between pointer-events-auto">
+        <div className="flex items-center gap-3.5 backdrop-blur-md bg-black/40 px-4 py-2 rounded-2xl border border-white/10 shadow-2xl">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#8B6DE9] via-[#625BEB] to-[#38BDF8] flex items-center justify-center text-white shadow-lg shadow-[#8B6DE9]/40">
+            <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <div>
-            <h1 className="text-base font-black tracking-tight flex items-center gap-2">
-              EduSync <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#8B6DE9]/30 border border-[#8B6DE9]/50 text-purple-200">AI MOTION</span>
-            </h1>
-            <p className="text-[11px] text-slate-400 font-medium">10-Second Welcome Motion Graphics Sequence</p>
+            <div className="flex items-center gap-2">
+              <span className="text-base font-black tracking-tight text-white flex items-center gap-1.5">
+                EduSync <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#8B6DE9]/30 text-purple-200 border border-[#8B6DE9]/40 font-mono font-bold">4K 3D</span>
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-400 font-mono tracking-wider">AI ACADEMIC & BIOMETRIC SUITE</p>
           </div>
         </div>
 
         {/* Action Controls */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 backdrop-blur-md bg-black/40 p-1.5 rounded-2xl border border-white/10 shadow-2xl">
+          {/* Sound Toggle */}
           <button
             type="button"
             onClick={() => setIsMuted(!isMuted)}
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold transition-all cursor-pointer shadow-xs"
+            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-all cursor-pointer"
             title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
           >
-            {isMuted ? <VolumeX className="w-4 h-4 text-slate-300" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+            {isMuted ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
           </button>
 
+          {/* Fullscreen Toggle */}
           <button
             type="button"
-            onClick={handleToggleFullscreen}
-            className="p-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white text-xs font-bold transition-all cursor-pointer shadow-xs hidden sm:flex"
-            title="Toggle Fullscreen"
+            onClick={toggleFullscreen}
+            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-all cursor-pointer"
+            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen (1080p/4K)'}
           >
-            <Maximize2 className="w-4 h-4 text-slate-300" />
+            {isFullscreen ? <Minimize2 className="w-4 h-4 text-purple-300" /> : <Maximize2 className="w-4 h-4 text-slate-300" />}
           </button>
 
+          {/* Download 1080p/4K Video */}
           {downloadUrl ? (
             <a
               href={downloadUrl}
-              download="edusing_welcome_10s.webm"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-lg transition-all cursor-pointer"
+              download="edusync_welcome_10s_4k.webm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
+              title="Download 10-Second 60FPS WebM Video"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Download Video</span>
+              <span className="hidden sm:inline">Download Video</span>
             </a>
           ) : (
             <a
               href="/edusing_welcome_10s.webm"
-              download
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 border border-white/20 text-white text-xs font-bold transition-all cursor-pointer"
+              download="edusync_welcome_10s_4k.webm"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-white text-xs font-bold transition-all cursor-pointer"
+              title="Export 10s WebM Video"
             >
-              <Download className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 text-slate-300" />
               <span className="hidden sm:inline">Export Video</span>
             </a>
           )}
 
+          {/* Skip Directly to Login */}
           <button
             type="button"
             onClick={() => router.push('/?from=skip')}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#8B6DE9] hover:bg-[#7A5CE5] text-white text-xs font-black shadow-lg shadow-[#8B6DE9]/30 transition-all cursor-pointer active:scale-95"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#8B6DE9] to-[#625BEB] hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-[#8B6DE9]/30 transition-all cursor-pointer active:scale-95"
           >
             <span>Skip to Login</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -592,54 +823,28 @@ export function WelcomeClient() {
         </div>
       </header>
 
-      {/* Center Screen: High-FPS Canvas Motion Graphics Engine */}
-      <main className="relative z-10 flex-1 w-full flex items-center justify-center p-2 sm:p-4">
-        <div className="relative w-full max-w-6xl aspect-video rounded-3xl overflow-hidden shadow-2xl border border-slate-800/80 bg-black flex items-center justify-center">
-          <canvas
-            ref={canvasRef}
-            className="w-full h-full object-contain cursor-pointer"
-            onClick={() => setIsPlaying(!isPlaying)}
-          />
+      {/* ============================================================== */}
+      {/* FULLSCREEN HYPER-SPACE WARP FLASH (9.2s – 10.0s)               */}
+      {/* ============================================================== */}
+      {showWarpFlash && (
+        <div
+          className="absolute inset-0 pointer-events-none z-40 transition-opacity duration-200"
+          style={{
+            opacity: warpFlashOpacity,
+            background:
+              'radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(168,85,247,0.85) 45%, rgba(67,56,202,0.95) 80%, rgba(3,7,18,1) 100%)',
+          }}
+        />
+      )}
 
-          {/* Replay Overlay when video finishes */}
-          {currentTime >= DURATION && (
-            <div className="absolute inset-0 bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center gap-4 animate-in fade-in">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] flex items-center justify-center text-white shadow-xl shadow-[#8B6DE9]/40 animate-pulse">
-                <Sparkles className="w-8 h-8" />
-              </div>
-              <h2 className="text-2xl font-black text-white">Redirecting to University Login...</h2>
-              <p className="text-xs text-slate-300 max-w-md text-center">
-                Authentication terminal active. Click below to re-watch the motion graphics animation or enter the portal immediately.
-              </p>
-              <div className="flex items-center gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={handleReplay}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all cursor-pointer"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  <span>Replay Animation (10s)</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => router.push('/?from=intro')}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#8B6DE9] hover:bg-[#7A5CE5] text-white text-xs font-black shadow-lg shadow-[#8B6DE9]/40 transition-all cursor-pointer"
-                >
-                  <span>Go to Login Now</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Bottom Timeline Bar */}
-      <footer className="relative z-20 w-full max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-2">
+      {/* ============================================================== */}
+      {/* BOTTOM CONTROLS & TIMELINE BAR                                 */}
+      {/* ============================================================== */}
+      <footer className="relative z-30 w-full max-w-5xl mx-auto px-4 sm:px-8 pb-5 sm:pb-6 flex flex-col gap-2.5 pointer-events-auto">
         {/* Progress Scrub Bar */}
-        <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden relative">
+        <div className="w-full h-1.5 sm:h-2 rounded-full bg-white/10 overflow-hidden relative backdrop-blur-md">
           <div
-            className="h-full bg-gradient-to-r from-[#8B6DE9] via-[#38BDF8] to-[#10B981] transition-all duration-75"
+            className="h-full bg-gradient-to-r from-[#8B6DE9] via-[#38BDF8] to-[#10B981] transition-all duration-75 shadow-[0_0_12px_rgba(56,189,248,0.8)]"
             style={{ width: `${(currentTime / DURATION) * 100}%` }}
           />
         </div>
@@ -648,14 +853,22 @@ export function WelcomeClient() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-white transition-colors cursor-pointer"
+              onClick={togglePlay}
+              className="p-1.5 rounded-lg hover:bg-white/10 text-white transition-colors cursor-pointer flex items-center gap-1.5"
             >
-              {isPlaying ? <span className="font-bold">❚❚ Pause</span> : <Play className="w-3.5 h-3.5 fill-white" />}
+              {isPlaying ? (
+                <span className="font-bold">❚❚ Pause</span>
+              ) : (
+                <>
+                  <Play className="w-3.5 h-3.5 fill-white text-white" />
+                  <span>Play</span>
+                </>
+              )}
             </button>
             <button
               type="button"
               onClick={handleReplay}
+              title="Replay from 0.0s"
               className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 transition-colors cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -668,14 +881,47 @@ export function WelcomeClient() {
           <div className="flex items-center gap-3 text-[11px]">
             {isRecording && (
               <span className="inline-flex items-center gap-1.5 text-rose-400 font-bold animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-rose-500" />
-                <span>Recording 60FPS WebM Video</span>
+                <span className="w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500" />
+                <span className="hidden xs:inline">Recording 4K 60FPS WebM</span>
               </span>
             )}
-            <span className="text-slate-500">Auto-redirects to SSO Login at 10.0s</span>
+            <span className="text-slate-400 font-medium">Automatic Transition to Login at 10.0s</span>
           </div>
         </div>
       </footer>
+
+      {/* Replay Modal Overlay if user pauses or stays on page */}
+      {currentTime >= DURATION && !isRedirecting && (
+        <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-xl flex flex-col items-center justify-center gap-4 animate-in fade-in">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] flex items-center justify-center text-white shadow-2xl shadow-[#8B6DE9]/50 animate-bounce">
+            <Sparkles className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black text-white text-center">
+            Welcome to EduSync
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-300 max-w-md text-center">
+            The 10-second 4K motion graphics sequence has concluded. Redirecting you to institutional authentication.
+          </p>
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleReplay}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Replay 4K Animation</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push('/?from=welcome')}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8B6DE9] to-[#625BEB] hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-[#8B6DE9]/40 transition-all cursor-pointer"
+            >
+              <span>Enter Portal</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

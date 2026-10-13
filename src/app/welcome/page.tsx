@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { WelcomeClient } from './WelcomeClient'
 
 export const metadata: Metadata = {
-  title: 'Welcome to Edusing — 10-Second Modern Motion Graphics',
-  description: 'Welcome to Edusing AI Academic & Biometric Operations Suite.',
+  title: 'Welcome to EduSync — 10-Second 4K 3D Motion Graphics',
+  description: 'Welcome to EduSync AI Next-Generation Academic & Biometric Ecosystem.',
 }
 
 export default function WelcomePage() {

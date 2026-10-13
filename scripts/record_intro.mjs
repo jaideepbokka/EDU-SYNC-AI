@@ -11,6 +11,11 @@ async function run() {
   console.log('Chrome Path:', CHROME_PATH)
   console.log('Target URL:', TARGET_URL)
 
+  // Remove old video to ensure fresh 4K recording
+  if (fs.existsSync(VIDEO_PATH)) {
+    fs.unlinkSync(VIDEO_PATH)
+  }
+
   const browser = await puppeteer.launch({
     executablePath: CHROME_PATH,
     headless: 'shell',
@@ -18,13 +23,17 @@ async function run() {
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
+      '--use-gl=angle',
+      '--enable-webgl',
+      '--ignore-gpu-blocklist',
       '--autoplay-policy=no-user-gesture-required',
-      '--window-size=1280,720',
+      '--window-size=1920,1080',
       '--use-fake-ui-for-media-stream',
     ],
     defaultViewport: {
-      width: 1280,
-      height: 720,
+      width: 1920,
+      height: 1080,
+      deviceScaleFactor: 2,
     },
   })
 
@@ -38,17 +47,17 @@ async function run() {
 
     console.log('Page loaded. Waiting for 10-second animation and video generation...')
     
-    // Wait for the video to be saved and recorded
+    // Wait for the full 10-second animation to finish and save
     let recorded = false
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 25; i++) {
       await new Promise((r) => setTimeout(r, 1000))
       const isSaved = await page.evaluate(() => Boolean(window.__VIDEO_SAVED)).catch(() => false)
-      if (isSaved || (fs.existsSync(VIDEO_PATH) && fs.statSync(VIDEO_PATH).size > 10000)) {
-        console.log(`Video captured and saved at iteration ${i + 1}s!`)
+      if (i >= 10 && (isSaved || (fs.existsSync(VIDEO_PATH) && fs.statSync(VIDEO_PATH).size > 500000))) {
+        console.log(`\nVideo captured and saved at iteration ${i + 1}s!`)
         recorded = true
         break
       }
-      process.stdout.write(`Elapsed: ${i + 1}s...\r`)
+      process.stdout.write(`Elapsed: ${i + 1}s... \r`)
     }
 
     if (fs.existsSync(VIDEO_PATH)) {
