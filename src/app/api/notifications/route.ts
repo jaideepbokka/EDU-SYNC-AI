@@ -1,6 +1,18 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
+export async function GET() {
+  try {
+    const notifications = await prisma.notification.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    })
+    return NextResponse.json({ success: true, notifications })
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
