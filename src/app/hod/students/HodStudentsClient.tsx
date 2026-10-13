@@ -301,6 +301,22 @@ export function HodStudentsClient({ students }: HodStudentsClientProps) {
                   <span className="text-[#64748B]">Academic Risk Level:</span>
                   <span className="font-bold text-[#1E293B]">{selectedStudent.riskLevel}</span>
                 </div>
+                {selectedStudent.advisorNotes && (
+                  <div className="flex flex-col gap-0.5 pt-1 border-t border-slate-100">
+                    <span className="text-[#64748B] text-[10px] uppercase font-bold">Academic Status & Admission:</span>
+                    <span className="font-semibold text-[#0F766E] bg-teal-50/60 p-2 rounded-lg border border-teal-100">
+                      {selectedStudent.advisorNotes}
+                    </span>
+                  </div>
+                )}
+                {selectedStudent.address && (
+                  <div className="flex flex-col gap-0.5 pt-1 border-t border-slate-100">
+                    <span className="text-[#64748B] text-[10px] uppercase font-bold">Permanent Address:</span>
+                    <span className="text-[#1E293B] bg-slate-50 p-2 rounded-lg border border-slate-200 leading-relaxed text-[11px]">
+                      {selectedStudent.address}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 

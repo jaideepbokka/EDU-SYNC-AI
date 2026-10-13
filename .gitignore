@@ -62,3 +62,5 @@ android/app/build/
 android/build/
 android/local.properties
 *.apk
+
+.vercel

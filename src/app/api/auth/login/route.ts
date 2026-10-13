@@ -47,13 +47,14 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. If not found, check if it's a Student Roll No (e.g. 101) or Register No (e.g. CSE23A001)
+    // 3. If not found, check if it's a Student Roll No (e.g. 24221A0519, 519, 101) or Register No
     if (!user) {
       const student = await prisma.student.findFirst({
         where: {
           OR: [
-            { rollNo: input },
+            { rollNo: { equals: input, mode: 'insensitive' } },
             { registerNo: { equals: input.toUpperCase() } },
+            ...(input.length >= 3 ? [{ rollNo: { endsWith: input, mode: 'insensitive' as const } }] : []),
           ],
         },
         include: { user: true },

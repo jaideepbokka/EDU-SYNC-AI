@@ -83,6 +83,18 @@ export function LoginDashboardClient({
     setError('')
   }
 
+  const fillStudentDemo = () => {
+    setEmail('24221A0519')
+    setPassword('24221A0519')
+    setError('')
+  }
+
+  const fillFacultyDemo = () => {
+    setEmail('FAC101EDUSYNC@gmail.com')
+    setPassword('101')
+    setError('')
+  }
+
   return (
     <div className="relative min-h-screen bg-[#F2F3F5] text-[#292C32] flex flex-col justify-between overflow-hidden selection:bg-[#8B6DE9] selection:text-white">
       {/* Ambient background decoration */}
@@ -236,6 +248,24 @@ export function LoginDashboardClient({
                       className="text-[10px] font-bold px-2 py-1 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors cursor-pointer"
                     >
                       Fill HOD Demo
+                    </button>
+                  )}
+                  {activeTab === 'STUDENT' && (
+                    <button
+                      type="button"
+                      onClick={fillStudentDemo}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors cursor-pointer"
+                    >
+                      Demo: Bokka Jaideep (24221A0519)
+                    </button>
+                  )}
+                  {activeTab === 'FACULTY' && (
+                    <button
+                      type="button"
+                      onClick={fillFacultyDemo}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition-colors cursor-pointer"
+                    >
+                      Fill Faculty Demo
                     </button>
                   )}
                 </div>
