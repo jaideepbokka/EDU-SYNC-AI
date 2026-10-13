@@ -98,7 +98,7 @@ export function LoginDashboardClient({
   }
 
   return (
-    <div className="relative min-h-screen bg-[#F2F3F5] text-[#292C32] flex flex-col justify-between overflow-x-hidden selection:bg-[#8B6DE9] selection:text-white">
+    <div className="relative min-h-screen bg-[#F2F3F5] text-[#292C32] flex flex-col justify-between overflow-x-hidden selection:bg-[#8B6DE9] selection:text-white animate-in fade-in duration-500">
       {/* Ambient background decoration with subtle image blend */}
       <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
         <img

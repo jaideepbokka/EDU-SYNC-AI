@@ -3,18 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import * as THREE from 'three'
-import {
-  Play,
-  RotateCcw,
-  Download,
-  ArrowRight,
-  Maximize2,
-  Minimize2,
-  Volume2,
-  VolumeX,
-  Sparkles,
-  ShieldCheck,
-} from 'lucide-react'
+
 
 export function WelcomeClient() {
   const router = useRouter()
@@ -647,9 +636,7 @@ export function WelcomeClient() {
           urlParams?.has('noredirect') || (typeof window !== 'undefined' && (window as any).__NO_REDIRECT)
 
         if (!isNoRedirect) {
-          setTimeout(() => {
-            router.push('/?from=welcome')
-          }, 1500)
+          router.push('/?from=welcome')
         }
         return
       }
@@ -749,8 +736,8 @@ export function WelcomeClient() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [router])
 
-  const showWarpFlash = currentTime >= 9.2
-  const warpFlashOpacity = Math.min(1, Math.max(0, (currentTime - 9.2) / 0.8))
+  const showCleanTransition = currentTime >= 8.8
+  const transitionOpacity = Math.min(1, Math.max(0, (currentTime - 8.8) / 1.1))
 
   return (
     <div
@@ -772,51 +759,16 @@ export function WelcomeClient() {
         style={{ backgroundSize: '100% 4px' }}
       />
 
-      {/* ============================================================== */}
-      {/* FULLSCREEN HYPER-SPACE WARP FLASH (9.2s – 10.0s)               */}
-      {/* ============================================================== */}
-      {showWarpFlash && (
+      {/* Clean Smooth Light Crossfade Transition directly into Login Portal Canvas (#F2F3F5) */}
+      {showCleanTransition && (
         <div
-          className="absolute inset-0 pointer-events-none z-40 transition-opacity duration-200"
+          className="absolute inset-0 pointer-events-none z-40 transition-opacity ease-linear duration-100"
           style={{
-            opacity: warpFlashOpacity,
-            background:
-              'radial-gradient(circle at center, rgba(255,255,255,0.95) 0%, rgba(168,85,247,0.85) 45%, rgba(67,56,202,0.95) 80%, rgba(3,7,18,1) 100%)',
+            opacity: transitionOpacity,
+            backgroundColor: '#F2F3F5',
+            backdropFilter: `blur(${transitionOpacity * 8}px)`,
           }}
         />
-      )}
-
-      {/* Replay Modal Overlay if user pauses or stays on page */}
-      {currentTime >= DURATION && !isRedirecting && (
-        <div className="absolute inset-0 z-50 bg-black/85 backdrop-blur-xl flex flex-col items-center justify-center gap-4 animate-in fade-in">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-[#8B6DE9] to-[#625BEB] flex items-center justify-center text-white shadow-2xl shadow-[#8B6DE9]/50 animate-bounce">
-            <Sparkles className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white text-center">
-            Welcome to EduSync
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-300 max-w-md text-center">
-            The 10-second 4K motion graphics sequence has concluded. Redirecting you to institutional authentication.
-          </p>
-          <div className="flex items-center gap-3 pt-2">
-            <button
-              type="button"
-              onClick={handleReplay}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 border border-white/20 text-white text-xs font-bold transition-all cursor-pointer"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span>Replay 4K Animation</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push('/?from=welcome')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8B6DE9] to-[#625BEB] hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-[#8B6DE9]/40 transition-all cursor-pointer"
-            >
-              <span>Enter Portal</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
       )}
     </div>
   )
