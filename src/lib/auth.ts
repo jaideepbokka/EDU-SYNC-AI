@@ -6,7 +6,7 @@ export interface SessionUser {
   id: string
   name: string
   email: string
-  role: 'FACULTY' | 'STUDENT' | 'ADMIN'
+  role: 'FACULTY' | 'STUDENT' | 'ADMIN' | 'HOD'
   facultyId?: string
   studentId?: string
   departmentCode?: string
@@ -32,6 +32,19 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
 
   if (!user) {
     return null
+  }
+
+  if (user.role === 'HOD') {
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: 'HOD',
+      facultyId: user.faculty?.id,
+      departmentCode: user.faculty?.department?.code || 'CSE',
+      designation: user.faculty?.designation || 'Head of Department (HOD)',
+      avatar: user.avatar || '/avatars/faculty1.jpg',
+    }
   }
 
   if (user.role === 'STUDENT' && user.student) {
@@ -74,8 +87,19 @@ export async function requireFacultyUser(): Promise<SessionUser> {
   if (!user) {
     redirect('/?error=login_required&role=faculty')
   }
-  if (user.role !== 'FACULTY' && user.role !== 'ADMIN') {
+  if (user.role !== 'FACULTY' && user.role !== 'ADMIN' && user.role !== 'HOD') {
     redirect('/student?error=faculty_access_only')
+  }
+  return user
+}
+
+export async function requireHodUser(): Promise<SessionUser> {
+  const user = await getCurrentUser()
+  if (!user) {
+    redirect('/?error=login_required&role=hod')
+  }
+  if (user.role !== 'HOD' && user.role !== 'ADMIN') {
+    redirect('/?error=unauthorized&role=hod')
   }
   return user
 }

@@ -129,7 +129,6 @@ export function FacultySidebar({
           badge: pendingEvaluationsCount > 0 ? `${pendingEvaluationsCount}` : undefined,
           badgeColor: 'bg-[#625BEB] text-white',
         },
-        { label: 'Quiz & Topic Analysis', href: '/faculty/quiz-analysis', icon: BarChart3 },
         { label: 'Test History Log', href: '/faculty/test-history', icon: History },
       ],
     },

@@ -19,6 +19,8 @@ import {
   Play,
   ArrowRight,
   PieChart,
+  CreditCard,
+  Receipt,
 } from 'lucide-react'
 
 export const metadata = {
@@ -35,6 +37,7 @@ export default async function StudentDashboardPage() {
       include: {
         user: true,
         department: true,
+        fee: true,
         enrollments: {
           include: {
             courseOffering: {
@@ -166,6 +169,19 @@ export default async function StudentDashboardPage() {
                 {student.currentCgpa.toFixed(2)}
               </p>
             </div>
+            <Link
+              href="/student/fees"
+              className="px-4 py-3 rounded-2xl bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/25 text-center shadow-md transition-all cursor-pointer group hidden sm:block"
+            >
+              <p className="text-[10px] uppercase font-bold text-purple-200 flex items-center justify-center gap-1">
+                <span>Fees Status</span>
+                <ArrowRight className="w-2.5 h-2.5 group-hover:translate-x-0.5 transition-transform" />
+              </p>
+              <p className="text-xl font-black text-white">
+                {(student.fee?.dueAmount || 0) <= 0 ? '✓ Cleared' : `Due: ₹${student.fee?.dueAmount}`}
+              </p>
+              <span className="text-[9px] text-emerald-300 font-bold block">Min ₹55K Std</span>
+            </Link>
           </div>
         </div>
       </div>

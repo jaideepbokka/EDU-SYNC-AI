@@ -71,17 +71,29 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json(
         {
-          error: 'Access denied',
+          error: 'Access denied: User credentials not recognized.',
         },
         { status: 401 }
       )
+    }
+
+    // Strict Password Validation for HOD:
+    if (user.role === 'HOD' || inputLower === 'hodcse001@gmail.com') {
+      if (password !== 'HOD001') {
+        return NextResponse.json(
+          {
+            error: 'Invalid password. Please enter the designated HOD password.',
+          },
+          { status: 401 }
+        )
+      }
     }
 
     // Strict Role Enforcement: Selected tab MUST match user's registered role!
     if (role && user.role !== role) {
       return NextResponse.json(
         {
-          error: 'Access denied',
+          error: `Access denied: This account belongs to ${user.role} role.`,
         },
         { status: 403 }
       )
@@ -128,7 +140,7 @@ export async function POST(request: Request) {
       reason: `Logged in to ${user.role} portal with verified dataset identity`,
     })
 
-    const redirectUrl = user.role === 'STUDENT' ? '/student' : '/faculty'
+    const redirectUrl = user.role === 'STUDENT' ? '/student' : user.role === 'HOD' ? '/hod' : '/faculty'
 
     return NextResponse.json({
       success: true,

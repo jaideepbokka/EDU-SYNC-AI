@@ -19,16 +19,16 @@ import {
 } from 'lucide-react'
 
 interface LoginDashboardClientProps {
-  initialRole?: 'FACULTY' | 'STUDENT'
+  initialRole?: 'HOD' | 'FACULTY' | 'STUDENT'
   errorMessage?: string
 }
 
 export function LoginDashboardClient({
-  initialRole = 'FACULTY',
+  initialRole = 'HOD',
   errorMessage,
 }: LoginDashboardClientProps) {
   const router = useRouter()
-  const [activeTab, setActiveTab] = useState<'FACULTY' | 'STUDENT'>(initialRole)
+  const [activeTab, setActiveTab] = useState<'HOD' | 'FACULTY' | 'STUDENT'>(initialRole)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
@@ -65,7 +65,7 @@ export function LoginDashboardClient({
       }
 
       // Hard redirect to load role layouts cleanly
-      window.location.href = data.redirectUrl || (role === 'STUDENT' ? '/student' : '/faculty')
+      window.location.href = data.redirectUrl || (role === 'STUDENT' ? '/student' : role === 'HOD' ? '/hod' : '/faculty')
     } catch (err: any) {
       setError(err.message)
       setLoading(false)
@@ -75,6 +75,12 @@ export function LoginDashboardClient({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     handleLogin(email, password, activeTab)
+  }
+
+  const fillHodDemo = () => {
+    setEmail('HODCSE001@gmail.com')
+    setPassword('HOD001')
+    setError('')
   }
 
   return (
@@ -161,7 +167,25 @@ export function LoginDashboardClient({
           <div className="lg:col-span-7 w-full max-w-md mx-auto">
             <div className="rounded-3xl bg-white border border-[#E9EAF0] p-7 sm:p-9 shadow-xl shadow-[#292C32]/5 space-y-6">
               {/* Tab Selector */}
-              <div className="flex rounded-2xl bg-[#F2F3F5] p-1.5 border border-[#E9EAF0]">
+              <div className="flex rounded-2xl bg-[#F2F3F5] p-1.5 border border-[#E9EAF0] gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('HOD')
+                    setEmail('HODCSE001@gmail.com')
+                    setPassword('HOD001')
+                    setError('')
+                  }}
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-200 cursor-pointer ${
+                    activeTab === 'HOD'
+                      ? 'bg-[#292C32] text-white shadow-md'
+                      : 'text-[#85878F] hover:text-[#292C32]'
+                  }`}
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  <span>HOD Portal</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
@@ -170,14 +194,14 @@ export function LoginDashboardClient({
                     setPassword('')
                     setError('')
                   }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-200 cursor-pointer ${
                     activeTab === 'FACULTY'
                       ? 'bg-[#292C32] text-white shadow-md'
                       : 'text-[#85878F] hover:text-[#292C32]'
                   }`}
                 >
-                  <GraduationCap className="w-4 h-4" />
-                  <span>Faculty Portal</span>
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>Faculty</span>
                 </button>
 
                 <button
@@ -188,24 +212,37 @@ export function LoginDashboardClient({
                     setPassword('')
                     setError('')
                   }}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer ${
+                  className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-[11px] font-bold transition-all duration-200 cursor-pointer ${
                     activeTab === 'STUDENT'
                       ? 'bg-[#292C32] text-white shadow-md'
                       : 'text-[#85878F] hover:text-[#292C32]'
                   }`}
                 >
-                  <Users className="w-4 h-4" />
-                  <span>Student Portal</span>
+                  <Users className="w-3.5 h-3.5" />
+                  <span>Student</span>
                 </button>
               </div>
 
-              {/* Header Title */}
+              {/* Header Title & Demo Helper */}
               <div>
-                <h2 className="text-xl font-black text-[#292C32]">
-                  {activeTab === 'FACULTY' ? 'Faculty Sign-In' : 'Student Sign-In'}
-                </h2>
+                <div className="flex items-center justify-between">
+                  <h2 className="text-xl font-black text-[#292C32]">
+                    {activeTab === 'HOD' ? 'HOD Department Login' : activeTab === 'FACULTY' ? 'Faculty Sign-In' : 'Student Sign-In'}
+                  </h2>
+                  {activeTab === 'HOD' && (
+                    <button
+                      type="button"
+                      onClick={fillHodDemo}
+                      className="text-[10px] font-bold px-2 py-1 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition-colors cursor-pointer"
+                    >
+                      Fill HOD Demo
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-[#85878F] mt-1">
-                  {activeTab === 'FACULTY'
+                  {activeTab === 'HOD'
+                    ? 'Use HODCSE001@gmail.com with pass HOD001 to access EduSync AI HOD Portal.'
+                    : activeTab === 'FACULTY'
                     ? 'Enter your institutional faculty email or Faculty ID.'
                     : 'Enter your student email or Roll Number.'}
                 </p>
@@ -285,7 +322,11 @@ export function LoginDashboardClient({
                   ) : (
                     <>
                       <span>
-                        {activeTab === 'FACULTY' ? 'Sign In to Faculty Portal' : 'Sign In to Student Portal'}
+                        {activeTab === 'HOD'
+                          ? 'Sign In to HOD Department Portal'
+                          : activeTab === 'FACULTY'
+                          ? 'Sign In to Faculty Portal'
+                          : 'Sign In to Student Portal'}
                       </span>
                       <ArrowRight className="w-4 h-4" />
                     </>

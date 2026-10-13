@@ -22,6 +22,7 @@ import {
   Compass,
   ArrowRight,
   User,
+  CreditCard,
 } from 'lucide-react'
 
 interface StudentNavProps {
@@ -86,6 +87,14 @@ export function StudentNav({ user }: StudentNavProps) {
       href: '/student/assessments',
       icon: Award,
       description: 'Scheduled quizzes & AI instant grading',
+    },
+    {
+      label: 'Fees Details',
+      href: '/student/fees',
+      icon: CreditCard,
+      description: 'Semester tuition fees & receipts',
+      badge: 'MIN ₹55,000',
+      badgeColor: 'bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 font-bold',
     },
   ]
 

@@ -133,6 +133,7 @@ model Faculty {
   cabinNumber  String?
   cabinHours   String?
   phone        String?
+  status       String              @default("ACTIVE") // ACTIVE, OFF, INACTIVE
   departmentId String
   department   Department          @relation(fields: [departmentId], references: [id])
   offerings    CourseOffering[]
@@ -179,8 +180,30 @@ model Student {
   learningPaths        LearningPath[]
   riskProfiles         AcademicRisk[]
   interventions        FacultyIntervention[]
+  fee                  StudentFee?
   createdAt            DateTime            @default(now())
   updatedAt            DateTime            @updatedAt
+}
+
+model StudentFee {
+  id               String    @id @default(cuid())
+  studentId        String    @unique
+  student          Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  academicYear     String    @default("2025-2026")
+  totalFee         Float     @default(55000.0) // Minimum fees is 55,000
+  tuitionFee       Float     @default(55000.0)
+  specialLabFee    Float     @default(8500.0)
+  libraryFee       Float     @default(3500.0)
+  examFee          Float     @default(4000.0)
+  paidAmount       Float     @default(55000.0)
+  dueAmount        Float     @default(0.0)
+  status           String    @default("PAID") // PAID, PARTIAL, DUE
+  dueDate          DateTime?
+  lastPaymentDate  DateTime?
+  paymentReference String?
+  paymentMode      String?   @default("ONLINE_PORTAL")
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 // -------------------------------------------------------------
