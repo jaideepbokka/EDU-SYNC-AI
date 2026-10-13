@@ -7,6 +7,8 @@ export const metadata = {
   description: 'Manage face & geolocation attendance sessions and view live attendee logs.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function FacultyAttendancePage() {
   const [activeSession, pastSessions, courseOfferings] = await Promise.all([
     prisma.attendanceSession.findFirst({

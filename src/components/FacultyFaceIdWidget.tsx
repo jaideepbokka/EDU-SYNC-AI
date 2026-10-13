@@ -948,7 +948,7 @@ export function FacultyFaceIdWidget({ initialStudents }: FacultyFaceIdWidgetProp
           {/* Filters & Search */}
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex items-center bg-[#F2F3F5] p-1 rounded-xl border border-[#E9EAF0]">
-              {['ALL', 'A', 'B'].map((sec) => (
+              {['ALL', 'A', 'B', 'C'].map((sec) => (
                 <button
                   key={sec}
                   onClick={() => setSelectedSection(sec)}

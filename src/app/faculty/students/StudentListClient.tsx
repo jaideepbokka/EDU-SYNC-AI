@@ -285,7 +285,7 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
 
         {/* Section Filter */}
         <div className="flex items-center gap-1.5 bg-[#F2F3F5] p-1 rounded-xl border border-[#E9EAF0]">
-          {['ALL', 'A', 'B'].map((sec) => (
+          {['ALL', 'A', 'B', 'C'].map((sec) => (
             <button
               key={sec}
               onClick={() => setSelectedSection(sec)}
@@ -416,6 +416,7 @@ export function StudentListClient({ initialStudents }: StudentListClientProps) {
               >
                 <option value="A" className="bg-white text-[#292C32]">Section A</option>
                 <option value="B" className="bg-white text-[#292C32]">Section B</option>
+                <option value="C" className="bg-white text-[#292C32]">Section C</option>
               </select>
             </div>
             <div>

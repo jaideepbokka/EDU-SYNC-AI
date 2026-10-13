@@ -7,6 +7,8 @@ export const metadata = {
   description: 'Manage enrolled students, academic attendance, and risk profiles.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function FacultyStudentsPage() {
   const students = await prisma.student.findMany({
     include: {

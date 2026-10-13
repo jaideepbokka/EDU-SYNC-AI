@@ -203,9 +203,10 @@ export function TimetableClient({
             onChange={(e) => setSelectedSection(e.target.value)}
             className="text-xs font-medium rounded-xl border border-[#E9EAF0] bg-[#F2F3F5] text-[#292C32] px-3 py-2 focus:ring-2 focus:ring-[#8B6DE9] cursor-pointer"
           >
-            <option value="ALL">All Sections (A & B)</option>
+            <option value="ALL">All Sections (A, B & C)</option>
             <option value="A">Section A (LH-101)</option>
             <option value="B">Section B (LH-102)</option>
+            <option value="C">Section C (LH-103)</option>
           </select>
 
           {/* Faculty Filter */}
