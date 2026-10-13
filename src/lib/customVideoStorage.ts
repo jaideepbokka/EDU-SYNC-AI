@@ -93,6 +93,30 @@ export async function getCustomVideo(): Promise<{ url: string; data: CustomVideo
           },
         }
       }
+
+      // Check server API fallback
+      try {
+        const res = await fetch('/api/custom-welcome-video')
+        if (res.ok) {
+          const json = await res.json()
+          const config = json.customVideo || (json.videoUrl ? { url: json.videoUrl, name: 'Welcome Video' } : null)
+          if (config && config.url) {
+            return {
+              url: config.url,
+              data: {
+                blob: new Blob([]),
+                name: config.name || 'Welcome Video',
+                type: 'video/mp4',
+                size: config.size || 0,
+                updatedAt: config.updatedAt || Date.now(),
+              },
+            }
+          }
+        }
+      } catch (err) {
+        // Silently continue
+      }
+
       return null
     }
 

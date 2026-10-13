@@ -6,7 +6,11 @@ import * as THREE from 'three'
 import { Volume2, VolumeX } from 'lucide-react'
 import { getCustomVideo, hasCustomVideoSync } from '@/lib/customVideoStorage'
 
-export function WelcomeClient() {
+interface WelcomeClientProps {
+  initialVideoUrl?: string | null
+}
+
+export function WelcomeClient({ initialVideoUrl }: WelcomeClientProps = {}) {
   const router = useRouter()
   const canvasContainerRef = useRef<HTMLDivElement | null>(null)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -21,13 +25,10 @@ export function WelcomeClient() {
   const [isRedirecting, setIsRedirecting] = useState(false)
 
   // Custom Video Playback State
-  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(null)
-  const [isCustomMode, setIsCustomMode] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return hasCustomVideoSync()
-    }
-    return false
-  })
+  const [customVideoUrl, setCustomVideoUrl] = useState<string | null>(initialVideoUrl || null)
+  const [isCustomMode, setIsCustomMode] = useState<boolean>(
+    Boolean(initialVideoUrl) || (typeof window !== 'undefined' && hasCustomVideoSync())
+  )
   const [customTransitionProgress, setCustomTransitionProgress] = useState(0)
   const customVideoRef = useRef<HTMLVideoElement | null>(null)
 
@@ -43,20 +44,7 @@ export function WelcomeClient() {
         return
       }
 
-      // Secondary check: verify server upload
-      try {
-        const apiRes = await fetch('/api/custom-welcome-video')
-        if (apiRes.ok) {
-          const json = await apiRes.json()
-          if (json.exists && json.videoUrl && isMounted) {
-            setCustomVideoUrl(json.videoUrl)
-            setIsCustomMode(true)
-            return
-          }
-        }
-      } catch {}
-
-      if (isMounted) {
+      if (!initialVideoUrl && isMounted) {
         setIsCustomMode(false)
       }
     }
@@ -65,7 +53,55 @@ export function WelcomeClient() {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [initialVideoUrl])
+
+  // Direct autoplay enforcer to guarantee instant video playback on mount
+  useEffect(() => {
+    const video = customVideoRef.current
+    if (!video || !customVideoUrl) return
+
+    video.defaultMuted = true
+    video.muted = isMuted
+    video.playsInline = true
+
+    const attemptPlay = () => {
+      const p = video.play()
+      if (p !== undefined) {
+        p.then(() => {
+          setIsPlaying(true)
+        }).catch((err) => {
+          console.warn('Direct autoplay caught, forcing muted play:', err)
+          video.muted = true
+          setIsMuted(true)
+          video.play().catch(console.warn)
+        })
+      }
+    }
+
+    attemptPlay()
+
+    video.addEventListener('canplay', attemptPlay, { once: true })
+    video.addEventListener('loadeddata', attemptPlay, { once: true })
+    video.addEventListener('loadedmetadata', attemptPlay, { once: true })
+
+    const handleGesture = () => {
+      if (video.paused) {
+        video.play().catch(console.warn)
+      }
+    }
+    window.addEventListener('click', handleGesture, { once: true })
+    window.addEventListener('touchstart', handleGesture, { once: true })
+    window.addEventListener('keydown', handleGesture, { once: true })
+
+    return () => {
+      video.removeEventListener('canplay', attemptPlay)
+      video.removeEventListener('loadeddata', attemptPlay)
+      video.removeEventListener('loadedmetadata', attemptPlay)
+      window.removeEventListener('click', handleGesture)
+      window.removeEventListener('touchstart', handleGesture)
+      window.removeEventListener('keydown', handleGesture)
+    }
+  }, [customVideoUrl, isCustomMode, isMuted])
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const recordedChunksRef = useRef<Blob[]>([])
@@ -862,11 +898,18 @@ export function WelcomeClient() {
           autoPlay
           playsInline
           muted={isMuted}
+          preload="auto"
           className="fixed inset-0 w-full h-full object-cover z-0 bg-black cursor-pointer"
           onClick={togglePlay}
           onDoubleClick={toggleFullscreen}
           onTimeUpdate={handleCustomTimeUpdate}
           onEnded={handleCustomEnded}
+          onCanPlay={(e) => {
+            e.currentTarget.play().catch(() => {})
+          }}
+          onLoadedMetadata={(e) => {
+            e.currentTarget.play().catch(() => {})
+          }}
         />
       ) : (
         /* 3D WebGL Canvas Layer - Fills entire 100vw x 100vh display */

@@ -8,11 +8,11 @@ export async function GET() {
   try {
     if (fs.existsSync(CONFIG_FILE)) {
       const data = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'))
-      return NextResponse.json({ customVideo: data })
+      return NextResponse.json({ customVideo: data, exists: true, videoUrl: data.url })
     }
-    return NextResponse.json({ customVideo: null })
+    return NextResponse.json({ customVideo: null, exists: false, videoUrl: null })
   } catch (err: any) {
-    return NextResponse.json({ customVideo: null })
+    return NextResponse.json({ customVideo: null, exists: false, videoUrl: null })
   }
 }
 
