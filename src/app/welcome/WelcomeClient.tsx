@@ -726,6 +726,29 @@ export function WelcomeClient() {
     }
   }
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' || e.key === 'Enter') {
+        router.push('/?from=skip')
+      }
+      if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault()
+        togglePlay()
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen()
+      }
+      if (e.key === 'm' || e.key === 'M') {
+        setIsMuted((prev) => !prev)
+      }
+      if (e.key === 'r' || e.key === 'R') {
+        handleReplay()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [router])
+
   const showWarpFlash = currentTime >= 9.2
   const warpFlashOpacity = Math.min(1, Math.max(0, (currentTime - 9.2) / 0.8))
 
@@ -739,6 +762,7 @@ export function WelcomeClient() {
         ref={canvasContainerRef}
         className="absolute inset-0 w-full h-full z-0 block cursor-pointer"
         onClick={togglePlay}
+        onDoubleClick={toggleFullscreen}
       />
 
       {/* Cybernetic Tech Scanlines and Radial Vignette */}
@@ -747,81 +771,6 @@ export function WelcomeClient() {
         className="absolute inset-0 pointer-events-none z-10 opacity-[0.05] bg-[linear-gradient(rgba(255,255,255,0)_50%,rgba(0,0,0,0.8)_50%)]"
         style={{ backgroundSize: '100% 4px' }}
       />
-
-      {/* ============================================================== */}
-      {/* TOP HEADER OVERLAY: Minimalist Glassmorphic Telemetry Bar      */}
-      {/* ============================================================== */}
-      <header className="relative z-30 w-full max-w-7xl mx-auto px-4 sm:px-8 pt-5 sm:pt-6 flex items-center justify-between pointer-events-auto">
-        <div className="flex items-center gap-3.5 backdrop-blur-md bg-black/40 px-4 py-2 rounded-2xl border border-white/10 shadow-2xl">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#8B6DE9] via-[#625BEB] to-[#38BDF8] flex items-center justify-center text-white shadow-lg shadow-[#8B6DE9]/40">
-            <ShieldCheck className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-base font-black tracking-tight text-white flex items-center gap-1.5">
-                EduSync <span className="text-[10px] px-2 py-0.5 rounded-md bg-[#8B6DE9]/30 text-purple-200 border border-[#8B6DE9]/40 font-mono font-bold">4K 3D</span>
-              </span>
-            </div>
-            <p className="text-[10px] text-slate-400 font-mono tracking-wider">AI ACADEMIC & BIOMETRIC SUITE</p>
-          </div>
-        </div>
-
-        {/* Action Controls */}
-        <div className="flex items-center gap-2.5 backdrop-blur-md bg-black/40 p-1.5 rounded-2xl border border-white/10 shadow-2xl">
-          {/* Sound Toggle */}
-          <button
-            type="button"
-            onClick={() => setIsMuted(!isMuted)}
-            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-all cursor-pointer"
-            title={isMuted ? 'Unmute Sound' : 'Mute Sound'}
-          >
-            {isMuted ? <VolumeX className="w-4 h-4 text-slate-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
-          </button>
-
-          {/* Fullscreen Toggle */}
-          <button
-            type="button"
-            onClick={toggleFullscreen}
-            className="p-2.5 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-white transition-all cursor-pointer"
-            title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen (1080p/4K)'}
-          >
-            {isFullscreen ? <Minimize2 className="w-4 h-4 text-purple-300" /> : <Maximize2 className="w-4 h-4 text-slate-300" />}
-          </button>
-
-          {/* Download 1080p/4K Video */}
-          {downloadUrl ? (
-            <a
-              href={downloadUrl}
-              download="edusync_welcome_10s_4k.webm"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer"
-              title="Download 10-Second 60FPS WebM Video"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Download Video</span>
-            </a>
-          ) : (
-            <a
-              href="/edusing_welcome_10s.webm"
-              download="edusync_welcome_10s_4k.webm"
-              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/15 border border-white/10 text-white text-xs font-bold transition-all cursor-pointer"
-              title="Export 10s WebM Video"
-            >
-              <Download className="w-3.5 h-3.5 text-slate-300" />
-              <span className="hidden sm:inline">Export Video</span>
-            </a>
-          )}
-
-          {/* Skip Directly to Login */}
-          <button
-            type="button"
-            onClick={() => router.push('/?from=skip')}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-[#8B6DE9] to-[#625BEB] hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-[#8B6DE9]/30 transition-all cursor-pointer active:scale-95"
-          >
-            <span>Skip to Login</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      </header>
 
       {/* ============================================================== */}
       {/* FULLSCREEN HYPER-SPACE WARP FLASH (9.2s – 10.0s)               */}
@@ -836,59 +785,6 @@ export function WelcomeClient() {
           }}
         />
       )}
-
-      {/* ============================================================== */}
-      {/* BOTTOM CONTROLS & TIMELINE BAR                                 */}
-      {/* ============================================================== */}
-      <footer className="relative z-30 w-full max-w-5xl mx-auto px-4 sm:px-8 pb-5 sm:pb-6 flex flex-col gap-2.5 pointer-events-auto">
-        {/* Progress Scrub Bar */}
-        <div className="w-full h-1.5 sm:h-2 rounded-full bg-white/10 overflow-hidden relative backdrop-blur-md">
-          <div
-            className="h-full bg-gradient-to-r from-[#8B6DE9] via-[#38BDF8] to-[#10B981] transition-all duration-75 shadow-[0_0_12px_rgba(56,189,248,0.8)]"
-            style={{ width: `${(currentTime / DURATION) * 100}%` }}
-          />
-        </div>
-
-        <div className="flex items-center justify-between text-xs text-slate-400 font-mono">
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={togglePlay}
-              className="p-1.5 rounded-lg hover:bg-white/10 text-white transition-colors cursor-pointer flex items-center gap-1.5"
-            >
-              {isPlaying ? (
-                <span className="font-bold">❚❚ Pause</span>
-              ) : (
-                <>
-                  <Play className="w-3.5 h-3.5 fill-white text-white" />
-                  <span>Play</span>
-                </>
-              )}
-            </button>
-            <button
-              type="button"
-              onClick={handleReplay}
-              title="Replay from 0.0s"
-              className="p-1.5 rounded-lg hover:bg-white/10 text-slate-300 transition-colors cursor-pointer"
-            >
-              <RotateCcw className="w-3.5 h-3.5" />
-            </button>
-            <span>
-              {currentTime.toFixed(1)}s / {DURATION.toFixed(1)}s
-            </span>
-          </div>
-
-          <div className="flex items-center gap-3 text-[11px]">
-            {isRecording && (
-              <span className="inline-flex items-center gap-1.5 text-rose-400 font-bold animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-rose-500 shadow-sm shadow-rose-500" />
-                <span className="hidden xs:inline">Recording 4K 60FPS WebM</span>
-              </span>
-            )}
-            <span className="text-slate-400 font-medium">Automatic Transition to Login at 10.0s</span>
-          </div>
-        </div>
-      </footer>
 
       {/* Replay Modal Overlay if user pauses or stays on page */}
       {currentTime >= DURATION && !isRedirecting && (
